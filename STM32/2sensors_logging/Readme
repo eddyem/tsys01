@@ -1,0 +1,10 @@
+Example for STM32F042 nucleo working with TSYS-01 temperature sensor.
+Check temperature on two sensors with different addresses and show values by USART.
+USART speed 115200.
+
+Serial interface commands (ends with '\n'):
+
+- **C** show coefficients for both thermosensors
+- **R** reset both
+- **I** reinit I2C
+- **T** get temperature

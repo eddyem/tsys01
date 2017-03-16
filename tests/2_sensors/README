@@ -1,0 +1,12 @@
+Two sensors were glued by termoconducting paste to piece of glass. After that wrapped by two layers of thick "warm floor" substrate.
+Logger measured their temperatures every second.
+
+FILES:
+
+log - raw logged data. First column - UNIX time, second and third - T0 and T1 respectively.
+temp_avg100.png - moving average over 100 values
+temp_avg.png - moving average over 30 values
+temp_diffs.png - differences between raw temperatures and their moving averages
+temp.png - scattered plot of raw T0 and T1
+temp_t1-t0_avg100.png - differences of moving averages over 100 (T1 - T0)
+temp_t1-t0.png - differences of raw temperatures (T1 - T0)
