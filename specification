@@ -31,3 +31,6 @@ STM8S003F3P6         - 20
 N2A-06-T007R-350     - 4
 MAX485ECSA           - 10
 NUCLEO-F042K6        - 1
+
+ali:
+74HC4051D            - 100

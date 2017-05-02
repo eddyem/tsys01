@@ -1,12 +1,22 @@
 EESchema-DOCLIB  Version 2.0
 #
+$CMP 74HC4051
+D Multiplexer 8 to 1
+K TTL MUX8
+$ENDCMP
+#
 $CMP D_Schottky_x2_ACom_AKK
 D Dual schottky diode, common anode
 K diode
 $ENDCMP
 #
 $CMP PESD1CAN
-D Dual schottky diode, common anode
+D CAN bus ESD protection
+K diode
+$ENDCMP
+#
+$CMP USB6B1
+D USB bus ESD protection
 K diode
 $ENDCMP
 #
