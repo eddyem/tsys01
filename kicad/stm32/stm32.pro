@@ -1,4 +1,4 @@
-update=Чт 27 апр 2017 20:17:54
+update=Ср 03 май 2017 17:47:45
 version=1
 last_client=kicad
 [pcbnew]
@@ -62,3 +62,5 @@ LibName30=valves
 LibName31=stm32
 LibName32=vreg
 LibName33=elements
+LibName34=ESD_Protection
+LibName35=switches
