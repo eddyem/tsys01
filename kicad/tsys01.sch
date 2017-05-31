@@ -29,6 +29,7 @@ LIBS:atmel
 LIBS:contrib
 LIBS:valves
 LIBS:tsys01
+LIBS:elements
 LIBS:tsys01-cache
 EELAYER 25 0
 EELAYER END
@@ -215,4 +216,28 @@ Wire Wire Line
 Wire Wire Line
 	6500 2900 6500 3050
 NoConn ~ 5150 3400
+Text Notes 4850 1750 0    118  ~ 0
+Solder only R1 or R2\ndue to desired address
+$Comp
+L CONN_01X01 Hole1
+U 1 1 592E54A8
+P 1450 6250
+F 0 "Hole1" H 1450 6350 50  0000 C CNN
+F 1 "Hole 3mm" V 1550 6250 50  0000 C CNN
+F 2 "my_footprints:Hole_3mm" H 1450 6250 50  0001 C CNN
+F 3 "" H 1450 6250 50  0001 C CNN
+	1    1450 6250
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_01X01 Hole2
+U 1 1 592E5682
+P 1450 6750
+F 0 "Hole2" H 1450 6850 50  0000 C CNN
+F 1 "Hole 3mm" V 1550 6750 50  0000 C CNN
+F 2 "my_footprints:Hole_3mm" H 1450 6750 50  0001 C CNN
+F 3 "" H 1450 6750 50  0001 C CNN
+	1    1450 6750
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
