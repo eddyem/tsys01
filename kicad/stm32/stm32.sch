@@ -400,33 +400,33 @@ F 3 "" H 6400 6750 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L CONN_01X08 P10
+L CONN_02X08 P10
 U 1 1 5908B94B
-P 4400 8300
-F 0 "P10" H 4400 8750 50  0000 C CNN
-F 1 "Keyboard" V 4500 8300 50  0000 C CNN
-F 2 "Pin_Headers.pretty:Pin_Header_Straight_1x08" H 4400 8300 50  0001 C CNN
-F 3 "" H 4400 8300 50  0000 C CNN
-	1    4400 8300
+P 4000 8300
+F 0 "P10" H 4000 8750 50  0000 C CNN
+F 1 "Keyboard" H 4000 7800 50  0000 C CNN
+F 2 "Pin_Headers.pretty:Pin_Header_Straight_2x08_Pitch2.54mm" H 4000 8300 50  0001 C CNN
+F 3 "" H 4000 8300 50  0000 C CNN
+	1    4000 8300
 	1    0    0    -1  
 $EndComp
 Text Notes 3550 7700 0    60   ~ 0
 Marix keyboard 4x4 (opional)
-Text Label 4200 8250 2    60   ~ 0
+Text Label 3750 8250 2    60   ~ 0
 Row0
-Text Label 4200 8150 2    60   ~ 0
+Text Label 3750 8150 2    60   ~ 0
 Row1
-Text Label 4200 8050 2    60   ~ 0
+Text Label 3750 8050 2    60   ~ 0
 Row2
-Text Label 4200 7950 2    60   ~ 0
+Text Label 3750 7950 2    60   ~ 0
 Row3
-Text Label 4200 8650 2    60   ~ 0
+Text Label 3750 8650 2    60   ~ 0
 Col0
-Text Label 4200 8550 2    60   ~ 0
+Text Label 3750 8550 2    60   ~ 0
 Col1
-Text Label 4200 8450 2    60   ~ 0
+Text Label 3750 8450 2    60   ~ 0
 Col2
-Text Label 4200 8350 2    60   ~ 0
+Text Label 3750 8350 2    60   ~ 0
 Col3
 Text Label 17500 4900 0    60   ~ 0
 Row0
@@ -2486,4 +2486,30 @@ NoConn ~ 1950 10450
 NoConn ~ 1950 10700
 NoConn ~ 1950 10950
 NoConn ~ 1950 11200
+Text Notes 3400 8650 0    60   ~ 0
+7\n6\n5\n4\n3\n2\n1\n0
+Text Notes 3250 9200 0    60   ~ 0
+With jumpers you can assign an address\nto board; or use left row to connect\nmatrix keyboard
+Wire Wire Line
+	4250 7950 4250 8650
+Connection ~ 4250 8050
+Connection ~ 4250 8150
+Connection ~ 4250 8250
+Connection ~ 4250 8350
+Connection ~ 4250 8450
+Connection ~ 4250 8550
+$Comp
+L GND #PWR?
+U 1 1 595D2614
+P 4350 8650
+F 0 "#PWR?" H 4350 8400 50  0001 C CNN
+F 1 "GND" H 4350 8500 50  0000 C CNN
+F 2 "" H 4350 8650 50  0001 C CNN
+F 3 "" H 4350 8650 50  0001 C CNN
+	1    4350 8650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4250 8650 4350 8650
+Connection ~ 4250 8650
 $EndSCHEMATC
