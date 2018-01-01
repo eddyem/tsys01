@@ -1,4 +1,4 @@
-update=Пн 01 янв 2018 22:52:22
+update=Чт 11 май 2017 09:12:07
 version=1
 last_client=kicad
 [pcbnew]
@@ -64,4 +64,3 @@ LibName32=vreg
 LibName33=elements
 LibName34=ESD_Protection
 LibName35=switches
-LibName36=acs712
