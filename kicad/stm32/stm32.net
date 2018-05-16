@@ -1,7 +1,7 @@
 (export (version D)
   (design
-    (source /Big/Data/00__Electronics/STM32/TSYS01/git/kicad/stm32/stm32.sch)
-    (date "Сб 10 фев 2018 21:17:45")
+    (source /home/eddy/Dropbox/Projects/tsys01/kicad/stm32/stm32.sch)
+    (date "Пт 13 апр 2018 10:55:28")
     (tool "Eeschema 4.0.7")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -343,7 +343,7 @@
       (tstamp 590EB998))
     (comp (ref P1)
       (value RJ45-CAN_power)
-      (footprint Connector_RJ:RJ45_8)
+      (footprint RJ45:RJ45)
       (libsource (lib stm32-cache) (part CONN_01X08))
       (sheetpath (names /) (tstamps /))
       (tstamp 5910AA04))
@@ -535,7 +535,7 @@
       (tstamp 5A4CCE57))
     (comp (ref P14)
       (value RJ45-CAN_power)
-      (footprint Connector_RJ:RJ45_8)
+      (footprint RJ45:RJ45)
       (libsource (lib stm32-cache) (part CONN_01X08))
       (sheetpath (names /) (tstamps /))
       (tstamp 590E9D66))
@@ -947,7 +947,7 @@
     (library (logical stm32-rescue)
       (uri stm32-rescue.lib))
     (library (logical stm32-cache)
-      (uri /Big/Data/00__Electronics/STM32/TSYS01/git/kicad/stm32/stm32-cache.lib)))
+      (uri /home/eddy/Dropbox/Projects/tsys01/kicad/stm32/stm32-cache.lib)))
   (nets
     (net (code 1) (name /C7)
       (node (ref U6) (pin 4))

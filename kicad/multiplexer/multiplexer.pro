@@ -1,4 +1,4 @@
-update=Пт 13 апр 2018 09:41:34
+update=Ср 16 май 2018 14:40:14
 version=1
 last_client=kicad
 [pcbnew]
@@ -25,19 +25,14 @@ version=1
 NetIExt=net
 [general]
 version=1
-[schematic_editor]
-version=1
-PageLayoutDescrFile=
-PlotDirectoryName=
-SubpartIdSeparator=0
-SubpartFirstId=65
-NetFmtName=
-SpiceForceRefPrefix=0
-SpiceUseNetNumbers=0
-LabSize=60
 [eeschema]
 version=1
-LibDir=/home/eddy/kicad/Kicad-Libraries/library;/usr/share/kicad/kicad-symbols
+LibDir=/usr/share/kicad/kicad-symbols
 [eeschema/libraries]
-LibName1=stm32-rescue
-LibName2=acs712
+LibName1=74xx
+LibName2=Device
+LibName3=Connector
+LibName4=power
+LibName5=Connector_Generic
+LibName6=Connector_Generic_MountingPin
+LibName7=Regulator_Linear
