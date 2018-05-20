@@ -18,15 +18,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-#ifndef CLIENT
-
 #include "usefull_macros.h"
 #include "term.h"
 #include <strings.h> // strncasecmp
 #include <time.h>    // time(NULL)
 
 #define BUFLEN 1024
-uint8_t buf[BUFLEN+1]; // buffer for tty data
+char buf[BUFLEN+1]; // buffer for tty data
 
 typedef struct {
     int speed;  // communication speed in bauds/s
@@ -67,7 +65,98 @@ static spdtbl speeds[] = {
     {0,0}
 };
 
-static uint16_t coefficients[2][5] = {{0,0,0,0,0}, {0,0,0,0,0}}; // polinome coefficients for both termometers
+static uint16_t coefficients[NSENSORS][2][5]; // polinome coefficients for all 48 pairs of termometers
+static uint8_t present[NSENSORS][2]; // == 1 if sensor presents
+
+
+/**
+ * read string from terminal (with timeout) into buf
+ * @return number of characters read
+ */
+static size_t read_string(){
+    size_t r = 0, l, L = BUFLEN;
+    char *ptr = buf;
+    double d0 = dtime();
+    do{
+        if((l = read_tty(ptr, L))){
+            r += l; L -= l; ptr += l;
+            d0 = dtime();
+        }
+    }while(dtime() - d0 < WAIT_TMOUT);
+    *ptr = 0;
+    DBG("GOT string: %s, len: %zd\n", buf, r);
+    return r;
+}
+
+/*
+ * send command to controller
+ * @return 1 if OK
+ * @arg cmd - zero-terminated command
+ * @arg chk - ==0 if there's no need to omit answer
+ */
+static int send_command(char *cmd, int chk){
+    DBG("Send %s", cmd);
+    size_t L = strlen(cmd);
+    if(write_tty(cmd, L)){
+        DBG("Bad write");
+        return 0;
+    }
+    if(chk){
+        size_t L = read_string();
+        if(L == 0){
+        DBG("Bad answer");
+        return 0;
+    }}
+    return 1;
+}
+
+/*
+ * run procedure of sensors discovery
+ */
+static int detect_sensors(){
+    int i, amount = 0;
+    green("Find sensors\n");
+    for(i = 0; i < NSENSORS; ++i){
+        int j;
+        present[i][0] = 0; present[i][1] = 0;
+        for(j = 0; j < NTRY; ++j){
+            char obuf[5] = {0};
+            int found = 0;
+            snprintf(obuf, 4, "%d\n", i);
+            int bad = 0;
+            if(!send_command(obuf, 1)) bad = 1; // change line number
+            else if(!send_command(CMD_DISCOVERY, 0)) bad = 1; // discovery sensors
+            if(bad){ send_command(CMD_RESET,1); continue;}
+            size_t L = read_string();
+            DBG("sensors pair %d, got answer: %s", i, buf);
+            if(L == 0 || buf[0] == '\n') continue; // no sensors? Make another try
+            if(strchr(buf, '0')){
+                present[i][0] = 1;
+                DBG("found %d_0", i);
+                ++found;
+            }
+            if(strchr(buf, '1')){
+                present[i][1] = 1;
+                DBG("found %d_1", i);
+                ++found;
+            }
+            if(found == 2) break;
+        }
+    }
+    printf("\n");
+    for(i = 0; i < NSENSORS; ++i){
+        uint8_t p1 = present[i][1], p0 = present[i][0];
+        if(p1 || p0){
+            ++amount;
+            green("%d[", i);
+            if(p0) green("0");
+            if(p1) green("1");
+            green("] ");
+        }else red("%d ", i);
+    }
+    printf("\n");
+    return amount;
+}
 
 /**
  * test if `speed` is in .speed of `speeds` array
@@ -107,52 +196,17 @@ int create_log(char *name, int r){
     return fd;
 }
 
-/**
- * read string from terminal (with timeout) into buf
- * @return number of characters read
- */
-static size_t read_string(){
-    size_t r = 0, l, L = BUFLEN;
-    uint8_t *ptr = buf;
-    double d0 = dtime();
-    do{
-        if((l = read_tty(ptr, L))){
-            r += l; L -= l; ptr += l;
-            d0 = dtime();
-        }
-    }while(dtime() - d0 < WAIT_TMOUT);
-    *ptr = 0;
-    DBG("GOT string: %s, len: %zd\n", buf, r);
-    return r;
-}
-
-// send command. Return 1 if OK
-static int send_command(char *cmd, int chk){
-    DBG("Send %s", cmd);
-    if(write_tty((uint8_t*)cmd, 2)){
-        DBG("Bad write");
-        return 0;
-    }
-    if(chk){
-        size_t L = read_string();
-        if(L != 2 || buf[0] != cmd[0]){
-        DBG("Bad answer");
-        return 0;
-    }}
-    return 1;
-}
-
 // try to read coefficitents @return amount of sensors if all OK
-static int get_coefficients(){
+static int get_coefficients(int pairnum){
     send_command(CMD_CONSTANTS,0);
     size_t L = read_string();
     DBG("%zd", L);
     if(!L) return 0;
-    uint8_t *ptr = buf, *estr = NULL;
+    char *ptr = buf, *estr = NULL;
     do{
         char N, n; // number of sensor & coefficient
         int C;
-        estr = (uint8_t*)strchr((char*)ptr, '\n');
+        estr = strchr((char*)ptr, '\n');
         if(estr){*estr = 0; ++estr;}
         size_t amount = sscanf((char*)ptr, "K%c%c=%d", &N, &n, &C);
         DBG("in str\"%s\" got %zd values", ptr, amount);
@@ -160,7 +214,7 @@ static int get_coefficients(){
             N -= '0'; n -= '0';
             if((N==0 || N==1) && n < 5){
                 DBG("K[%d][%d] = %d", N, n, C);
-                coefficients[(int)N][(int)n] = (uint16_t)C;
+                coefficients[pairnum][(int)N][(int)n] = (uint16_t)C;
             }
         }
         ptr = estr;
@@ -170,13 +224,13 @@ static int get_coefficients(){
     for(i = 0; i < 2; ++i){ // sensor's number
         int j, k = 0;
         for(j = 0; j < 5; ++j){ // coeff.
-            if(coefficients[i][j]) ++k;
+            if(coefficients[pairnum][i][j]) ++k;
         }
-        if(k == 5){
-            green(_("Found sensor number %d\n"), i);
+        if(k == 5){ // check coefficients
             ++found;
         }
     }
+    DBG("%d sensors found for pair %d", found, pairnum);
     return found;
 }
 
@@ -187,19 +241,34 @@ static int get_coefficients(){
 void try_connect(char *device, int speed){
     if(!device) return;
     tty_init(device, speed);
-    green(_("Connected to %s, try to get coefficients\n"), device);
-    if(!send_command(CMD_REINIT,1) || !send_command(CMD_RESET,1))
-        ERRX(_("Can't do communications!"));
-    int i; // 10 tries to get constants
-    for(i = 0; i < 10; ++i){
-        green("Try %d\n", i);
-        if(get_coefficients()) return;
-        sleep(1);
+    green(_("Connected to %s, try to discovery sensors\n"), device);
+    if(!detect_sensors()) ERRX("No sensors detected!");
+    //if(!send_command(CMD_REINIT,1) || !send_command(CMD_RESET,1))
+    //    ERRX(_("Can't do communications!"));
+    int n, i;
+    green("OK, read coefficients\n");
+    for(n = 0; n < NSENSORS; ++n){
+        char obuf[5] = {0};
+        snprintf(obuf, 4, "%d\n", n);
+        int amount = 0;
+        if(present[n][0]) ++amount;
+        if(present[n][1]) ++amount;
+        if(!amount) continue;
+        DBG("get coeffs for pair %d", n);
+        for(i = 0; i < NTRY; ++i){
+            int bad = 0;
+            if(!send_command(obuf, 1)) bad = 1; // change line number
+            else if(get_coefficients(n) != amount) bad = 1;
+            if(bad) send_command(CMD_RESET,1);
+            else{
+                green("pair %d, got %d\n", n, amount);
+                break;
+            }
+        }
     }
-    ERRX(_("No sensors found!"));
 }
 
-void write_log(int fd, char *str){ // write string to log file
+static void write_log(int fd, char *str){ // write string to log file
     if(fd < 1) return;
     size_t x = strlen(str);
     if(write(fd, str, x))return;
@@ -216,7 +285,7 @@ void write_log(int fd, char *str){ // write string to log file
  */
 static void gettemp(int fd, size_t L){
     if(!L) return;
-    char *ptr = (char*)buf, *estr = NULL;
+    char *ptr = buf, *estr = NULL;
     int32_t Ti[2] = {0,0}; // array for raw temp values
     do{
         char N; // number of sensor
@@ -237,26 +306,25 @@ static void gettemp(int fd, size_t L){
         if(!Ti[i]) continue;
         // check coefficients & try to get them again if absent
         int C=0, j;
-        for(j = 0; j < 5; ++j) if(coefficients[i][j]) ++C;
-        if(C != 5 && !get_coefficients()) continue;
+        for(j = 0; j < 5; ++j) if(coefficients[0][i][j]) ++C;
+        if(C != 5 && !get_coefficients(0)) continue;
         double d = (double)Ti[i]/256., tmp = 0.;
         DBG("val256=%g", d);
         // k0*(-1.5e-2) + 0.1*1e-5*val*(1*k1 + 1e-5*val*(-2.*k2 + 1e-5*val*(4*k3 + 1e-5*val*(-2*k4))))
         double mul[5] = {-1.5e-2, 1., -2., 4., -2.};
         for(j = 4; j > 0; --j){
-            tmp += mul[j] * (double)coefficients[i][j];
+            tmp += mul[j] * (double)coefficients[0][i][j];
             tmp *= 1e-5*d;
-            DBG("tmp=%g, K=%d, mul=%g", tmp, coefficients[i][j], mul[j]);
+            DBG("tmp=%g, K=%d, mul=%g", tmp, coefficients[0][i][j], mul[j]);
         }
-        DBG("tmp: %g, mul[0]=%g, c0=%d", tmp, mul[0], coefficients[i][0]);
-        tmp = tmp/10. + mul[0]*coefficients[i][0];
+        DBG("tmp: %g, mul[0]=%g, c0=%d", tmp, mul[0], coefficients[0][i][0]);
+        tmp = tmp/10. + mul[0]*coefficients[0][i][0];
         Td[i] = tmp;
         DBG("Got temp: %g", tmp);
     }
-    time_t utm = time(NULL);
-    snprintf((char*)buf, BUFLEN, "%zd\t%.4f\t%.4f\n", utm, Td[0], Td[1]);
+    snprintf(buf, BUFLEN, "%.4f\t%.4f\t", Td[0], Td[1]);
     printf("%s", buf);
-    write_log(fd, (char*)buf);
+    write_log(fd, buf);
 }
 
 /**
@@ -265,62 +333,54 @@ static void gettemp(int fd, size_t L){
  * if thermometer N is absent, T=-300
  */
 void begin_logging(int fd, double pause){
-    int ntry;
+    void emptyrec(){
+        snprintf(buf, BUFLEN, "%.4f\t%.4f\t", -300., -300.);
+        printf("%s", buf);
+        write_log(fd, buf);
+    }
     while(1){
         double tcmd = dtime();
-        if(!send_command(CMD_GETTEMP,0)) continue;
-        size_t L = read_string();
-        if(!L){
-            WARNX(_("No answer, reinit"));
-            if(!send_command(CMD_REINIT,1) || !send_command(CMD_RESET,1)){
-                write_log(fd, "\nExit on communication error\n");
-                ERRX(_("Communications problem!"));
+        int n;
+        time_t utm = time(NULL);
+        snprintf(buf, BUFLEN, "%zd\t", utm);
+        printf("%s", buf);
+        write_log(fd, buf);
+        for(n = 0; n < NSENSORS; ++n){
+            char obuf[5] = {0};
+            snprintf(obuf, 4, "%d\n", n);
+            int amount = 0;
+            if(present[n][0]) ++amount;
+            if(present[n][1]) ++amount;
+            if(!amount){
+                emptyrec();
+                continue;
             }
-            if(++ntry > 10){
-                write_log(fd, "\nNo sensors!\n");
-                ERRX(_("No sensors!"));
+            DBG("get temperature for pair %d", n);
+            int i;
+            for(i = 0; i < NTRY; ++i){
+                int bad = 0;
+                if(!send_command(obuf, 1)) bad = 1; // change line number
+                else if(!send_command(CMD_GETTEMP,0)) bad = 1;
+                if(bad){
+                    send_command(CMD_RESET,1);
+                    continue;
+                }
+                size_t L = read_string();
+                if(!L){
+                    WARNX(_("No answer, reinit"));
+                    if(!send_command(CMD_REINIT,1) || !send_command(CMD_RESET,1)){
+                        write_log(fd, "\nCommunication error\n");
+                        WARNX(_("Communications problem!"));
+                    }
+                }
+                // try to convert temperature
+                gettemp(fd, L);
+                break;
             }
+            if(i == NTRY) emptyrec();
         }
-        ntry = 0;
-        // try to convert temperature
-        gettemp(fd, L);
+        printf("\n");
+        write_log(fd, "\n");
         while(dtime() - tcmd < pause);
     }
 }
-
-/**
- * run terminal emulation: send user's commands with checksum and show answers
- *
-void run_terminal(){
-    green(_("Work in terminal mode without echo\n"));
-    int rb;
-    uint8_t buf[BUFLEN];
-    size_t L;
-    setup_con();
-    while(1){
-        if((L = read_tty(buf, BUFLEN))){
-            printf(_("Get %zd bytes: "), L);
-            uint8_t *ptr = buf;
-            while(L--){
-                uint8_t c = *ptr++;
-                printf("0x%02x", c);
-                if(c > 31) printf("(%c)", (char)c);
-                printf(" ");
-            }
-            printf("\n");
-        }
-        if((rb = read_console())){
-            if(rb > 31){
-                printf("Send command: %c ... ", (char)rb);
-                send_cmd((uint8_t)rb);
-                if(TRANS_SUCCEED != wait_checksum()) printf(_("Error.\n"));
-                else printf(_("Done.\n"));
-            }
-        }
-    }
-}*/
-
-
-
-
-#endif // CLIENT

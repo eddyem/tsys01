@@ -1,0 +1,14 @@
+NAME        NUCLEO-042  SENSORS board
+
+USART       USART2      USART1
+USART_TX    PA2         PA9
+USART_RX    PA15        PA10
+    I2C
+SCL         PA9         PB6
+SDA         PA10        PB7
+    Multiplexer
+~EN         PA3         PB12
+ADDR0..3    PA4..7      PB0..2 (!!!)
+    LEDS
+LED0        PB3         PB10
+LED1        ---         PB11

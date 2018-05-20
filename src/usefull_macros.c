@@ -283,7 +283,7 @@ void restore_tty(){
     comfd = -1;
 }
 
-// init: (speed = B9600 etc)
+// init:
 void tty_init(char *comdev, int speed){
     if(comfd == -1){ // not opened
         if(!comdev){
@@ -331,7 +331,7 @@ void tty_init(char *comdev, int speed){
  * @param length   - buffer len
  * @return amount of readed bytes
  */
-size_t read_tty(uint8_t *buff, size_t length){
+size_t read_tty(char *buff, size_t length){
     if(comfd < 0) return 0;
     ssize_t L = 0;
     fd_set rfds;
@@ -348,7 +348,7 @@ size_t read_tty(uint8_t *buff, size_t length){
     return (size_t)L;
 }
 
-int write_tty(const uint8_t *buff, size_t length){
+int write_tty(const char *buff, size_t length){
     if(comfd < 0) return 1;
     ssize_t L = write(comfd, buff, length);
     if((size_t)L != length){

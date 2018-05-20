@@ -23,13 +23,18 @@
 #define __TERM_H__
 
 // terminal timeout (seconds)
-#define     WAIT_TMOUT      (0.5)
+#define     WAIT_TMOUT      (0.06)
+// sensors pairs amount
+#define NSENSORS            (48)
+// amount of communication tries
+#define NTRY                (5)
 
 /******************************** Commands definition ********************************/
 #define     CMD_CONSTANTS   "C\n"
-#define     CMD_RESET       "R\n"
+#define     CMD_RESET       "L\n"
 #define     CMD_REINIT      "I\n"
 #define     CMD_GETTEMP     "T\n"
+#define     CMD_DISCOVERY   "D\n"
 
 void try_connect(char *device, int speed);
 int create_log(char *name, int r);

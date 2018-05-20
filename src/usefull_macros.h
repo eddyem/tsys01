@@ -132,8 +132,8 @@ int mygetchar();
 
 void restore_tty();
 void tty_init(char *comdev, int speed);
-size_t read_tty(uint8_t *buff, size_t length);
-int write_tty(const uint8_t *buff, size_t length);
+size_t read_tty(char *buff, size_t length);
+int write_tty(const char *buff, size_t length);
 
 int str2double(double *num, const char *str);
 
