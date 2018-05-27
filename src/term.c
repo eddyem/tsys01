@@ -306,19 +306,19 @@ static void gettemp(int fd, size_t L){
         if(!Ti[i]) continue;
         // check coefficients & try to get them again if absent
         int C=0, j;
-        for(j = 0; j < 5; ++j) if(coefficients[0][i][j]) ++C;
-        if(C != 5 && !get_coefficients(0)) continue;
+        for(j = 0; j < 5; ++j) if(coefficients[L][i][j]) ++C;
+        if(C != 5 && !get_coefficients(L)) continue;
         double d = (double)Ti[i]/256., tmp = 0.;
         DBG("val256=%g", d);
         // k0*(-1.5e-2) + 0.1*1e-5*val*(1*k1 + 1e-5*val*(-2.*k2 + 1e-5*val*(4*k3 + 1e-5*val*(-2*k4))))
         double mul[5] = {-1.5e-2, 1., -2., 4., -2.};
         for(j = 4; j > 0; --j){
-            tmp += mul[j] * (double)coefficients[0][i][j];
+            tmp += mul[j] * (double)coefficients[L][i][j];
             tmp *= 1e-5*d;
-            DBG("tmp=%g, K=%d, mul=%g", tmp, coefficients[0][i][j], mul[j]);
+            DBG("tmp=%g, K=%d, mul=%g", tmp, coefficients[L][i][j], mul[j]);
         }
-        DBG("tmp: %g, mul[0]=%g, c0=%d", tmp, mul[0], coefficients[0][i][0]);
-        tmp = tmp/10. + mul[0]*coefficients[0][i][0];
+        DBG("tmp: %g, mul[0]=%g, c0=%d", tmp, mul[0], coefficients[L][i][0]);
+        tmp = tmp/10. + mul[0]*coefficients[L][i][0];
         Td[i] = tmp;
         DBG("Got temp: %g", tmp);
     }
@@ -374,7 +374,7 @@ void begin_logging(int fd, double pause){
                     }
                 }
                 // try to convert temperature
-                gettemp(fd, L);
+                gettemp(fd, n);
                 break;
             }
             if(i == NTRY) emptyrec();

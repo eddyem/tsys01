@@ -9,3 +9,5 @@ tsys_daemon - simple data logger
   -o, --output=arg      output file name
   -r, --rewrite         rewrite existing log file
   -t, --poll-time=arg   pause between subsequent readings (default: 5sec)
+
+

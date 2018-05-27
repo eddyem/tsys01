@@ -4,7 +4,7 @@ LDFLAGS := -fdata-sections -ffunction-sections -Wl,--gc-sections -Wl,--discard-a
 LDFLAGS += -lm -pthread
 SRCS := $(wildcard *.c)
 DEFINES := $(DEF) -D_GNU_SOURCE  -D_XOPEN_SOURCE=1111
-DEFINES += -DEBUG
+#DEFINES += -DEBUG
 OBJDIR := mk
 CFLAGS += -Wall -Wextra -Werror -O2 -Wno-trampolines -std=gnu99
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:%.c=%.o))
@@ -31,7 +31,7 @@ $(OBJDIR)/%.o: %.c
 
 clean:
 	@echo -e "\t\tCLEAN"
-	@rm -f $(OBJS) $(DEPS) mk/*.d
+	@rm -f $(OBJS) $(DEPS)
 	@rmdir $(OBJDIR) 2>/dev/null || true
 
 xclean: clean
