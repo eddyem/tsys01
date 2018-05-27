@@ -96,7 +96,7 @@ uint8_t calc_t(uint32_t t, int i){
     int j;
     double d = (double)t/256., tmp = 0.;
     // k0*(-1.5e-2) + 0.1*1e-5*val*(1*k1 + 1e-5*val*(-2.*k2 + 1e-5*val*(4*k3 + 1e-5*val*(-2*k4))))
-    double mul[5] = {-1.5e-2, 1., -2., 4., -2.};
+    const double mul[5] = {-1.5e-2, 1., -2., 4., -2.};
     for(j = 4; j > 0; --j){
         tmp += mul[j] * (double)coefficients[i][j];
         tmp *= 1e-5*d;
@@ -121,38 +121,44 @@ uint8_t calc_t(uint32_t t, int i){
     return 1;
 }
 /*
-void calc_t(){
-    int i;
-    for(i = 0; i < 2; ++i){
-        if(!Tlast[i] || !coefficients[i][0]) continue;
-        int j;
-        int64_t d = Tlast[i], tmp = 0.;
-        // k0*(-1.5e-2) + 0.1*1e-5*val*(1*k1 + 1e-5*val*(-2.*k2 + 1e-5*val*(4*k3 + 1e-5*val*(-2*k4))))
-        int8_t mul[5] = {0, 1, -2, 4, -2};
-        for(j = 4; j > 0; --j){
-            tmp /= 100000;
-            tmp += mul[j] * (double)coefficients[i][j];
-            tmp *= d;
-            tmp >>= 8; // (/256)
-        }
-        tmp /= 10000;
-        uint16_t K = coefficients[i][0];
-        K += K/2;
-        tmp -= K;
-        char b[8] = "TdegC0=";
-        if(i) b[5] = '1';
-        while(ALL_OK != usart_send_blocking(b, 7));
-        if(tmp < 0.){
-            SEND("-");
-            tmp = -tmp;
-        }
-        uint32_t x = (uint32_t)(tmp/100);
-        printu(x);
-        tmp -= 100*x;
-        SEND(".");
-        printu((uint32_t)tmp);
-        newline();
+uint8_t calc_t(uint32_t t, int i){
+    if(coefficients[i][0] == 0){
+        if(i == 0) showcoeffs(TSYS01_ADDR0, 0);
+        else showcoeffs(TSYS01_ADDR1, 0);
     }
+    if(coefficients[i][0] == 0){
+        SEND("no sensor\n");
+        return 0;
+    }
+    if (t < 6500000 || t > 13000000) return 0; // wrong value - too small or too large
+    int j;
+    int64_t d = t, tmp = 0.;
+    // k0*(-1.5e-2) + 0.1*1e-5*val*(1*k1 + 1e-5*val*(-2.*k2 + 1e-5*val*(4*k3 + 1e-5*val*(-2*k4))))
+    int8_t mul[5] = {0, 1, -2, 4, -2};
+    for(j = 4; j > 0; --j){
+        tmp /= 100000;
+        tmp += mul[j] * coefficients[i][j];
+        tmp *= d;
+        tmp >>= 8; // (/256)
+    }
+    tmp /= 10000;
+    uint16_t K = coefficients[i][0];
+    K += K/2;
+    tmp -= K;
+    char b[8] = "TdegC0=";
+    if(i) b[5] = '1';
+    while(ALL_OK != usart_send_blocking(b, 7));
+    if(tmp < 0.){
+        SEND("-");
+        tmp = -tmp;
+    }
+    uint32_t x = (uint32_t)(tmp/100);
+    printu(x);
+    tmp -= 100*x;
+    SEND(".");
+    printu((uint32_t)tmp);
+    newline();
+    return 1;
 }*/
 
 int main(void){
