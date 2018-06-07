@@ -33,6 +33,12 @@
 #define SEND(str) do{}while(LINE_BUSY == usart_send_blocking(str, sizeof(str)-1))
 #define NEWLINE() do{}while(LINE_BUSY == usart_send_blocking('\n', 1))
 
+#ifdef EBUG
+#define MSG(str)  SEND(str)
+#else
+#define MSG(str)
+#endif
+
 typedef enum{
     ALL_OK,
     LINE_BUSY,

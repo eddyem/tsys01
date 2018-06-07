@@ -45,7 +45,7 @@
 #define USARTX  FORMUSART(USARTNUM)
 
 #ifndef I2CPINS
-#define I2CPINS A9A10
+#define I2CPINS 910
 #endif
 
 #ifndef LED1_port
@@ -73,6 +73,7 @@
 #define SENSORS_OVERCURNT()  ((1<<3) != (GPIOB->IDR & (1<<3)))
 
 typedef enum{
+    VERYLOW_SPEED,
     LOW_SPEED,
     HIGH_SPEED,
     CURRENT_SPEED

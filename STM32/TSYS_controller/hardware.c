@@ -44,6 +44,8 @@ void gpio_setup(void){
     // PA8 - power enable
     GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODER8)) |
                     GPIO_MODER_MODER8_O;
+    pin_set(LED0_port, LED0_pin); // clear LEDs
+    pin_set(LED1_port, LED1_pin);
 }
 
 void i2c_setup(I2C_SPEED speed){
@@ -53,7 +55,7 @@ void i2c_setup(I2C_SPEED speed){
         curI2Cspeed = speed;
     }
     I2C1->CR1 = 0;
-#if I2CPINS == A9A10
+#if I2CPINS == 910
 /*
  * GPIO Resources: I2C1_SCL - PA9, I2C1_SDA - PA10
  * GPIOA->AFR[1]
@@ -64,7 +66,7 @@ void i2c_setup(I2C_SPEED speed){
     GPIOA->MODER |= GPIO_MODER_MODER9_AF | GPIO_MODER_MODER10_AF; // alternate function
     GPIOA->OTYPER |= GPIO_OTYPER_OT_9 | GPIO_OTYPER_OT_10; // opendrain
     //GPIOA->OTYPER |= GPIO_OTYPER_OT_10; // opendrain
-#elif I2CPINS == B6B7
+#elif I2CPINS == 67
 /*
  * GPIO Resources: I2C1_SCL - PB6, I2C1_SDA - PB7 (AF1)
  * GPIOB->AFR[0] ->   1<<6*4 | 1<<7*4 = 0x11000000
@@ -82,8 +84,10 @@ void i2c_setup(I2C_SPEED speed){
     if(speed == LOW_SPEED){ // 10kHz
         // PRESC=B, SCLDEL=4, SDADEL=2, SCLH=0xC3, SCLL=0xB0
         I2C1->TIMINGR = (0xB<<28) | (4<<20) | (2<<16) | (0xC3<<8) | (0xB0);
-    }else{ // 100kHz
+    }else if(speed == HIGH_SPEED){ // 100kHz
         I2C1->TIMINGR = (0xB<<28) | (4<<20) | (2<<16) | (0x12<<8) | (0x11);
+    }else{ // VERYLOW_SPEED - the lowest speed by STM register: 5.8kHz (presc = 16-1 = 15; )
+        I2C1->TIMINGR = (0xf<<28) | (4<<20) | (2<<16) | (0xff<<8) | (0xff);
     }
     I2C1->CR1 = I2C_CR1_PE;// | I2C_CR1_RXIE; // Enable I2C & (interrupt on receive - not supported yet)
 }

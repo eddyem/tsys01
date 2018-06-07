@@ -1,14 +1,14 @@
 BINARY		= tsys01
 BOOTPORT	?= /dev/ttyUSB0
-BOOTSPEED	?= 9600
+BOOTSPEED	?= 57600
 # MCU FAMILY
 FAMILY		= F0
 # MCU code
 MCU			= F042x6
 # hardware definitions
-DEFS		:= -DUSARTNUM=1 -DI2CPINS=B6B7
+DEFS		:= -DUSARTNUM=1 -DI2CPINS=67
 #DEFS		+= -DCHECK_TMOUT
-#DEFS		+= -DEBUG
+DEFS		+= -DEBUG
 # change this linking script depending on particular MCU model,
 # for example, if you have STM32F103VBT6, you should write:
 LDSCRIPT	= ld/stm32f042k.ld
@@ -127,7 +127,7 @@ $(ELF): $(OBJDIR) $(OBJS)
 
 clean:
 	@echo "  CLEAN"
-	$(RM) $(OBJS) $(DEPS) $(ELF) $(HEX) $(LIST) $(OBJDIR)/*.map
+	$(RM) $(OBJS) $(DEPS) $(ELF) $(HEX) $(LIST) $(OBJDIR)/*.map *.d
 	@rmdir $(OBJDIR) 2>/dev/null || true
 
 

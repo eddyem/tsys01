@@ -96,6 +96,7 @@ AHB2PERIPH_BASEÌ65536Ö0
 AHBPERIPH_BASEÌ65536Ö0
 ALL_OKÌ4Îanon_enum_1Ö0
 APBPERIPH_BASEÌ65536Ö0
+BAD_TEMPERATUREÌ65536Ö0
 CANÌ65536Ö0
 CAN_BASEÌ65536Ö0
 CAN_BTR_BRPÌ65536Ö0
@@ -1310,6 +1311,7 @@ CRS_ISR_SYNCMISSÌ65536Ö0
 CRS_ISR_SYNCOKFÌ65536Ö0
 CRS_ISR_SYNCWARNFÌ65536Ö0
 CRS_ISR_TRIMOVFÌ65536Ö0
+CURRENT_SPEEDÌ4Îanon_enum_0Ö0
 DBGMCUÌ65536Ö0
 DBGMCU_APB1_FZ_DBG_CAN_STOPÌ65536Ö0
 DBGMCU_APB1_FZ_DBG_I2C1_SMBUS_TIMEOUTÌ65536Ö0
@@ -1438,6 +1440,7 @@ DMA_ISR_TEIF4Ì65536Ö0
 DMA_ISR_TEIF5Ì65536Ö0
 DMA_ISR_TEIF6Ì65536Ö0
 DMA_ISR_TEIF7Ì65536Ö0
+EBUGÌ65536Ö0
 EXTIÌ65536Ö0
 EXTI_BASEÌ65536Ö0
 EXTI_EMR_MR0Ì65536Ö0
@@ -1984,10 +1987,6 @@ GPIO_PUPDR_PUPDR9Ì65536Ö0
 GPIO_PUPDR_PUPDR9_0Ì65536Ö0
 GPIO_PUPDR_PUPDR9_1Ì65536Ö0
 HIGH_SPEEDÌ4Îanon_enum_0Ö0
-HIGH_SPEEDÌ4Îanon_enum_2Ö0
-HIGH_SPEEDÌ4Îanon_enum_3Ö0
-HIGH_SPEEDÌ4Îanon_enum_4Ö0
-HIGH_SPEEDÌ4Îanon_enum_5Ö0
 I2C1Ì65536Ö0
 I2C1_BASEÌ65536Ö0
 I2CPINSÌ65536Ö0
@@ -2057,7 +2056,7 @@ I2C_OAR2_OA2ENÌ65536Ö0
 I2C_OAR2_OA2MSKÌ65536Ö0
 I2C_PECR_PECÌ65536Ö0
 I2C_RXDR_RXDATAÌ65536Ö0
-I2C_SPEEDÌ4096Ö0Ïanon_enum_5
+I2C_SPEEDÌ4096Ö0Ïanon_enum_0
 I2C_TIMEOUTÌ65536Ö0
 I2C_TIMEOUTR_TEXTENÌ65536Ö0
 I2C_TIMEOUTR_TIDLEÌ65536Ö0
@@ -2187,11 +2186,14 @@ IWDG_PR_PRÌ65536Ö0
 IWDG_PR_PR_0Ì65536Ö0
 IWDG_PR_PR_1Ì65536Ö0
 IWDG_PR_PR_2Ì65536Ö0
+IWDG_REFRESHÌ65536Ö0
 IWDG_RLR_RLÌ65536Ö0
 IWDG_SR_PVUÌ65536Ö0
 IWDG_SR_RVUÌ65536Ö0
 IWDG_SR_WVUÌ65536Ö0
+IWDG_STARTÌ65536Ö0
 IWDG_WINR_WINÌ65536Ö0
+IWDG_WRITE_ACCESSÌ65536Ö0
 LED0_pinÌ65536Ö0
 LED0_portÌ65536Ö0
 LED1_pinÌ65536Ö0
@@ -2199,18 +2201,18 @@ LED1_portÌ65536Ö0
 LED_blinkÌ131072Í(x)Ö0
 LINE_BUSYÌ4Îanon_enum_1Ö0
 LOW_SPEEDÌ4Îanon_enum_0Ö0
-LOW_SPEEDÌ4Îanon_enum_2Ö0
-LOW_SPEEDÌ4Îanon_enum_3Ö0
-LOW_SPEEDÌ4Îanon_enum_4Ö0
-LOW_SPEEDÌ4Îanon_enum_5Ö0
 MODIFY_REGÌ131072Í(REG,CLEARMASK,SETMASK)Ö0
+MSGÌ131072Í(str)Ö0
 MUL_ADDRESSÌ131072Í(x)Ö0
+MUL_MAX_ADDRESSÌ65536Ö0
 MUL_OFFÌ131072Í()Ö0
 MUL_ONÌ131072Í()Ö0
 NEWLINEÌ131072Í()Ö0
 NULLÌ65536Ö0
 NVICÌ65536Ö0
 NVIC_BASEÌ65536Ö0
+Nsens_presentÌ16384Ö0Ïuint8_t
+Ntemp_measuredÌ16384Ö0Ïuint8_t
 OBÌ65536Ö0
 OB_BASEÌ65536Ö0
 OB_RDP_RDPÌ65536Ö0
@@ -2830,12 +2832,26 @@ SCB_SHCSR_SVCALLPENDED_MskÌ65536Ö0
 SCB_SHCSR_SVCALLPENDED_PosÌ65536Ö0
 SCS_BASEÌ65536Ö0
 SENDÌ131072Í(str)Ö0
+SENSORS_OFFÌ131072Í()Ö0
+SENSORS_ONÌ131072Í()Ö0
+SENSORS_OVERCURNTÌ131072Í()Ö0
+SENS_GATHERINGÌ4Îanon_enum_2Ö0
+SENS_GET_COEFFSÌ4Îanon_enum_2Ö0
+SENS_INITINGÌ4Îanon_enum_2Ö0
+SENS_OFFÌ4Îanon_enum_2Ö0
+SENS_OVERCURNTÌ4Îanon_enum_2Ö0
+SENS_OVERCURNT_OFFÌ4Îanon_enum_2Ö0
+SENS_RESETINGÌ4Îanon_enum_2Ö0
+SENS_SLEEPINGÌ4Îanon_enum_2Ö0
+SENS_START_MSRMNTÌ4Îanon_enum_2Ö0
+SENS_WAITINGÌ4Îanon_enum_2Ö0
 SET_BITÌ131072Í(REG,BIT)Ö0
 SIG_ATOMIC_MAXÌ65536Ö0
 SIG_ATOMIC_MINÌ65536Ö0
 SIG_ATOMIC_WIDTHÌ65536Ö0
 SIZE_MAXÌ65536Ö0
 SIZE_WIDTHÌ65536Ö0
+SLEEP_TIMEÌ65536Ö0
 SPI1Ì65536Ö0
 SPI1_BASEÌ65536Ö0
 SPI2Ì65536Ö0
@@ -3046,6 +3062,8 @@ SYSCFG_EXTICR4_EXTI15_PBÌ65536Ö0
 SYSCFG_EXTICR4_EXTI15_PCÌ65536Ö0
 SYSCFG_EXTICR4_EXTI15_PDÌ65536Ö0
 SYSCFG_EXTICR4_EXTI15_PEÌ65536Ö0
+SensorsStateÌ4096Ö0Ïanon_enum_2
+SstateÌ16384Ö0ÏSensorsState
 StartHSEÌ16Í()Ö0Ïinline void
 StartHSI48Ì16Í()Ö0Ïinline void
 SysTickÌ65536Ö0
@@ -3488,6 +3506,8 @@ TSYS01_PROM_ADDR0Ì65536Ö0
 TSYS01_RESETÌ65536Ö0
 TSYS01_START_CONVÌ65536Ö0
 TXstatusÌ4096Ö0Ïanon_enum_1
+TaddrÌ16384Ö0Ïconst uint8_t
+TemperaturesÌ16384Ö0Ïint16_t
 TmsÌ16384Ö0Ïvolatile uint32_t
 TmsÌ32768Ö0Ïvolatile uint32_t
 UARTBUFSZÌ65536Ö0
@@ -3764,6 +3784,7 @@ USB_LPMCSR_REMWAKEÌ65536Ö0
 USB_PMAADDRÌ65536Ö0
 VDDIO2_IRQHandlerÌ65536Ö0
 VDDIO2_IRQnÌ65536Ö0
+VERYLOW_SPEEDÌ4Îanon_enum_0Ö0
 VREFINT_CAL_ADDRÌ65536Ö0
 WCHAR_MAXÌ65536Ö0
 WCHAR_MINÌ65536Ö0
@@ -3993,6 +4014,7 @@ __GXX_ABI_VERSIONÌ65536Ö0
 __GXX_EXPERIMENTAL_CXX0X__Ì65536Ö0
 __GXX_RTTIÌ65536Ö0
 __GXX_WEAK__Ì65536Ö0
+__HARDWARE_H__Ì65536Ö0
 __HAVE_GENERIC_SELECTIONÌ65536Ö0
 __IÌ65536Ö0
 __ID_T_TYPEÌ65536Ö0
@@ -4100,6 +4122,7 @@ __S64_TYPEÌ65536Ö0
 __SCHAR_MAX__Ì65536Ö0
 __SEG_FSÌ65536Ö0
 __SEG_GSÌ65536Ö0
+__SENSORS_MANAGE_H__Ì65536Ö0
 __SHRT_MAX__Ì65536Ö0
 __SIG_ATOMIC_MAX__Ì65536Ö0
 __SIG_ATOMIC_MIN__Ì65536Ö0
@@ -4351,40 +4374,62 @@ __x86_64__Ì65536Ö0
 anon_enum_0Ì2Ö0
 anon_enum_1Ì2Ö0
 anon_enum_2Ì2Ö0
-anon_enum_3Ì2Ö0
-anon_enum_4Ì2Ö0
-anon_enum_5Ì2Ö0
 bufovrÌ16384Ö0Ïint
 bufovrÌ32768Ö0Ïint
-calc_tÌ16Í(uint32_t t, int i)Ö0Ïuint8_t
+calc_tÌ16Í(uint32_t t, int i)Ö0Ïuint16_t
 cntrÌ16384Ö0Ïuint32_t
 coefficientsÌ16384Ö0Ïuint16_t
+count_sensorsÌ16Í()Ö0Ïvoid
+curI2CspeedÌ16384Ö0ÏI2C_SPEED
+curI2CspeedÌ32768Ö0ÏI2C_SPEED
+curr_mul_addrÌ16384Ö0Ïuint8_t
 datalenÌ16384Ö0Ïint
 dlenÌ16384Ö0Ïint
 dma1_channel2_3_isrÌ16Í()Ö0Ïvoid
+getcoefsprocÌ16Í()Ö0Ïuint8_t
+gettempprocÌ16Í()Ö0Ïuint8_t
 gpio_setupÌ16Í(void)Ö0Ïvoid
 gpio_setupÌ1024Í(void)Ö0Ïvoid
 i2c_setupÌ16Í(I2C_SPEED speed)Ö0Ïvoid
 i2c_setupÌ1024Í(I2C_SPEED speed)Ö0Ïvoid
+iwdg_setupÌ16Í()Ö0Ïvoid
+lastSensTÌ16384Ö0Ïuint32_t
 linerdyÌ16384Ö0Ïint
 linerdyÌ32768Ö0Ïint
 linuxÌ65536Ö0
 mainÌ16Í(void)Ö0Ïint
+msrtempprocÌ16Í()Ö0Ïuint8_t
 newlineÌ16Í()Ö0Ïvoid
 newlineÌ1024Í()Ö0Ïvoid
 nopÌ131072Í()Ö0
+overcurnt_ctrÌ16384Ö0Ïuint8_t
 pin_clearÌ131072Í(gpioport,gpios)Ö0
 pin_readÌ131072Í(gpioport,gpios)Ö0
 pin_setÌ131072Í(gpioport,gpios)Ö0
 pin_toggleÌ131072Í(gpioport,gpios)Ö0
 pin_writeÌ131072Í(gpioport,gpios)Ö0
 printuÌ16Í(uint32_t val)Ö0Ïvoid
+printuÌ1024Í(uint32_t val)Ö0Ïvoid
 rbufÌ16384Ö0Ïchar
 rbufnoÌ16384Ö0Ïint
 read_i2cÌ16Í(uint8_t addr, uint32_t *data, uint8_t nbytes)Ö0Ïuint8_t
 read_i2cÌ1024Í(uint8_t addr, uint32_t *data, uint8_t nbytes)Ö0Ïuint8_t
 recvdataÌ16384Ö0Ïchar *
-showcoeffsÌ16Í(uint8_t addr, uint8_t verb)Ö0Ïvoid
+resetprocÌ16Í()Ö0Ïuint8_t
+sens_presentÌ16384Ö0Ïuint8_t
+sensors_get_stateÌ16Í()Ö0ÏSensorsState
+sensors_get_stateÌ1024Í()Ö0ÏSensorsState
+sensors_offÌ16Í()Ö0Ïvoid
+sensors_offÌ1024Í()Ö0Ïvoid
+sensors_onÌ16Í()Ö0Ïvoid
+sensors_onÌ1024Í()Ö0Ïvoid
+sensors_processÌ16Í()Ö0Ïvoid
+sensors_processÌ1024Í()Ö0Ïvoid
+sensors_scanÌ16Í(uint8_t (* procfn)())Ö0Ïuint8_t
+showcoeffsÌ16Í()Ö0Ïvoid
+showcoeffsÌ1024Í()Ö0Ïvoid
+showtemperatureÌ16Í()Ö0Ïvoid
+showtemperatureÌ1024Í()Ö0Ïvoid
 strdupaÌ131072Í(s)Ö0
 strndupaÌ131072Í(s,n)Ö0
 sys_tick_handlerÌ16Í(void)Ö0Ïvoid
@@ -4396,6 +4441,8 @@ unixÌ65536Ö0
 usart1_isrÌ16Í()Ö0Ïvoid
 usart_getlineÌ16Í(char **line)Ö0Ïint
 usart_getlineÌ1024Í(char **line)Ö0Ïint
+usart_putcharÌ16Í(const char ch)Ö0Ïvoid
+usart_putcharÌ1024Í(const char ch)Ö0Ïvoid
 usart_sendÌ16Í(const char *str, int len)Ö0ÏTXstatus
 usart_sendÌ1024Í(const char *str, int len)Ö0ÏTXstatus
 usart_send_blockingÌ16Í(const char *str, int len)Ö0ÏTXstatus

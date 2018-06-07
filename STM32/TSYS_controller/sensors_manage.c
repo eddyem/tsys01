@@ -231,6 +231,10 @@ static uint8_t sensors_scan(uint8_t (* procfn)()){
 // print coefficients @debug console
 void showcoeffs(){
     int a, p, k;
+    if(Nsens_present == 0){
+        SEND("No sensors found\n");
+        return;
+    }
     for(a = 0; a <= MUL_MAX_ADDRESS; ++a){
         for(p = 0; p < 2; ++p){
             if(!(sens_present[p] & (1<<a))) continue; // no sensor
@@ -247,6 +251,13 @@ void showcoeffs(){
 // print temperature @debug console
 void showtemperature(){
     int a, p;
+    if(Nsens_present == 0){
+        SEND("No sensors found\n");
+        return;
+    }
+    if(Ntemp_measured == 0){
+        SEND("No right measurements\n");
+    }
     for(a = 0; a <= MUL_MAX_ADDRESS; ++a){
         for(p = 0; p < 2; ++p){
             if(!(sens_present[p] & (1<<a))) continue; // no sensor
@@ -273,37 +284,55 @@ void sensors_process(){
     }
     switch (Sstate){
         case SENS_INITING: // initialisation (restart I2C)
+MSG("init->reset\n");
             i2c_setup(CURRENT_SPEED);
             Sstate = SENS_RESETING;
         break;
         case SENS_RESETING: // reset & discovery procedure
             overcurnt_ctr = 0;
-            if(sensors_scan(resetproc)) Sstate = SENS_GET_COEFFS;
+            if(sensors_scan(resetproc)){
+                count_sensors(); // get total amount of sensors
+                if(Nsens_present){
+MSG("reset->getcoeff\n");
+                    Sstate = SENS_GET_COEFFS;
+                }else{ // no sensors found
+MSG("reset->off\n");
+                    Sstate = SENS_OFF;
+                }
+            }
         break;
         case SENS_GET_COEFFS: // get coefficients
             if(sensors_scan(getcoefsproc)){
-                count_sensors(); // get total amount of sensors
+MSG("got coeffs for ");
+#ifdef EBUG
+printu(Nsens_present);
+#endif
+MSG(" sensors ->start\n");
                 Sstate = SENS_START_MSRMNT;
             }
         break;
         case SENS_START_MSRMNT: // send all sensors command to start measurements
             if(sensors_scan(msrtempproc)){
                 lastSensT = Tms;
+MSG("->wait\n");
                 Sstate = SENS_WAITING;
                 Ntemp_measured = 0; // reset value of good measurements
             }
         break;
         case SENS_WAITING: // wait for end of conversion
             if(Tms - lastSensT > CONV_TIME){
+MSG("->gather\n");
                 Sstate = SENS_GATHERING;
             }
         break;
         case SENS_GATHERING: // scan all sensors, get thermal data & calculate temperature
             if(sensors_scan(gettempproc)){
                 lastSensT = Tms;
-                if(Nsens_present == Ntemp_measured) // All OK, amount of T == amount of sensors
+                if(Nsens_present == Ntemp_measured){ // All OK, amount of T == amount of sensors
+MSG("->sleep\n");
                     Sstate = SENS_SLEEPING;
-                else{ // reinit I2C & try to start measurements again
+                }else{ // reinit I2C & try to start measurements again
+MSG("gather error ->start\n");
                     i2c_setup(CURRENT_SPEED);
                     Sstate = SENS_START_MSRMNT;
                 }
@@ -311,10 +340,12 @@ void sensors_process(){
         break;
         case SENS_SLEEPING: // wait for `SLEEP_TIME` till next measurements
             if(Tms - lastSensT > SLEEP_TIME){
+MSG("sleep->start\n");
                 Sstate = SENS_START_MSRMNT;
             }
         break;
         case SENS_OVERCURNT: // try to reinit all after overcurrent
+MSG("overcurrent occured!\n");
             sensors_on();
         break;
         default: // do nothing
