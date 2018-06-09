@@ -1,8 +1,8 @@
 /*
  *                                                                                                  geany_encoding=koi8-r
- * i2c.h
+ * can.c
  *
- * Copyright 2017 Edward V. Emelianov <eddy@sao.ru, edward.emelianoff@gmail.com>
+ * Copyright 2018 Edward V. Emelianov <eddy@sao.ru, edward.emelianoff@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,20 +20,16 @@
  * MA 02110-1301, USA.
  *
  */
+#include "can.h"
 
-// timeout of I2C bus in ms
-#define I2C_TIMEOUT             (100)
-// CSB=1, address 1110110
-#define TSYS01_ADDR0            (0x76 << 1)
-// CSB=0, address 1110111
-#define TSYS01_ADDR1            (0x77 << 1)
-// registers: reset, read ADC value, start converstion, start of PROM
-#define TSYS01_RESET            (0x1E)
-#define TSYS01_ADC_READ         (0x00)
-#define TSYS01_START_CONV       (0x48)
-#define TSYS01_PROM_ADDR0       (0xA0)
-// conversion time (with reserve)
-#define CONV_TIME               (15)
+static uint8_t CAN_addr = 0;
 
-uint8_t read_i2c(uint8_t addr, uint32_t *data, uint8_t nbytes);
-uint8_t write_i2c(uint8_t addr, uint8_t data);
+// get CAN address data from GPIO pins
+void readCANaddr(){
+    CAN_addr = READ_CAN_INV_ADDR();
+    CAN_addr = ~CAN_addr & 0x7;
+}
+
+uint8_t getCANaddr(){
+    return CAN_addr;
+}

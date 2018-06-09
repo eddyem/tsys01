@@ -22,6 +22,7 @@
  */
 
 #include "hardware.h"
+#include "usart.h"
 
 I2C_SPEED curI2Cspeed = LOW_SPEED;
 
@@ -37,13 +38,17 @@ void gpio_setup(void){
                     GPIO_MODER_MODER10_O | GPIO_MODER_MODER11_O |
                     GPIO_MODER_MODER0_O  | GPIO_MODER_MODER1_O  |
                     GPIO_MODER_MODER2_O  | GPIO_MODER_MODER12_O;
-    // multiplexer outputs are push-pull:
-    GPIOB->OTYPER |= GPIO_OTYPER_OT_0  | GPIO_OTYPER_OT_1  | GPIO_OTYPER_OT_2  |
-                     GPIO_OTYPER_OT_12;
+    // multiplexer outputs are push-pull, GPIOB->OTYPER = 0
     MUL_OFF();
     // PA8 - power enable
     GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODER8)) |
                     GPIO_MODER_MODER8_O;
+    // PA13..15 - CAN address, pullup inputs
+    GPIOA->PUPDR = (GPIOA->PUPDR & ~(GPIO_PUPDR_PUPDR13 | GPIO_PUPDR_PUPDR14 |
+                                     GPIO_PUPDR_PUPDR15)
+                    ) |
+                    GPIO_PUPDR_PUPDR13_0 | GPIO_PUPDR_PUPDR14_0 |
+                    GPIO_PUPDR_PUPDR15_0;
     pin_set(LED0_port, LED0_pin); // clear LEDs
     pin_set(LED1_port, LED1_pin);
 }
@@ -54,6 +59,7 @@ void i2c_setup(I2C_SPEED speed){
     }else{
         curI2Cspeed = speed;
     }
+    MSG("setup I2C\n");
     I2C1->CR1 = 0;
 #if I2CPINS == 910
 /*

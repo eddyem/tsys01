@@ -72,6 +72,9 @@
 // check overcurrent (PB3 == 0)
 #define SENSORS_OVERCURNT()  ((1<<3) != (GPIOB->IDR & (1<<3)))
 
+// CAN address - PA13..PA15
+#define READ_CAN_INV_ADDR()  ((GPIOA->IDR & (0x7<<13))>>13)
+
 typedef enum{
     VERYLOW_SPEED,
     LOW_SPEED,

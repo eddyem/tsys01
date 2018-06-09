@@ -26,6 +26,8 @@
 
 #include "hardware.h"
 
+// time for power up procedure (500ms)
+#define POWERUP_TIME        (500)
 // time between two readings (3sec)
 #define SLEEP_TIME          (3000)
 // error in measurement == -300degrC
@@ -52,5 +54,9 @@ void sensors_on();
 
 void showcoeffs();
 void showtemperature();
+
+#ifdef EBUG
+void senstest(char cmd);
+#endif
 
 #endif // __SENSORS_MANAGE_H__

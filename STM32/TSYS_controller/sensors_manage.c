@@ -59,7 +59,7 @@ SensorsState sensors_get_state(){return Sstate;}
 static uint16_t calc_t(uint32_t t, int i){
     uint16_t *coeff = coefficients[curr_mul_addr][i];
     if(coeff[0] == 0) return BAD_TEMPERATURE; // what is with coeffs?
-    if(t < 6500000 || t > 13000000) return BAD_TEMPERATURE; // wrong value - too small or too large
+    if(t < 600000 || t > 30000000) return BAD_TEMPERATURE; // wrong value - too small or too large
     int j;
     double d = (double)t/256., tmp = 0.;
     // k0*(-1.5e-2) + 0.1*1e-5*val*(1*k1 + 1e-5*val*(-2.*k2 + 1e-5*val*(4*k3 + 1e-5*val*(-2*k4))))
@@ -146,20 +146,46 @@ static uint8_t resetproc(){
 static uint8_t getcoefsproc(){
     uint8_t i, j;
     const uint8_t regs[5] = {0xAA, 0xA8, 0xA6, 0xA4, 0xA2}; // commands for coefficients
+#ifdef EBUG
+MSG("sens_present[0]=");
+printu(sens_present[0]);
+SEND(", sens_present[1]=");
+printu(sens_present[1]);
+newline();
+#endif
     for(i = 0; i < 2; ++i){
         if(!(sens_present[i] & (1<<curr_mul_addr))) continue; // no sensors @ given line
         uint8_t err = 5;
         uint16_t *coef = coefficients[curr_mul_addr][i];
+#ifdef EBUG
+SEND("muladdr: ");
+usart_putchar('0'+curr_mul_addr);
+SEND(", i: ");
+usart_putchar('0'+i);
+newline();
+#endif
         for(j = 0; j < 5; ++j){
             uint32_t K;
+MSG("N=");
+#ifdef EBUG
+usart_putchar('0'+j);
+newline();
+#endif
             if(write_i2c(Taddr[i], regs[j])){
+MSG("write\n");
                 if(read_i2c(Taddr[i], &K, 2)){
-                    coef[i] = K;
+MSG("read: ");
+#ifdef EBUG
+printu(K);
+newline();
+#endif
+                    coef[j] = K;
                     --err;
                 }else break;
             }else break;
         }
         if(err){ // restart all procedures if we can't get coeffs of present sensor
+MSG("Error: can't get all coefficients!\n");
             sensors_on();
             return 1;
         }
@@ -172,11 +198,20 @@ static uint8_t msrtempproc(){
     uint8_t i, j;
     for(i = 0; i < 2; ++i){
         if(!(sens_present[i] & (1<<curr_mul_addr))) continue; // no sensors @ given line
+MSG("Start measurement for #");
+#ifdef EBUG
+usart_putchar('0'+curr_mul_addr);
+usart_putchar('_');
+usart_putchar('0'+i);
+newline();
+#endif
         for(j = 0; j < 5; ++j){
             if(write_i2c(Taddr[i], TSYS01_START_CONV)) break;
+MSG("try more\n");
             if(!write_i2c(Taddr[i], TSYS01_RESET)) i2c_setup(CURRENT_SPEED); // maybe I2C restart will solve the problem?
         }
         if(j == 5){
+MSG("error start monitoring, reset\n");
             sensors_on(); // all very bad
             return 1;
         }
@@ -190,16 +225,32 @@ static uint8_t gettempproc(){
     for(i = 0; i < 2; ++i){
         if(!(sens_present[i] & (1<<curr_mul_addr))) continue; // no sensors @ given line
         uint8_t err = 1;
+MSG("Sensor #");
+#ifdef EBUG
+usart_putchar('0'+curr_mul_addr);
+usart_putchar('_');
+usart_putchar('0'+i);
+newline();
+#endif
         if(write_i2c(Taddr[i], TSYS01_ADC_READ)){
             uint32_t t;
+MSG("Read\n");
             if(read_i2c(Taddr[i], &t, 3) && t){
+#ifdef EBUG
+SEND("Calc from ");
+printu(t);
+newline();
+#endif
                 if(BAD_TEMPERATURE != (Temperatures[curr_mul_addr][i] = calc_t(t, i))){
                     err = 0;
                     ++Ntemp_measured;
                 }
             }
         }
-        if(err) write_i2c(Taddr[i], TSYS01_RESET);
+        if(err){
+MSG("Can't read temperature\n");
+            write_i2c(Taddr[i], TSYS01_RESET);
+        }
     }
     return 0;
 }
@@ -219,7 +270,10 @@ static uint8_t sensors_scan(uint8_t (* procfn)()){
         callctr = 0;
         uint8_t s = procfn();
         MUL_OFF();
-        if(s) return 0;
+        if(s){ // start scan again if error
+            curr_mul_addr = 0;
+            return 0;
+        }
         if(++curr_mul_addr > MUL_MAX_ADDRESS){ // scan is over
             curr_mul_addr = 0;
             return 1;
@@ -287,17 +341,21 @@ void sensors_process(){
 MSG("init->reset\n");
             i2c_setup(CURRENT_SPEED);
             Sstate = SENS_RESETING;
+            lastSensT = Tms;
+            overcurnt_ctr = 0;
         break;
         case SENS_RESETING: // reset & discovery procedure
-            overcurnt_ctr = 0;
-            if(sensors_scan(resetproc)){
-                count_sensors(); // get total amount of sensors
-                if(Nsens_present){
+            if(Tms - lastSensT > POWERUP_TIME){
+                overcurnt_ctr = 0;
+                if(sensors_scan(resetproc)){
+                    count_sensors(); // get total amount of sensors
+                    if(Nsens_present){
 MSG("reset->getcoeff\n");
-                    Sstate = SENS_GET_COEFFS;
-                }else{ // no sensors found
+                        Sstate = SENS_GET_COEFFS;
+                    }else{ // no sensors found
 MSG("reset->off\n");
-                    Sstate = SENS_OFF;
+                        sensors_off();
+                    }
                 }
             }
         break;
@@ -306,8 +364,8 @@ MSG("reset->off\n");
 MSG("got coeffs for ");
 #ifdef EBUG
 printu(Nsens_present);
+SEND(" sensors ->start\n");
 #endif
-MSG(" sensors ->start\n");
                 Sstate = SENS_START_MSRMNT;
             }
         break;
@@ -345,10 +403,44 @@ MSG("sleep->start\n");
             }
         break;
         case SENS_OVERCURNT: // try to reinit all after overcurrent
-MSG("overcurrent occured!\n");
+MSG("try to turn on after overcurrent\n");
             sensors_on();
         break;
         default: // do nothing
         break;
     }
 }
+
+#ifdef EBUG
+void senstest(char cmd){
+    MUL_OFF();
+    SENSORS_ON();
+    if(SENSORS_OVERCURNT()){
+        SENSORS_OFF();
+        SEND("Overcurrent!\n");
+        return;
+    }
+    curr_mul_addr = 0;
+    MUL_ADDRESS(0);
+    MUL_ON();
+    switch (cmd){
+        case 'd': // discovery once
+            resetproc();
+            count_sensors();
+        break;
+        case 'g':
+            getcoefsproc();
+        break;
+        case 't':
+            msrtempproc();
+        break;
+        case 's':
+            gettempproc();
+            showtemperature();
+        break;
+        default:
+        return;
+    }
+    Sstate = SENS_OFF;
+}
+#endif

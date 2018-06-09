@@ -23,6 +23,7 @@
 #include "usart.h"
 #include "i2c.h"
 #include "sensors_manage.h"
+#include "can.h"
 
 #pragma message("USARTNUM=" STR(USARTNUM))
 #pragma message("I2CPINS=" STR(I2CPINS))
@@ -61,7 +62,7 @@ void iwdg_setup(){
 }
 
 int main(void){
-    uint32_t lastT = 0;
+    uint32_t lastT = 0, lastS = 0;
     int16_t L = 0;
     char *txt;
     sysreset();
@@ -70,8 +71,11 @@ int main(void){
     usart_setup();
     i2c_setup(LOW_SPEED);
     iwdg_setup();
+    readCANaddr();
 
-    SEND("Greetings!\n");
+    SEND("Greetings! My address is ");
+    printu(getCANaddr());
+    newline();
 
     while (1){
         IWDG->KR = IWDG_REFRESH; // refresh watchdog
@@ -79,7 +83,10 @@ int main(void){
             LED_blink(LED0);
             lastT = Tms;
         }
-        sensors_process();
+        if(lastS > Tms || Tms - lastS > 5){ // run sensors proc. once per 5ms
+            sensors_process();
+            lastS = Tms;
+        }
         if(usartrx()){ // usart1 received data, store in in buffer
             L = usart_getline(&txt);
             char _1st = txt[0];
@@ -89,7 +96,7 @@ int main(void){
                     case 'C': // 'C' - show coefficients
                         showcoeffs();
                     break;
-                    case 'D':
+                    case 'O':
                         sensors_on();
                     break;
                     case 'T': // 'T' - get temperature
@@ -111,14 +118,40 @@ int main(void){
                         i2c_setup(HIGH_SPEED);
                         SEND("High speed\n");
                     break;
+                    case 'G':
+                        SEND("Can address: ");
+                        printu(getCANaddr());
+                        newline();
+                    break;
+#ifdef EBUG
+                    case 'd':
+                    case 'g':
+                    case 't':
+                    case 's':
+                        senstest(_1st);
+                    break;
+                    case 'p':
+                        sensors_process();
+                    break;
+#endif
                     default: // help
                         SEND("'C' - show coefficients\n"
-                        "'D' - slave discovery\n"
+                        "'O' - turn On sensors\n"
                         "'T' - get raw temperature\n"
                         "'R' - reinit I2C\n"
                         "'V' - very low speed\n"
                         "'L' - low speed\n"
-                        "'H' - high speed\n");
+                        "'H' - high speed\n"
+                        "'G' - get CAN address\n"
+#ifdef EBUG
+                        "\t\tTEST OPTIONS\n"
+                        "'d' - discovery\n"
+                        "'g' - get coeff\n"
+                        "'t' - measure temper\n"
+                        "'s' - show temper measured\n"
+                        "'p' - sensors_process()\n"
+#endif
+                        );
                     break;
                 }
             }

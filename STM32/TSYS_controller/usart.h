@@ -34,7 +34,7 @@
 #define NEWLINE() do{}while(LINE_BUSY == usart_send_blocking('\n', 1))
 
 #ifdef EBUG
-#define MSG(str)  SEND(str)
+#define MSG(str)  do{SEND(__FILE__ " (L" STR(__LINE__) "): " str);}while(0)
 #else
 #define MSG(str)
 #endif
