@@ -26,7 +26,7 @@
 extern volatile uint32_t Tms;
 static int datalen[2] = {0,0}; // received data line length (including '\n')
 
-int linerdy = 0,        // received data ready
+volatile int linerdy = 0,        // received data ready
     dlen = 0,           // length of data (including '\n') in current buffer
     bufovr = 0,         // input buffer overfull
     txrdy = 1           // transmission done

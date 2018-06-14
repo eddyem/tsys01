@@ -32,6 +32,8 @@
 #define SLEEP_TIME          (3000)
 // error in measurement == -300degrC
 #define BAD_TEMPERATURE     (-30000)
+// no sensor on given channel
+#define NO_SENSOR           (-31000)
 
 typedef enum{
      SENS_INITING           // power on

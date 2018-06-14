@@ -64,6 +64,7 @@ void iwdg_setup(){
 int main(void){
     uint32_t lastT = 0, lastS = 0;
     int16_t L = 0;
+    uint8_t scan = 0, gotmeasurement = 0;
     char *txt;
     sysreset();
     SysTick_Config(6000, 1);
@@ -87,6 +88,20 @@ int main(void){
             sensors_process();
             lastS = Tms;
         }
+        if(scan){
+            if(SENS_SLEEPING == sensors_get_state()){ // show temperature @ each sleeping occurence
+                if(!gotmeasurement){
+                    //SEND("\nTIME=");
+                    printu(Tms);
+                    usart_putchar('\t');
+                    //newline();
+                    gotmeasurement = 1;
+                    showtemperature();
+                }
+            }else{
+                gotmeasurement = 0;
+            }
+        }
         if(usartrx()){ // usart1 received data, store in in buffer
             L = usart_getline(&txt);
             char _1st = txt[0];
@@ -98,6 +113,9 @@ int main(void){
                     break;
                     case 'O':
                         sensors_on();
+                    break;
+                    case 'F':
+                        sensors_off();
                     break;
                     case 'T': // 'T' - get temperature
                         showtemperature();
@@ -123,6 +141,14 @@ int main(void){
                         printu(getCANaddr());
                         newline();
                     break;
+                    case 'S':
+                        SEND("Start scan mode\n");
+                        scan = 1;
+                    break;
+                    case 'P':
+                        SEND("End scan mode\n");
+                        scan = 0;
+                    break;
 #ifdef EBUG
                     case 'd':
                     case 'g':
@@ -136,13 +162,16 @@ int main(void){
 #endif
                     default: // help
                         SEND("'C' - show coefficients\n"
-                        "'O' - turn On sensors\n"
-                        "'T' - get raw temperature\n"
-                        "'R' - reinit I2C\n"
-                        "'V' - very low speed\n"
-                        "'L' - low speed\n"
-                        "'H' - high speed\n"
                         "'G' - get CAN address\n"
+                        "'F' - turn oFf sensors\n"
+                        "'H' - high speed\n"
+                        "'L' - low speed\n"
+                        "'O' - turn On sensors\n"
+                        "'P' - stoP themperature scan\n"
+                        "'R' - reinit I2C\n"
+                        "'S' - Start themperature scan\n"
+                        "'T' - get raw temperature\n"
+                        "'V' - very low speed\n"
 #ifdef EBUG
                         "\t\tTEST OPTIONS\n"
                         "'d' - discovery\n"

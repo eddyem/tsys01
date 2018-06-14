@@ -31,7 +31,6 @@
 
 // macro for static strings
 #define SEND(str) do{}while(LINE_BUSY == usart_send_blocking(str, sizeof(str)-1))
-#define NEWLINE() do{}while(LINE_BUSY == usart_send_blocking('\n', 1))
 
 #ifdef EBUG
 #define MSG(str)  do{SEND(__FILE__ " (L" STR(__LINE__) "): " str);}while(0)
@@ -48,7 +47,7 @@ typedef enum{
 #define usartrx()  (linerdy)
 #define usartovr() (bufovr)
 
-extern int linerdy, bufovr, txrdy;
+extern volatile int linerdy, bufovr, txrdy;
 
 void usart_setup();
 int usart_getline(char **line);

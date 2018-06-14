@@ -210,11 +210,11 @@ newline();
 MSG("try more\n");
             if(!write_i2c(Taddr[i], TSYS01_RESET)) i2c_setup(CURRENT_SPEED); // maybe I2C restart will solve the problem?
         }
-        if(j == 5){
-MSG("error start monitoring, reset\n");
+        /*if(j == 5){
+MSG("error start monitoring, reset counter\n");
             sensors_on(); // all very bad
             return 1;
-        }
+        }*/
     }
     return 0;
 }
@@ -224,6 +224,7 @@ static uint8_t gettempproc(){
     uint8_t i;
     for(i = 0; i < 2; ++i){
         if(!(sens_present[i] & (1<<curr_mul_addr))) continue; // no sensors @ given line
+        Temperatures[curr_mul_addr][i] = NO_SENSOR;
         uint8_t err = 1;
 MSG("Sensor #");
 #ifdef EBUG
@@ -311,21 +312,28 @@ void showtemperature(){
     }
     if(Ntemp_measured == 0){
         SEND("No right measurements\n");
+        return;
     }
     for(a = 0; a <= MUL_MAX_ADDRESS; ++a){
         for(p = 0; p < 2; ++p){
-            if(!(sens_present[p] & (1<<a))) continue; // no sensor
-            char b[] = {'T', a+'0', p+'0', '=', '+'};
+            if(!(sens_present[p] & (1<<a))){
+                SEND("-31000\t"); // NO_SENSOR
+                continue; // no sensor
+            }
+            //char b[] = {'T', a+'0', p+'0', '=', '+'};
             int16_t t = Temperatures[a][p];
             if(t < 0){
-                b[4] = '-';
+                //b[4] = '-';
                 t = -t;
+                usart_putchar('-');
             }
-            while(ALL_OK != usart_send_blocking(b, 5));
+            //while(ALL_OK != usart_send_blocking(b, 5));
             printu(t);
-            newline();
+            usart_putchar('\t');
+            //newline();
         }
     }
+    newline();
 }
 
 // finite state machine for sensors switching & checking
@@ -386,6 +394,10 @@ MSG("->gather\n");
         case SENS_GATHERING: // scan all sensors, get thermal data & calculate temperature
             if(sensors_scan(gettempproc)){
                 lastSensT = Tms;
+                if(Nsens_present != Ntemp_measured) i2c_setup(CURRENT_SPEED);
+                Sstate = SENS_SLEEPING;
+MSG("->sleep\n");
+                /*
                 if(Nsens_present == Ntemp_measured){ // All OK, amount of T == amount of sensors
 MSG("->sleep\n");
                     Sstate = SENS_SLEEPING;
@@ -393,7 +405,7 @@ MSG("->sleep\n");
 MSG("gather error ->start\n");
                     i2c_setup(CURRENT_SPEED);
                     Sstate = SENS_START_MSRMNT;
-                }
+                }*/
             }
         break;
         case SENS_SLEEPING: // wait for `SLEEP_TIME` till next measurements
