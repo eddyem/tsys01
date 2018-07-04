@@ -1,4 +1,4 @@
-update=Пт 13 апр 2018 09:41:34
+update=Ср 04 июл 2018 11:00:45
 version=1
 last_client=kicad
 [pcbnew]
@@ -41,3 +41,4 @@ LibDir=/home/eddy/kicad/Kicad-Libraries/library;/usr/share/kicad/kicad-symbols
 [eeschema/libraries]
 LibName1=stm32-rescue
 LibName2=acs712
+LibName3=Switch
