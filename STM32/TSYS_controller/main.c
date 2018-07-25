@@ -24,6 +24,7 @@
 #include "i2c.h"
 #include "sensors_manage.h"
 #include "can.h"
+#include "can_process.h"
 
 #pragma message("USARTNUM=" STR(USARTNUM))
 #pragma message("I2CPINS=" STR(I2CPINS))
@@ -61,10 +62,17 @@ void iwdg_setup(){
     IWDG->KR = IWDG_REFRESH; /* (6) */
 }
 
+void CANsend(uint16_t targetID, uint8_t cmd, char echo){
+    if(CAN_OK == can_send_cmd(targetID, cmd)){
+        usart_putchar(echo);
+        newline();
+    }
+}
+
 int main(void){
     uint32_t lastT = 0, lastS = 0;
-    int16_t L = 0;
-    uint8_t scan = 0, gotmeasurement = 0;
+    int16_t L = 0, ID;
+    uint8_t gotmeasurement = 0;
     char *txt;
     sysreset();
     SysTick_Config(6000, 1);
@@ -72,28 +80,43 @@ int main(void){
     usart_setup();
     i2c_setup(LOW_SPEED);
     iwdg_setup();
-    readCANaddr();
+    CAN_setup();
 
     SEND("Greetings! My address is ");
-    printu(getCANaddr());
+    printuhex(getCANID());
     newline();
+
+    if(RCC->CSR & RCC_CSR_IWDGRSTF){ // watchdog reset occured
+        SEND("WDGRESET=1\n");
+    }
+    if(RCC->CSR & RCC_CSR_SFTRSTF){ // software reset occured
+        SEND("SOFTRESET=1\n");
+    }
+    RCC->CSR |= RCC_CSR_RMVF; // remove reset flags
 
     while (1){
         IWDG->KR = IWDG_REFRESH; // refresh watchdog
         if(lastT > Tms || Tms - lastT > 499){
             LED_blink(LED0);
             lastT = Tms;
+            // send dummy command to noone to test CAN bus
+            can_send_cmd(NOONE_ID, CMD_DUMMY0);
         }
         if(lastS > Tms || Tms - lastS > 5){ // run sensors proc. once per 5ms
             sensors_process();
             lastS = Tms;
         }
-        if(scan){
+        can_proc();
+        if(CAN_get_status() == CAN_FIFO_OVERRUN){
+            SEND("CAN bus fifo overrun occured!\n");
+        }
+        can_messages_proc();
+        //if(sensors_scan_mode){
             if(SENS_SLEEPING == sensors_get_state()){ // show temperature @ each sleeping occurence
                 if(!gotmeasurement){
                     //SEND("\nTIME=");
-                    printu(Tms);
-                    usart_putchar('\t');
+                    //printu(Tms);
+                    //usart_putchar('\t');
                     //newline();
                     gotmeasurement = 1;
                     showtemperature();
@@ -101,55 +124,81 @@ int main(void){
             }else{
                 gotmeasurement = 0;
             }
-        }
+        //}
         if(usartrx()){ // usart1 received data, store in in buffer
             L = usart_getline(&txt);
             char _1st = txt[0];
             if(L == 2 && txt[1] == '\n'){
                 L = 0;
-                switch(_1st){
+                if(_1st > '0' && _1st < '8'){
+                    ID = (CAN_ID_PREFIX & CAN_ID_MASK) | (_1st - '0');
+                    CANsend(ID, CMD_START_MEASUREMENT, _1st);
+                }else switch(_1st){
+                    case 'A':
+                        CANsend(BCAST_ID, CMD_START_MEASUREMENT, _1st);
+                        if(!sensors_scan_mode) sensors_start();
+                    break;
+                    case 'B':
+                        CANsend(BCAST_ID, CMD_DUMMY0, _1st);
+                    break;
                     case 'C': // 'C' - show coefficients
                         showcoeffs();
                     break;
-                    case 'O':
-                        sensors_on();
+                    case 'D':
+                        CANsend(MASTER_ID, CMD_DUMMY1, _1st);
+                    break;
+                    case 'E':
+                        SEND("End scan mode\n");
+                        sensors_scan_mode = 0;
                     break;
                     case 'F':
                         sensors_off();
                     break;
-                    case 'T': // 'T' - get temperature
-                        showtemperature();
-                    break;
-                    case 'R':
-                        i2c_setup(CURRENT_SPEED);
-                        SEND("Reinit I2C\n");
-                    break;
-                    case 'V':
-                        i2c_setup(VERYLOW_SPEED);
-                        SEND("Very low speed\n");
-                    break;
-                    case 'L':
-                        i2c_setup(LOW_SPEED);
-                        SEND("Low speed\n");
+                    case 'G':
+                        SEND("Can address: ");
+                        printuhex(getCANID());
+                        newline();
                     break;
                     case 'H':
                         i2c_setup(HIGH_SPEED);
                         SEND("High speed\n");
                     break;
-                    case 'G':
+                    case 'I':
+                        CAN_reinit();
                         SEND("Can address: ");
-                        printu(getCANaddr());
+                        printuhex(getCANID());
                         newline();
+                    break;
+                    case 'L':
+                        i2c_setup(LOW_SPEED);
+                        SEND("Low speed\n");
+                    break;
+                    case 'O':
+                        sensors_on();
+                    break;
+                    case 'P':
+                        CANsend(BCAST_ID, CMD_PING, _1st);
+                    break;
+                    case 'R':
+                        i2c_setup(CURRENT_SPEED);
+                        SEND("Reinit I2C\n");
                     break;
                     case 'S':
                         SEND("Start scan mode\n");
-                        scan = 1;
+                        sensors_scan_mode = 1;
                     break;
-                    case 'P':
-                        SEND("End scan mode\n");
-                        scan = 0;
+                    case '0':
+                    case 'T': // 'T' - get temperature
+                        if(!sensors_scan_mode) sensors_start();
                     break;
-#ifdef EBUG
+                    case 'V':
+                        i2c_setup(VERYLOW_SPEED);
+                        SEND("Very low speed\n");
+                    break;
+                    case 'Z':
+                        CANsend(BCAST_ID, CMD_SENSORS_STATE, _1st);
+                    break;
+#if 0
                     case 'd':
                     case 'g':
                     case 't':
@@ -161,24 +210,32 @@ int main(void){
                     break;
 #endif
                     default: // help
-                        SEND("'C' - show coefficients\n"
-                        "'G' - get CAN address\n"
-                        "'F' - turn oFf sensors\n"
-                        "'H' - high speed\n"
-                        "'L' - low speed\n"
-                        "'O' - turn On sensors\n"
-                        "'P' - stoP themperature scan\n"
-                        "'R' - reinit I2C\n"
-                        "'S' - Start themperature scan\n"
-                        "'T' - get raw temperature\n"
-                        "'V' - very low speed\n"
-#ifdef EBUG
+                        SEND(
+                        "0..7 - start measurement on given controller\n"
+                        "A - start measurement on all controllers\n"
+                        "B - send broadcast CAN dummy message\n"
+                        "C - show coefficients\n"
+                        "D - send CAN dummy message to master\n"
+                        "E - end themperature scan\n"
+                        "F - turn oFf sensors\n"
+                        "G - get CAN address\n"
+                        "H - high speed\n"
+                        "I - reinit CAN\n"
+                        "L - low speed\n"
+                        "O - turn On sensors\n"
+                        "P - ping everyone over CAN\n"
+                        "R - reinit I2C\n"
+                        "S - Start themperature scan\n"
+                        "T - start temperature measurement\n"
+                        "V - very low speed\n"
+                        "Z - get sensors state over CAN\n"
+#if 0
                         "\t\tTEST OPTIONS\n"
-                        "'d' - discovery\n"
-                        "'g' - get coeff\n"
-                        "'t' - measure temper\n"
-                        "'s' - show temper measured\n"
-                        "'p' - sensors_process()\n"
+                        "d - discovery\n"
+                        "g - get coeff\n"
+                        "t - measure temper\n"
+                        "s - show temper measured\n"
+                        "p - sensors_process()\n"
 #endif
                         );
                     break;

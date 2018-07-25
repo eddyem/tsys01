@@ -35,6 +35,10 @@
 // no sensor on given channel
 #define NO_SENSOR           (-31000)
 
+extern uint8_t sensors_scan_mode;
+extern int16_t Temperatures[MUL_MAX_ADDRESS+1][2];
+extern uint8_t sens_present[2];
+
 typedef enum{
      SENS_INITING           // power on
     ,SENS_RESETING          // discovery sensors resetting them
@@ -53,6 +57,7 @@ void sensors_process();
 
 void sensors_off();
 void sensors_on();
+void sensors_start();
 
 void showcoeffs();
 void showtemperature();

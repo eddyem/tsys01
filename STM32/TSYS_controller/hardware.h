@@ -55,12 +55,14 @@
 #define LED1_pin    LED0_pin
 #endif
 #define LED_blink(x) pin_toggle(x ## _port, x ## _pin)
+#define LED_on(x)    pin_clear(x ## _port, x ## _pin)
+#define LED_off(x)   pin_set(x ## _port, x ## _pin)
 
 // set active channel number
 #define MUL_ADDRESS(x)  do{GPIOB->BSRR = (0x7 << 16) | (x);}while(0)
 // address from 0 to 7
 // WARNING!!! In current case all variables for sensors counting are uint8_t, so if
-// MUL_MAX_ADDRESS would be greater than 7 you need to edit sensors_manage.c
+// MUL_MAX_ADDRESS would be greater than 7 you need to edit all codes!!!11111111111111111111
 #define MUL_MAX_ADDRESS     (7)
 // turn multiplexer on/off (PB12 -> 1/0)
 #define MUL_ON()        pin_clear(GPIOB, (1<<12))
@@ -74,6 +76,7 @@
 
 // CAN address - PA13..PA15
 #define READ_CAN_INV_ADDR()  ((GPIOA->IDR & (0x7<<13))>>13)
+extern uint8_t Controller_address;
 
 typedef enum{
     VERYLOW_SPEED,

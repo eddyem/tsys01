@@ -94,10 +94,12 @@ ADC_TR_HTÌ65536Ö0
 ADC_TR_LTÌ65536Ö0
 AHB2PERIPH_BASEÌ65536Ö0
 AHBPERIPH_BASEÌ65536Ö0
-ALL_OKÌ4Îanon_enum_1Ö0
+ALL_OKÌ4Îanon_enum_5Ö0
 APBPERIPH_BASEÌ65536Ö0
 BAD_TEMPERATUREÌ65536Ö0
+BCAST_IDÌ65536Ö0
 CANÌ65536Ö0
+CANIDÌ16384Ö0Ïuint16_t
 CAN_BASEÌ65536Ö0
 CAN_BTR_BRPÌ65536Ö0
 CAN_BTR_LBKMÌ65536Ö0
@@ -114,6 +116,7 @@ CAN_BTR_TS2Ì65536Ö0
 CAN_BTR_TS2_0Ì65536Ö0
 CAN_BTR_TS2_1Ì65536Ö0
 CAN_BTR_TS2_2Ì65536Ö0
+CAN_BUSYÌ4Îanon_enum_2Ö0
 CAN_ESR_BOFFÌ65536Ö0
 CAN_ESR_EPVFÌ65536Ö0
 CAN_ESR_EWGFÌ65536Ö0
@@ -1049,6 +1052,7 @@ CAN_FFA1R_FFA6Ì65536Ö0
 CAN_FFA1R_FFA7Ì65536Ö0
 CAN_FFA1R_FFA8Ì65536Ö0
 CAN_FFA1R_FFA9Ì65536Ö0
+CAN_FIFO_OVERRUNÌ4Îanon_enum_2Ö0
 CAN_FM1R_FBMÌ65536Ö0
 CAN_FM1R_FBM0Ì65536Ö0
 CAN_FM1R_FBM1Ì65536Ö0
@@ -1080,6 +1084,8 @@ CAN_FS1R_FSC6Ì65536Ö0
 CAN_FS1R_FSC7Ì65536Ö0
 CAN_FS1R_FSC8Ì65536Ö0
 CAN_FS1R_FSC9Ì65536Ö0
+CAN_ID_MASKÌ65536Ö0
+CAN_ID_PREFIXÌ65536Ö0
 CAN_IER_BOFIEÌ65536Ö0
 CAN_IER_EPVIEÌ65536Ö0
 CAN_IER_ERRIEÌ65536Ö0
@@ -1094,6 +1100,7 @@ CAN_IER_LECIEÌ65536Ö0
 CAN_IER_SLKIEÌ65536Ö0
 CAN_IER_TMEIEÌ65536Ö0
 CAN_IER_WKUIEÌ65536Ö0
+CAN_INMESSAGE_SIZEÌ65536Ö0
 CAN_MCR_ABOMÌ65536Ö0
 CAN_MCR_AWUMÌ65536Ö0
 CAN_MCR_INRQÌ65536Ö0
@@ -1112,6 +1119,7 @@ CAN_MSR_SLAKÌ65536Ö0
 CAN_MSR_SLAKIÌ65536Ö0
 CAN_MSR_TXMÌ65536Ö0
 CAN_MSR_WKUIÌ65536Ö0
+CAN_OKÌ4Îanon_enum_2Ö0
 CAN_RDH0R_DATA4Ì65536Ö0
 CAN_RDH0R_DATA5Ì65536Ö0
 CAN_RDH0R_DATA6Ì65536Ö0
@@ -1134,6 +1142,7 @@ CAN_RDT0R_TIMEÌ65536Ö0
 CAN_RDT1R_DLCÌ65536Ö0
 CAN_RDT1R_FMIÌ65536Ö0
 CAN_RDT1R_TIMEÌ65536Ö0
+CAN_READYÌ4Îanon_enum_2Ö0
 CAN_RF0R_FMP0Ì65536Ö0
 CAN_RF0R_FOVR0Ì65536Ö0
 CAN_RF0R_FULL0Ì65536Ö0
@@ -1150,6 +1159,7 @@ CAN_RI1R_EXIDÌ65536Ö0
 CAN_RI1R_IDEÌ65536Ö0
 CAN_RI1R_RTRÌ65536Ö0
 CAN_RI1R_STIDÌ65536Ö0
+CAN_STOPÌ4Îanon_enum_2Ö0
 CAN_TDH0R_DATA4Ì65536Ö0
 CAN_TDH0R_DATA5Ì65536Ö0
 CAN_TDH0R_DATA6Ì65536Ö0
@@ -1222,6 +1232,19 @@ CAN_TSR_TME2Ì65536Ö0
 CAN_TSR_TXOK0Ì65536Ö0
 CAN_TSR_TXOK1Ì65536Ö0
 CAN_TSR_TXOK2Ì65536Ö0
+CAN_commandsÌ4096Ö0Ïanon_enum_8
+CAN_get_statusÌ16Í()Ö0ÏCAN_status
+CAN_get_statusÌ1024Í()Ö0ÏCAN_status
+CAN_messageÌ4096Ö0Ïanon_struct_1
+CAN_messagebuf_popÌ16Í()Ö0ÏCAN_message *
+CAN_messagebuf_popÌ1024Í()Ö0ÏCAN_message *
+CAN_messagebuf_pushÌ16Í(CAN_message *msg)Ö0Ïint
+CAN_reinitÌ16Í()Ö0Ïvoid
+CAN_reinitÌ1024Í()Ö0Ïvoid
+CAN_setupÌ16Í()Ö0Ïvoid
+CAN_setupÌ1024Í()Ö0Ïvoid
+CAN_statusÌ4096Ö0Ïanon_enum_2
+CANsendÌ16Í(uint16_t targetID, uint8_t cmd, char echo)Ö0Ïvoid
 CECÌ65536Ö0
 CEC_BASEÌ65536Ö0
 CEC_CFGR_BRDNOGENÌ65536Ö0
@@ -1266,6 +1289,27 @@ CEC_TXDR_RXDÌ65536Ö0
 CEC_TXDR_TXDÌ65536Ö0
 CLEAR_BITÌ131072Í(REG,BIT)Ö0
 CLEAR_REGÌ131072Í(REG)Ö0
+CMD_DUMMY0Ì4Îanon_enum_3Ö0
+CMD_DUMMY0Ì4Îanon_enum_6Ö0
+CMD_DUMMY0Ì4Îanon_enum_7Ö0
+CMD_DUMMY0Ì4Îanon_enum_8Ö0
+CMD_DUMMY1Ì4Îanon_enum_3Ö0
+CMD_DUMMY1Ì4Îanon_enum_6Ö0
+CMD_DUMMY1Ì4Îanon_enum_7Ö0
+CMD_DUMMY1Ì4Îanon_enum_8Ö0
+CMD_PINGÌ4Îanon_enum_3Ö0
+CMD_PINGÌ4Îanon_enum_6Ö0
+CMD_PINGÌ4Îanon_enum_7Ö0
+CMD_PINGÌ4Îanon_enum_8Ö0
+CMD_SENSORS_STATEÌ4Îanon_enum_3Ö0
+CMD_SENSORS_STATEÌ4Îanon_enum_6Ö0
+CMD_SENSORS_STATEÌ4Îanon_enum_7Ö0
+CMD_SENSORS_STATEÌ4Îanon_enum_8Ö0
+CMD_START_MEASUREMENTÌ4Îanon_enum_3Ö0
+CMD_START_MEASUREMENTÌ4Îanon_enum_6Ö0
+CMD_START_MEASUREMENTÌ4Îanon_enum_7Ö0
+CMD_START_MEASUREMENTÌ4Îanon_enum_8Ö0
+COMMAND_MARKÌ65536Ö0
 CONCATÌ131072Í(a,b)Ö0
 CONV_TIMEÌ65536Ö0
 CRCÌ65536Ö0
@@ -1312,6 +1356,9 @@ CRS_ISR_SYNCOKFÌ65536Ö0
 CRS_ISR_SYNCWARNFÌ65536Ö0
 CRS_ISR_TRIMOVFÌ65536Ö0
 CURRENT_SPEEDÌ4Îanon_enum_0Ö0
+Controller_addressÌ16384Ö0Ïuint8_t
+Controller_addressÌ32768Ö0Ïuint8_t
+DATA_MARKÌ65536Ö0
 DBGMCUÌ65536Ö0
 DBGMCU_APB1_FZ_DBG_CAN_STOPÌ65536Ö0
 DBGMCU_APB1_FZ_DBG_I2C1_SMBUS_TIMEOUTÌ65536Ö0
@@ -1440,7 +1487,6 @@ DMA_ISR_TEIF4Ì65536Ö0
 DMA_ISR_TEIF5Ì65536Ö0
 DMA_ISR_TEIF6Ì65536Ö0
 DMA_ISR_TEIF7Ì65536Ö0
-EBUGÌ65536Ö0
 EXTIÌ65536Ö0
 EXTI_BASEÌ65536Ö0
 EXTI_EMR_MR0Ì65536Ö0
@@ -2199,15 +2245,19 @@ LED0_portÌ65536Ö0
 LED1_pinÌ65536Ö0
 LED1_portÌ65536Ö0
 LED_blinkÌ131072Í(x)Ö0
-LINE_BUSYÌ4Îanon_enum_1Ö0
+LED_offÌ131072Í(x)Ö0
+LED_onÌ131072Í(x)Ö0
+LINE_BUSYÌ4Îanon_enum_5Ö0
 LOW_SPEEDÌ4Îanon_enum_0Ö0
+MASTER_IDÌ65536Ö0
 MODIFY_REGÌ131072Í(REG,CLEARMASK,SETMASK)Ö0
 MSGÌ131072Í(str)Ö0
 MUL_ADDRESSÌ131072Í(x)Ö0
 MUL_MAX_ADDRESSÌ65536Ö0
 MUL_OFFÌ131072Í()Ö0
 MUL_ONÌ131072Í()Ö0
-NEWLINEÌ131072Í()Ö0
+NOONE_IDÌ65536Ö0
+NO_SENSORÌ65536Ö0
 NULLÌ65536Ö0
 NVICÌ65536Ö0
 NVIC_BASEÌ65536Ö0
@@ -2228,6 +2278,7 @@ OB_WRP2_nWRP2Ì65536Ö0
 OB_WRP3_WRP3Ì65536Ö0
 OB_WRP3_nWRP3Ì65536Ö0
 PERIPH_BASEÌ65536Ö0
+POWERUP_TIMEÌ65536Ö0
 PTRDIFF_MAXÌ65536Ö0
 PTRDIFF_MINÌ65536Ö0
 PTRDIFF_WIDTHÌ65536Ö0
@@ -2556,6 +2607,7 @@ RCC_CSR_WWDGRSTFÌ65536Ö0
 RCC_IRQHandlerÌ65536Ö0
 RCC_IRQnÌ65536Ö0
 READ_BITÌ131072Í(REG,BIT)Ö0
+READ_CAN_INV_ADDRÌ131072Í()Ö0
 READ_REGÌ131072Í(REG)Ö0
 RTCÌ65536Ö0
 RTC_ALRMAR_DTÌ65536Ö0
@@ -2832,19 +2884,20 @@ SCB_SHCSR_SVCALLPENDED_MskÌ65536Ö0
 SCB_SHCSR_SVCALLPENDED_PosÌ65536Ö0
 SCS_BASEÌ65536Ö0
 SENDÌ131072Í(str)Ö0
+SEND_TIMEOUT_MSÌ65536Ö0
 SENSORS_OFFÌ131072Í()Ö0
 SENSORS_ONÌ131072Í()Ö0
 SENSORS_OVERCURNTÌ131072Í()Ö0
-SENS_GATHERINGÌ4Îanon_enum_2Ö0
-SENS_GET_COEFFSÌ4Îanon_enum_2Ö0
-SENS_INITINGÌ4Îanon_enum_2Ö0
-SENS_OFFÌ4Îanon_enum_2Ö0
-SENS_OVERCURNTÌ4Îanon_enum_2Ö0
-SENS_OVERCURNT_OFFÌ4Îanon_enum_2Ö0
-SENS_RESETINGÌ4Îanon_enum_2Ö0
-SENS_SLEEPINGÌ4Îanon_enum_2Ö0
-SENS_START_MSRMNTÌ4Îanon_enum_2Ö0
-SENS_WAITINGÌ4Îanon_enum_2Ö0
+SENS_GATHERINGÌ4Îanon_enum_4Ö0
+SENS_GET_COEFFSÌ4Îanon_enum_4Ö0
+SENS_INITINGÌ4Îanon_enum_4Ö0
+SENS_OFFÌ4Îanon_enum_4Ö0
+SENS_OVERCURNTÌ4Îanon_enum_4Ö0
+SENS_OVERCURNT_OFFÌ4Îanon_enum_4Ö0
+SENS_RESETINGÌ4Îanon_enum_4Ö0
+SENS_SLEEPINGÌ4Îanon_enum_4Ö0
+SENS_START_MSRMNTÌ4Îanon_enum_4Ö0
+SENS_WAITINGÌ4Îanon_enum_4Ö0
 SET_BITÌ131072Í(REG,BIT)Ö0
 SIG_ATOMIC_MAXÌ65536Ö0
 SIG_ATOMIC_MINÌ65536Ö0
@@ -2930,7 +2983,7 @@ STM32F0Ì65536Ö0
 STM32F042x6Ì65536Ö0
 STRÌ131072Í(s)Ö0
 STR_HELPERÌ131072Í(s)Ö0
-STR_TOO_LONGÌ4Îanon_enum_1Ö0
+STR_TOO_LONGÌ4Îanon_enum_5Ö0
 SYSCFGÌ65536Ö0
 SYSCFG_BASEÌ65536Ö0
 SYSCFG_CFGR1_ADC_DMA_RMPÌ65536Ö0
@@ -3062,7 +3115,7 @@ SYSCFG_EXTICR4_EXTI15_PBÌ65536Ö0
 SYSCFG_EXTICR4_EXTI15_PCÌ65536Ö0
 SYSCFG_EXTICR4_EXTI15_PDÌ65536Ö0
 SYSCFG_EXTICR4_EXTI15_PEÌ65536Ö0
-SensorsStateÌ4096Ö0Ïanon_enum_2
+SensorsStateÌ4096Ö0Ïanon_enum_4
 SstateÌ16384Ö0ÏSensorsState
 StartHSEÌ16Í()Ö0Ïinline void
 StartHSI48Ì16Í()Ö0Ïinline void
@@ -3505,9 +3558,10 @@ TSYS01_ADDR1Ì65536Ö0
 TSYS01_PROM_ADDR0Ì65536Ö0
 TSYS01_RESETÌ65536Ö0
 TSYS01_START_CONVÌ65536Ö0
-TXstatusÌ4096Ö0Ïanon_enum_1
+TXstatusÌ4096Ö0Ïanon_enum_5
 TaddrÌ16384Ö0Ïconst uint8_t
 TemperaturesÌ16384Ö0Ïint16_t
+TemperaturesÌ32768Ö0Ïint16_t
 TmsÌ16384Ö0Ïvolatile uint32_t
 TmsÌ32768Ö0Ïvolatile uint32_t
 UARTBUFSZÌ65536Ö0
@@ -3880,6 +3934,7 @@ __BLKCNT64_T_TYPEÌ65536Ö0
 __BLKCNT_T_TYPEÌ65536Ö0
 __BLKSIZE_T_TYPEÌ65536Ö0
 __BYTE_ORDER__Ì65536Ö0
+__CAN_H__Ì65536Ö0
 __CHAR16_TYPE__Ì65536Ö0
 __CHAR32_TYPE__Ì65536Ö0
 __CHAR_BIT__Ì65536Ö0
@@ -4278,6 +4333,7 @@ __attribute_format_arg__Ì131072Í(x)Ö0
 __attribute_format_strfmon__Ì131072Í(a,b)Ö0
 __attribute_malloc__Ì65536Ö0
 __attribute_noinline__Ì65536Ö0
+__attribute_nonstring__Ì65536Ö0
 __attribute_pure__Ì65536Ö0
 __attribute_used__Ì65536Ö0
 __attribute_warn_unused_result__Ì65536Ö0
@@ -4337,7 +4393,6 @@ __k8Ì65536Ö0
 __k8__Ì65536Ö0
 __linuxÌ65536Ö0
 __linux__Ì65536Ö0
-__long_double_tÌ65536Ö0
 __need_NULLÌ65536Ö0
 __need_size_tÌ65536Ö0
 __nonnullÌ131072Í(params)Ö0
@@ -4372,20 +4427,45 @@ __wurÌ65536Ö0
 __x86_64Ì65536Ö0
 __x86_64__Ì65536Ö0
 anon_enum_0Ì2Ö0
-anon_enum_1Ì2Ö0
 anon_enum_2Ì2Ö0
+anon_enum_3Ì2Ö0
+anon_enum_4Ì2Ö0
+anon_enum_5Ì2Ö0
+anon_enum_6Ì2Ö0
+anon_enum_7Ì2Ö0
+anon_enum_8Ì2Ö0
+anon_struct_1Ì2048Ö0
 bufovrÌ16384Ö0Ïint
 bufovrÌ32768Ö0Ïint
 calc_tÌ16Í(uint32_t t, int i)Ö0Ïuint16_t
+can_messages_procÌ16Í()Ö0Ïvoid
+can_messages_procÌ1024Í()Ö0Ïvoid
+can_procÌ16Í()Ö0Ïvoid
+can_procÌ1024Í()Ö0Ïvoid
+can_process_fifoÌ16Í(uint8_t fifo_num)Ö0Ïvoid
+can_process_fifoÌ1024Í(uint8_t fifo_num)Ö0Ïvoid
+can_sendÌ16Í(uint8_t *msg, uint8_t len, uint16_t target_id)Ö0ÏCAN_status
+can_sendÌ1024Í(uint8_t *msg, uint8_t len, uint16_t target_id)Ö0ÏCAN_status
+can_send_cmdÌ16Í(uint16_t targetID, uint8_t cmd)Ö0ÏCAN_status
+can_send_cmdÌ1024Í(uint16_t targetID, uint8_t cmd)Ö0ÏCAN_status
+can_send_dataÌ16Í(uint8_t *data, uint8_t len)Ö0ÏCAN_status
+can_send_dataÌ1024Í(uint8_t *data, uint8_t len)Ö0ÏCAN_status
+can_statusÌ16384Ö0ÏCAN_status
+cec_can_isrÌ16Í()Ö0Ïvoid
 cntrÌ16384Ö0Ïuint32_t
 coefficientsÌ16384Ö0Ïuint16_t
 count_sensorsÌ16Í()Ö0Ïvoid
 curI2CspeedÌ16384Ö0ÏI2C_SPEED
 curI2CspeedÌ32768Ö0ÏI2C_SPEED
 curr_mul_addrÌ16384Ö0Ïuint8_t
+dataÌ64Îanon_struct_1Ö0Ïuint8_t
 datalenÌ16384Ö0Ïint
 dlenÌ16384Ö0Ïint
 dma1_channel2_3_isrÌ16Í()Ö0Ïvoid
+first_free_idxÌ16384Ö0Ïuint8_t
+first_nonfree_idxÌ16384Ö0Ïint8_t
+getCANIDÌ16Í()Ö0Ïuint16_t
+getCANIDÌ1024Í()Ö0Ïuint16_t
 getcoefsprocÌ16Í()Ö0Ïuint8_t
 gettempprocÌ16Í()Ö0Ïuint8_t
 gpio_setupÌ16Í(void)Ö0Ïvoid
@@ -4394,10 +4474,12 @@ i2c_setupÌ16Í(I2C_SPEED speed)Ö0Ïvoid
 i2c_setupÌ1024Í(I2C_SPEED speed)Ö0Ïvoid
 iwdg_setupÌ16Í()Ö0Ïvoid
 lastSensTÌ16384Ö0Ïuint32_t
-linerdyÌ16384Ö0Ïint
-linerdyÌ32768Ö0Ïint
+lengthÌ64Îanon_struct_1Ö0Ïuint8_t
+linerdyÌ16384Ö0Ïvolatile int
+linerdyÌ32768Ö0Ïvolatile int
 linuxÌ65536Ö0
 mainÌ16Í(void)Ö0Ïint
+messagesÌ16384Ö0ÏCAN_message
 msrtempprocÌ16Í()Ö0Ïuint8_t
 newlineÌ16Í()Ö0Ïvoid
 newlineÌ1024Í()Ö0Ïvoid
@@ -4410,13 +4492,20 @@ pin_toggleÌ131072Í(gpioport,gpios)Ö0
 pin_writeÌ131072Í(gpioport,gpios)Ö0
 printuÌ16Í(uint32_t val)Ö0Ïvoid
 printuÌ1024Í(uint32_t val)Ö0Ïvoid
+printuhexÌ16Í(uint32_t val)Ö0Ïvoid
+printuhexÌ1024Í(uint32_t val)Ö0Ïvoid
 rbufÌ16384Ö0Ïchar
 rbufnoÌ16384Ö0Ïint
+readCANIDÌ16Í()Ö0Ïvoid
+readCANIDÌ1024Í()Ö0Ïvoid
 read_i2cÌ16Í(uint8_t addr, uint32_t *data, uint8_t nbytes)Ö0Ïuint8_t
 read_i2cÌ1024Í(uint8_t addr, uint32_t *data, uint8_t nbytes)Ö0Ïuint8_t
 recvdataÌ16384Ö0Ïchar *
 resetprocÌ16Í()Ö0Ïuint8_t
+send_temperaturesÌ16Í(int8_t N)Ö0Ïint8_t
+send_temperaturesÌ1024Í(int8_t N)Ö0Ïint8_t
 sens_presentÌ16384Ö0Ïuint8_t
+sens_presentÌ32768Ö0Ïuint8_t
 sensors_get_stateÌ16Í()Ö0ÏSensorsState
 sensors_get_stateÌ1024Í()Ö0ÏSensorsState
 sensors_offÌ16Í()Ö0Ïvoid
@@ -4426,6 +4515,10 @@ sensors_onÌ1024Í()Ö0Ïvoid
 sensors_processÌ16Í()Ö0Ïvoid
 sensors_processÌ1024Í()Ö0Ïvoid
 sensors_scanÌ16Í(uint8_t (* procfn)())Ö0Ïuint8_t
+sensors_scan_modeÌ16384Ö0Ïuint8_t
+sensors_scan_modeÌ32768Ö0Ïuint8_t
+sensors_startÌ16Í()Ö0Ïvoid
+sensors_startÌ1024Í()Ö0Ïvoid
 showcoeffsÌ16Í()Ö0Ïvoid
 showcoeffsÌ1024Í()Ö0Ïvoid
 showtemperatureÌ16Í()Ö0Ïvoid
@@ -4435,6 +4528,7 @@ strndupaÌ131072Í(s,n)Ö0
 sys_tick_handlerÌ16Í(void)Ö0Ïvoid
 sysresetÌ16Í(void)Ö0Ïinline void
 tbufÌ16384Ö0Ïchar
+try2sendÌ16Í(uint8_t *buf, uint8_t len, uint16_t id)Ö0ÏCAN_status
 txrdyÌ16384Ö0Ïint
 txrdyÌ32768Ö0Ïint
 unixÌ65536Ö0

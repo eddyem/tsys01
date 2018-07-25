@@ -36,6 +36,7 @@ OBJDUMP		:= $(OPREFIX)-objdump
 GDB			:= $(OPREFIX)-gdb
 STFLASH		:= $(shell which st-flash)
 STBOOT		:= $(shell which stm32flash)
+DFUUTIL		:= $(shell which dfu-util)
 
 ###############################################################################
 # Source files
@@ -54,7 +55,7 @@ LIB_DIR		:= $(INC_DIR)/ld
 
 ###############################################################################
 # C flags
-CFLAGS		+= -O2 -g -MD -D__thumb2__=1
+CFLAGS		+= -O2 -g -D__thumb2__=1
 CFLAGS		+= -Wall -Wextra -Wshadow -Wimplicit-function-declaration
 CFLAGS		+= -Wredundant-decls $(INCLUDE)
 # -Wmissing-prototypes -Wstrict-prototypes
@@ -104,7 +105,7 @@ $(STARTUP): $(INC_DIR)/startup/vector.c
 
 $(OBJDIR)/%.o: %.c
 	@echo "  CC      $<"
-	$(CC) $(CFLAGS) $(DEFS) $(INCLUDE) $(ARCH_FLAGS) -o $@ -c $<
+	$(CC) $(CFLAGS) -MD $(DEFS) $(INCLUDE) $(ARCH_FLAGS) -o $@ -c $<
 
 #$(OBJDIR)/%.d: %.c $(OBJDIR)
 #	$(CC) -MM -MG $< | sed -e 's,^\([^:]*\)\.o[ ]*:,$(@D)/\1.o $(@D)/\1.d:,' >$@
@@ -130,6 +131,9 @@ clean:
 	$(RM) $(OBJS) $(DEPS) $(ELF) $(HEX) $(LIST) $(OBJDIR)/*.map *.d
 	@rmdir $(OBJDIR) 2>/dev/null || true
 
+dfuboot: $(BIN)
+	@echo "  LOAD  $(BIN) THROUGH DFU"
+	$(DFUUTIL) -a0 -D $(BIN) -s 0x08000000
 
 flash: $(BIN)
 	@echo "  FLASH  $(BIN)"
@@ -142,4 +146,4 @@ boot: $(BIN)
 gentags:
 	CFLAGS="$(CFLAGS) $(DEFS)" geany -g $(BINARY).c.tags *[hc] 2>/dev/null
 
-.PHONY: clean flash boot gentags
+.PHONY: clean flash boot dfuboot gentags

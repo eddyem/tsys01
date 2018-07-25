@@ -54,12 +54,12 @@ uint8_t write_i2c(uint8_t addr, uint8_t data){
     cntr = Tms;
     I2C1->ICR = 0x3f38; // clear all errors
     while(I2C1->ISR & I2C_ISR_BUSY) if(Tms - cntr > I2C_TIMEOUT){
-        MSG("always busy\n");
+        //MSG("always busy\n");
         return 0;  // check busy
     }
     cntr = Tms;
     while(I2C1->CR2 & I2C_CR2_START) if(Tms - cntr > I2C_TIMEOUT){
-        MSG("always start\n");
+        //MSG("always start\n");
         return 0; // check start
     }
     //I2C1->ICR = 0x3f38; // clear all errors
@@ -71,12 +71,12 @@ uint8_t write_i2c(uint8_t addr, uint8_t data){
         if(I2C1->ISR & I2C_ISR_NACKF){
             I2C1->ICR |= I2C_ICR_NACKCF;
             //I2C1->ICR = 0x3f38;
-            MSG("NACK\n");
+            //MSG("NACK\n");
             return 0;
         }
         if(Tms - cntr > I2C_TIMEOUT){
             //I2C1->ICR = 0x3f38;
-            MSG("Timeout\n");
+            //MSG("Timeout\n");
             return 0;
         }
     }
@@ -93,14 +93,14 @@ uint8_t write_i2c(uint8_t addr, uint8_t data){
 uint8_t read_i2c(uint8_t addr, uint32_t *data, uint8_t nbytes){
     uint32_t result = 0;
     cntr = Tms;
-    MSG("read_i2c\n");
+    //MSG("read_i2c\n");
     while(I2C1->ISR & I2C_ISR_BUSY) if(Tms - cntr > I2C_TIMEOUT){
-        MSG("always busy\n");
+        //MSG("always busy\n");
         return 0;  // check busy
     }
     cntr = Tms;
     while(I2C1->CR2 & I2C_CR2_START) if(Tms - cntr > I2C_TIMEOUT){
-        MSG("always start\n");
+        //MSG("always start\n");
         return 0; // check start
     }
   //  I2C1->ICR = 0x3f38; // clear all errors
@@ -114,12 +114,12 @@ uint8_t read_i2c(uint8_t addr, uint32_t *data, uint8_t nbytes){
             if(I2C1->ISR & I2C_ISR_NACKF){
                 I2C1->ICR |= I2C_ICR_NACKCF;
                 //I2C1->ICR = 0x3f38;
-                MSG("NACK\n");
+                //MSG("NACK\n");
                 return 0;
             }
             if(Tms - cntr > I2C_TIMEOUT){
                 //I2C1->ICR = 0x3f38;
-                MSG("Timeout\n");
+                //MSG("Timeout\n");
                 return 0;
             }
         }

@@ -21,22 +21,24 @@
  *
  */
 #include "sensors_manage.h"
+#include "can_process.h"
 #include "i2c.h"
 #include "usart.h"
 
 extern volatile uint32_t Tms;
+uint8_t sensors_scan_mode = 0; // infinite scan mode
 static uint32_t lastSensT = 0;
 static SensorsState Sstate = SENS_OFF; // turn on sensors only by request
-static uint8_t curr_mul_addr = 0; // current sensors pair address @ multiplexer
-static uint8_t overcurnt_ctr = 0; // if this counter > 32 go to OFF state
-static uint8_t sens_present[2] = {0,0}; // bit flag: Nth bit == 1 if sensor[s] on given channel found
+static uint8_t curr_mul_addr = 0;  // current sensors pair address @ multiplexer
+static uint8_t overcurnt_ctr = 0;  // if this counter > 32 go to OFF state
+uint8_t sens_present[2] = {0,0};   // bit flag: Nth bit == 1 if sensor[s] on given channel found
 static uint8_t Nsens_present = 0;  // total amount of sensors found
 static uint8_t Ntemp_measured = 0; // total amount of themperatures measured
 
 // 8 - amount of pairs, 2 - amount in pair, 5 - amount of Coef.
 static uint16_t coefficients[MUL_MAX_ADDRESS+1][2][5]; // Coefficients for given sensors
 // measured temperatures * 100
-static int16_t Temperatures[MUL_MAX_ADDRESS+1][2];
+int16_t Temperatures[MUL_MAX_ADDRESS+1][2];
 
 // pair addresses
 static const uint8_t Taddr[2] = {TSYS01_ADDR0, TSYS01_ADDR1};
@@ -96,6 +98,25 @@ void sensors_on(){
     }
 }
 
+/**
+ * start measurement if sensors are sleeping,
+ * turn ON if they were OFF
+ * do nothing if measurement processing
+ */
+void sensors_start(){
+    if(sensors_scan_mode) return;
+    switch(Sstate){
+        case SENS_SLEEPING:
+            Sstate = SENS_START_MSRMNT;
+        break;
+        case SENS_OFF:
+            sensors_on();
+        break;
+        default:
+        break;
+    }
+}
+
 /* / count bits in byte
 static uint8_t bitCount(uint8_t B){
     uint8_t ctr = 0;
@@ -146,7 +167,7 @@ static uint8_t resetproc(){
 static uint8_t getcoefsproc(){
     uint8_t i, j;
     const uint8_t regs[5] = {0xAA, 0xA8, 0xA6, 0xA4, 0xA2}; // commands for coefficients
-#ifdef EBUG
+#if 0
 MSG("sens_present[0]=");
 printu(sens_present[0]);
 SEND(", sens_present[1]=");
@@ -157,7 +178,7 @@ newline();
         if(!(sens_present[i] & (1<<curr_mul_addr))) continue; // no sensors @ given line
         uint8_t err = 5;
         uint16_t *coef = coefficients[curr_mul_addr][i];
-#ifdef EBUG
+#if 0
 SEND("muladdr: ");
 usart_putchar('0'+curr_mul_addr);
 SEND(", i: ");
@@ -167,15 +188,15 @@ newline();
         for(j = 0; j < 5; ++j){
             uint32_t K;
 MSG("N=");
-#ifdef EBUG
+#if 0
 usart_putchar('0'+j);
 newline();
 #endif
             if(write_i2c(Taddr[i], regs[j])){
-MSG("write\n");
+//MSG("write\n");
                 if(read_i2c(Taddr[i], &K, 2)){
-MSG("read: ");
-#ifdef EBUG
+//MSG("read: ");
+#if 0
 printu(K);
 newline();
 #endif
@@ -185,7 +206,7 @@ newline();
             }else break;
         }
         if(err){ // restart all procedures if we can't get coeffs of present sensor
-MSG("Error: can't get all coefficients!\n");
+//MSG("Error: can't get all coefficients!\n");
             sensors_on();
             return 1;
         }
@@ -198,8 +219,8 @@ static uint8_t msrtempproc(){
     uint8_t i, j;
     for(i = 0; i < 2; ++i){
         if(!(sens_present[i] & (1<<curr_mul_addr))) continue; // no sensors @ given line
-MSG("Start measurement for #");
-#ifdef EBUG
+//MSG("Start measurement for #");
+#if 0
 usart_putchar('0'+curr_mul_addr);
 usart_putchar('_');
 usart_putchar('0'+i);
@@ -207,7 +228,7 @@ newline();
 #endif
         for(j = 0; j < 5; ++j){
             if(write_i2c(Taddr[i], TSYS01_START_CONV)) break;
-MSG("try more\n");
+// MSG("try more\n");
             if(!write_i2c(Taddr[i], TSYS01_RESET)) i2c_setup(CURRENT_SPEED); // maybe I2C restart will solve the problem?
         }
         /*if(j == 5){
@@ -226,8 +247,8 @@ static uint8_t gettempproc(){
         if(!(sens_present[i] & (1<<curr_mul_addr))) continue; // no sensors @ given line
         Temperatures[curr_mul_addr][i] = NO_SENSOR;
         uint8_t err = 1;
+#if 0
 MSG("Sensor #");
-#ifdef EBUG
 usart_putchar('0'+curr_mul_addr);
 usart_putchar('_');
 usart_putchar('0'+i);
@@ -235,9 +256,9 @@ newline();
 #endif
         if(write_i2c(Taddr[i], TSYS01_ADC_READ)){
             uint32_t t;
-MSG("Read\n");
+//MSG("Read\n");
             if(read_i2c(Taddr[i], &t, 3) && t){
-#ifdef EBUG
+#if 0
 SEND("Calc from ");
 printu(t);
 newline();
@@ -249,7 +270,7 @@ newline();
             }
         }
         if(err){
-MSG("Can't read temperature\n");
+//MSG("Can't read temperature\n");
             write_i2c(Taddr[i], TSYS01_RESET);
         }
     }
@@ -303,7 +324,7 @@ void showcoeffs(){
     }
 }
 
-// print temperature @debug console
+// print temperatures @debug console
 void showtemperature(){
     int a, p;
     if(Nsens_present == 0){
@@ -317,27 +338,27 @@ void showtemperature(){
     for(a = 0; a <= MUL_MAX_ADDRESS; ++a){
         for(p = 0; p < 2; ++p){
             if(!(sens_present[p] & (1<<a))){
-                SEND("-31000\t"); // NO_SENSOR
                 continue; // no sensor
             }
-            //char b[] = {'T', a+'0', p+'0', '=', '+'};
+            usart_putchar('T');
+            usart_putchar('0' + Controller_address);
+            usart_putchar('_');
+            printu(a*10+p);
+            usart_putchar('=');
             int16_t t = Temperatures[a][p];
             if(t < 0){
-                //b[4] = '-';
                 t = -t;
                 usart_putchar('-');
             }
-            //while(ALL_OK != usart_send_blocking(b, 5));
             printu(t);
-            usart_putchar('\t');
-            //newline();
+            newline();
         }
     }
-    newline();
 }
 
 // finite state machine for sensors switching & checking
 void sensors_process(){
+    static int8_t NsentOverCAN = -1; // number of T (N*10+p) sent over CAN bus; -1 - nothing to send
     if(SENSORS_OVERCURNT()){
         MUL_OFF();
         SENSORS_OFF();
@@ -346,7 +367,7 @@ void sensors_process(){
     }
     switch (Sstate){
         case SENS_INITING: // initialisation (restart I2C)
-MSG("init->reset\n");
+//MSG("init->reset\n");
             i2c_setup(CURRENT_SPEED);
             Sstate = SENS_RESETING;
             lastSensT = Tms;
@@ -358,10 +379,10 @@ MSG("init->reset\n");
                 if(sensors_scan(resetproc)){
                     count_sensors(); // get total amount of sensors
                     if(Nsens_present){
-MSG("reset->getcoeff\n");
+//MSG("reset->getcoeff\n");
                         Sstate = SENS_GET_COEFFS;
                     }else{ // no sensors found
-MSG("reset->off\n");
+//MSG("reset->off\n");
                         sensors_off();
                     }
                 }
@@ -369,8 +390,8 @@ MSG("reset->off\n");
         break;
         case SENS_GET_COEFFS: // get coefficients
             if(sensors_scan(getcoefsproc)){
-MSG("got coeffs for ");
-#ifdef EBUG
+//MSG("got coeffs for ");
+#if 0
 printu(Nsens_present);
 SEND(" sensors ->start\n");
 #endif
@@ -380,23 +401,29 @@ SEND(" sensors ->start\n");
         case SENS_START_MSRMNT: // send all sensors command to start measurements
             if(sensors_scan(msrtempproc)){
                 lastSensT = Tms;
-MSG("->wait\n");
+//MSG("->wait\n");
                 Sstate = SENS_WAITING;
                 Ntemp_measured = 0; // reset value of good measurements
             }
         break;
         case SENS_WAITING: // wait for end of conversion
             if(Tms - lastSensT > CONV_TIME){
-MSG("->gather\n");
+//MSG("->gather\n");
                 Sstate = SENS_GATHERING;
             }
         break;
         case SENS_GATHERING: // scan all sensors, get thermal data & calculate temperature
             if(sensors_scan(gettempproc)){
                 lastSensT = Tms;
-                if(Nsens_present != Ntemp_measured) i2c_setup(CURRENT_SPEED);
-                Sstate = SENS_SLEEPING;
-MSG("->sleep\n");
+                if(Nsens_present != Ntemp_measured){
+                    i2c_setup(CURRENT_SPEED);
+                    sensors_on();
+                }
+                else{
+                    NsentOverCAN = 0;
+                    Sstate = SENS_SLEEPING;
+                }
+//MSG("->sleep\n");
                 /*
                 if(Nsens_present == Ntemp_measured){ // All OK, amount of T == amount of sensors
 MSG("->sleep\n");
@@ -409,13 +436,16 @@ MSG("gather error ->start\n");
             }
         break;
         case SENS_SLEEPING: // wait for `SLEEP_TIME` till next measurements
-            if(Tms - lastSensT > SLEEP_TIME){
-MSG("sleep->start\n");
-                Sstate = SENS_START_MSRMNT;
+            NsentOverCAN = send_temperatures(NsentOverCAN); // call sending T process
+            if(sensors_scan_mode){ // sleep until next measurement start
+                if(Tms - lastSensT > SLEEP_TIME){
+    //MSG("sleep->start\n");
+                    Sstate = SENS_START_MSRMNT;
+                }
             }
         break;
         case SENS_OVERCURNT: // try to reinit all after overcurrent
-MSG("try to turn on after overcurrent\n");
+//MSG("try to turn on after overcurrent\n");
             sensors_on();
         break;
         default: // do nothing
@@ -423,7 +453,7 @@ MSG("try to turn on after overcurrent\n");
     }
 }
 
-#ifdef EBUG
+#if 0
 void senstest(char cmd){
     MUL_OFF();
     SENSORS_ON();

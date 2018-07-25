@@ -1,6 +1,6 @@
 /*
  *                                                                                                  geany_encoding=koi8-r
- * can.h
+ * can_process.h
  *
  * Copyright 2018 Edward V. Emelianov <eddy@sao.ru, edward.emelianoff@gmail.com>
  *
@@ -20,47 +20,26 @@
  * MA 02110-1301, USA.
  *
  */
-#pragma once
-#ifndef __CAN_H__
-#define __CAN_H__
+#include "can.h"
 
-#include "hardware.h"
+// timeout for trying to send data
+#define SEND_TIMEOUT_MS     (10)
+// mark first byte if command sent
+#define COMMAND_MARK    (0xA5)
+// mark first byte if data sent
+#define DATA_MARK       (0x5A)
 
-// identifier mask (for ORing with Controller_address
-#define CAN_ID_MASK     ((uint16_t)0x7F8)
-// prefix of identifiers
-#define CAN_ID_PREFIX   ((uint16_t)0xAAA)
-// this is master - Controller_address==0
-#define MASTER_ID       (CAN_ID_PREFIX & CAN_ID_MASK)
-// broadcasting to every slave
-#define BCAST_ID        ((uint16_t)0x7F7)
-// send dummy message to this ID for testing CAN bus status
-#define NOONE_ID        ((uint16_t)0x7FF)
-
-typedef struct{
-    uint8_t data[8];
-    uint8_t length;
-} CAN_message;
-
+// 8-bit commands sent by master
 typedef enum{
-    CAN_STOP,
-    CAN_READY,
-    CAN_BUSY,
-    CAN_OK,
-    CAN_FIFO_OVERRUN
-} CAN_status;
+    CMD_PING,               // request for PONG cmd
+    CMD_START_MEASUREMENT,  // start thermal measurement
+    CMD_SENSORS_STATE,      // reply data with sensors state
+    // dummy commands for test purposes
+    CMD_DUMMY0 = 0xDA,
+    CMD_DUMMY1 = 0xAD
+} CAN_commands;
 
-CAN_status CAN_get_status();
-
-void readCANID();
-uint16_t getCANID();
-
-void CAN_reinit();
-void CAN_setup();
-
-void can_proc();
-CAN_status can_send(uint8_t *msg, uint8_t len, uint16_t target_id);
-
-CAN_message *CAN_messagebuf_pop();
-
-#endif // __CAN_H__
+void can_messages_proc();
+CAN_status can_send_cmd(uint16_t targetID, uint8_t cmd);
+CAN_status can_send_data(uint8_t *data, uint8_t len);
+int8_t send_temperatures(int8_t N);
