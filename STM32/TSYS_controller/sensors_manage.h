@@ -28,8 +28,8 @@
 
 // time for power up procedure (500ms)
 #define POWERUP_TIME        (500)
-// time between two readings (3sec)
-#define SLEEP_TIME          (3000)
+// time between readings in scan mode (15sec)
+#define SLEEP_TIME          (15000)
 // error in measurement == -300degrC
 #define BAD_TEMPERATURE     (-30000)
 // no sensor on given channel

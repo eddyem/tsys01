@@ -27,16 +27,18 @@ long_line_behaviour=1
 long_line_column=100
 
 [files]
-current_page=8
-FILE_NAME_0=6740;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fcan.c;0;4
-FILE_NAME_1=1189;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fcan.h;0;4
-FILE_NAME_2=2113;C;0;EUTF-8;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fmain.c;0;4
-FILE_NAME_3=10188;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fsensors_manage.c;0;4
-FILE_NAME_4=8248;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FELECTRONICS%2FSTM32%2FF0-srcs%2Fcanbus%2Fsrc%2Fcan.c;0;4
-FILE_NAME_5=3404;C;0;EUTF-8;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FELECTRONICS%2FSTM32%2FF0-srcs%2Fcanbus%2Fsrc%2Fmain.c;0;4
-FILE_NAME_6=1593;C;0;EUTF-8;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fcan_process.c;0;4
-FILE_NAME_7=1165;C;0;EUTF-8;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fcan_process.h;0;4
-FILE_NAME_8=0;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fsensors_manage.h;0;4
+current_page=2
+FILE_NAME_0=7848;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fcan.c;0;4
+FILE_NAME_1=1413;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fcan.h;0;4
+FILE_NAME_2=3014;C;0;EUTF-8;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fmain.c;0;4
+FILE_NAME_3=3352;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fsensors_manage.c;0;4
+FILE_NAME_4=1408;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fsensors_manage.h;0;4
+FILE_NAME_5=2492;C;0;EUTF-8;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fcan_process.c;0;4
+FILE_NAME_6=1585;C;0;EUTF-8;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fcan_process.h;0;4
+FILE_NAME_7=2511;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fhardware.h;0;4
+FILE_NAME_8=2520;C;0;EUTF-8;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fusart.c;0;4
+FILE_NAME_9=1049;C;0;EUTF-8;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2Fusart.h;0;4
+FILE_NAME_10=196;Make;0;EUTF-8;1;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2FSTM32src%2FTSYS_controller%2FMakefile;0;4
 
 [VTE]
 last_dir=/home/eddy

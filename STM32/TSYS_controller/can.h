@@ -43,11 +43,13 @@ typedef struct{
 } CAN_message;
 
 typedef enum{
-    CAN_STOP,
-    CAN_READY,
-    CAN_BUSY,
-    CAN_OK,
-    CAN_FIFO_OVERRUN
+    CAN_NOTMASTER,      // can't send command - not a mastar
+    CAN_STOP,           // CAN stopped
+    CAN_READY,          // ready to send
+    CAN_BUSY,           // bus is busy
+    CAN_OK,             // all OK?
+    CAN_FIFO_OVERRUN,   // FIFO overrun
+    CAN_ERROR           // no recipients on bus or too many errors
 } CAN_status;
 
 CAN_status CAN_get_status();

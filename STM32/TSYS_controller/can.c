@@ -160,15 +160,13 @@ void can_proc(){
         can_process_fifo(1);
     }
     if(CAN->ESR & (CAN_ESR_BOFF | CAN_ESR_EPVF | CAN_ESR_EWGF)){ // much errors - restart CAN BUS
-        LED_off(LED1);
         MSG("bus-off, restarting\n");
-#pragma message "TODO: let 2 know main() about problems in CANbus"
         // request abort for all mailboxes
         CAN->TSR |= CAN_TSR_ABRQ0 | CAN_TSR_ABRQ1 | CAN_TSR_ABRQ2;
         // reset CAN bus
         RCC->APB1RSTR |= RCC_APB1RSTR_CANRST;
         RCC->APB1RSTR &= ~RCC_APB1RSTR_CANRST;
-        CAN_setup();
+        can_status = CAN_ERROR;
     }
 #ifdef EBUG
     static uint32_t esr, msr, tsr;

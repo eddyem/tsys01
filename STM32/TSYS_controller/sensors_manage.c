@@ -117,16 +117,6 @@ void sensors_start(){
     }
 }
 
-/* / count bits in byte
-static uint8_t bitCount(uint8_t B){
-    uint8_t ctr = 0;
-    while(B){
-        ++ctr;
-        B &= (B - 1);
-    }
-    return ctr;
-}*/
-
 // count 1 bits in sens_present & set `Nsens_present` to this value
 static void count_sensors(){
     Nsens_present = 0;
@@ -135,10 +125,6 @@ static void count_sensors(){
         ++Nsens_present;
         B &= (B - 1);
     }
-    /* / reset temperature values
-    uint16_t *t = Temperatures;
-    for(B = 0; B < 2*(MUL_MAX_ADDRESS+1); ++B)
-        *t++ = BAD_TEMPERATURE; */
 }
 
 /**
@@ -415,14 +401,8 @@ SEND(" sensors ->start\n");
         case SENS_GATHERING: // scan all sensors, get thermal data & calculate temperature
             if(sensors_scan(gettempproc)){
                 lastSensT = Tms;
-                if(Nsens_present != Ntemp_measured){
-                    i2c_setup(CURRENT_SPEED);
-                    sensors_on();
-                }
-                else{
-                    NsentOverCAN = 0;
-                    Sstate = SENS_SLEEPING;
-                }
+                NsentOverCAN = 0;
+                Sstate = SENS_SLEEPING;
 //MSG("->sleep\n");
                 /*
                 if(Nsens_present == Ntemp_measured){ // All OK, amount of T == amount of sensors
@@ -437,10 +417,16 @@ MSG("gather error ->start\n");
         break;
         case SENS_SLEEPING: // wait for `SLEEP_TIME` till next measurements
             NsentOverCAN = send_temperatures(NsentOverCAN); // call sending T process
-            if(sensors_scan_mode){ // sleep until next measurement start
-                if(Tms - lastSensT > SLEEP_TIME){
-    //MSG("sleep->start\n");
-                    Sstate = SENS_START_MSRMNT;
+            if(NsentOverCAN == -1){
+                if(Nsens_present != Ntemp_measured){ // restart sensors only after measurements sent
+                        i2c_setup(CURRENT_SPEED);
+                        sensors_on();
+                    }
+                if(sensors_scan_mode){ // sleep until next measurement start
+                    if(Tms - lastSensT > SLEEP_TIME){
+//MSG("sleep->start\n");
+                        Sstate = SENS_START_MSRMNT;
+                    }
                 }
             }
         break;
@@ -452,37 +438,3 @@ MSG("gather error ->start\n");
         break;
     }
 }
-
-#if 0
-void senstest(char cmd){
-    MUL_OFF();
-    SENSORS_ON();
-    if(SENSORS_OVERCURNT()){
-        SENSORS_OFF();
-        SEND("Overcurrent!\n");
-        return;
-    }
-    curr_mul_addr = 0;
-    MUL_ADDRESS(0);
-    MUL_ON();
-    switch (cmd){
-        case 'd': // discovery once
-            resetproc();
-            count_sensors();
-        break;
-        case 'g':
-            getcoefsproc();
-        break;
-        case 't':
-            msrtempproc();
-        break;
-        case 's':
-            gettempproc();
-            showtemperature();
-        break;
-        default:
-        return;
-    }
-    Sstate = SENS_OFF;
-}
-#endif

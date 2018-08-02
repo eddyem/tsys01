@@ -72,7 +72,7 @@ void CANsend(uint16_t targetID, uint8_t cmd, char echo){
 int main(void){
     uint32_t lastT = 0, lastS = 0;
     int16_t L = 0, ID;
-    uint8_t gotmeasurement = 0;
+    uint8_t gotmeasurement = 0, canerror = 0;
     char *txt;
     sysreset();
     SysTick_Config(6000, 1);
@@ -107,24 +107,23 @@ int main(void){
             lastS = Tms;
         }
         can_proc();
-        if(CAN_get_status() == CAN_FIFO_OVERRUN){
+        CAN_status stat = CAN_get_status();
+        if(stat == CAN_FIFO_OVERRUN){
             SEND("CAN bus fifo overrun occured!\n");
+        }else if(stat == CAN_ERROR){
+            LED_off(LED1);
+            CAN_setup();
+            canerror = 1;
         }
         can_messages_proc();
-        //if(sensors_scan_mode){
-            if(SENS_SLEEPING == sensors_get_state()){ // show temperature @ each sleeping occurence
-                if(!gotmeasurement){
-                    //SEND("\nTIME=");
-                    //printu(Tms);
-                    //usart_putchar('\t');
-                    //newline();
-                    gotmeasurement = 1;
-                    showtemperature();
-                }
-            }else{
-                gotmeasurement = 0;
+        if(SENS_SLEEPING == sensors_get_state()){ // show temperature @ each sleeping occurence
+            if(!gotmeasurement){
+                gotmeasurement = 1;
+                showtemperature();
             }
-        //}
+        }else{
+            gotmeasurement = 0;
+        }
         if(usartrx()){ // usart1 received data, store in in buffer
             L = usart_getline(&txt);
             char _1st = txt[0];
@@ -134,109 +133,112 @@ int main(void){
                     ID = (CAN_ID_PREFIX & CAN_ID_MASK) | (_1st - '0');
                     CANsend(ID, CMD_START_MEASUREMENT, _1st);
                 }else switch(_1st){
-                    case 'A':
-                        CANsend(BCAST_ID, CMD_START_MEASUREMENT, _1st);
-                        if(!sensors_scan_mode) sensors_start();
-                    break;
                     case 'B':
                         CANsend(BCAST_ID, CMD_DUMMY0, _1st);
                     break;
-                    case 'C': // 'C' - show coefficients
+                    case 'c':
                         showcoeffs();
                     break;
                     case 'D':
                         CANsend(MASTER_ID, CMD_DUMMY1, _1st);
                     break;
                     case 'E':
+                        CANsend(BCAST_ID, CMD_STOP_SCAN, _1st);
+                    case 'e':
                         SEND("End scan mode\n");
                         sensors_scan_mode = 0;
                     break;
                     case 'F':
+                        CANsend(BCAST_ID, CMD_SENSORS_OFF, _1st);
+                    case 'f':
+                        SEND("Turn off sensors\n");
                         sensors_off();
                     break;
-                    case 'G':
+                    case 'g':
                         SEND("Can address: ");
                         printuhex(getCANID());
                         newline();
                     break;
                     case 'H':
+                        CANsend(BCAST_ID, CMD_HIGH_SPEED, _1st);
+                    case 'h':
                         i2c_setup(HIGH_SPEED);
                         SEND("High speed\n");
                     break;
-                    case 'I':
+                    case 'i':
                         CAN_reinit();
                         SEND("Can address: ");
                         printuhex(getCANID());
                         newline();
                     break;
                     case 'L':
+                        CANsend(BCAST_ID, CMD_LOW_SPEED, _1st);
+                    case 'l':
                         i2c_setup(LOW_SPEED);
                         SEND("Low speed\n");
                     break;
-                    case 'O':
+                    /*case 'o':
                         sensors_on();
-                    break;
+                    break;*/
                     case 'P':
                         CANsend(BCAST_ID, CMD_PING, _1st);
                     break;
                     case 'R':
+                        CANsend(BCAST_ID, CMD_REINIT_I2C, _1st);
+                    case 'r':
                         i2c_setup(CURRENT_SPEED);
                         SEND("Reinit I2C\n");
                     break;
                     case 'S':
+                        CANsend(BCAST_ID, CMD_START_SCAN, _1st);
+                    case 's':
                         SEND("Start scan mode\n");
                         sensors_scan_mode = 1;
                     break;
+                    case 'T':
+                        CANsend(BCAST_ID, CMD_START_MEASUREMENT, _1st);
                     case '0':
-                    case 'T': // 'T' - get temperature
+                    case 't':
                         if(!sensors_scan_mode) sensors_start();
                     break;
+                    case 'u':
+                        SEND("CANERROR=");
+                        if(canerror){
+                            canerror = 0;
+                            usart_putchar('1');
+                        }else usart_putchar('0');
+                        newline();
+                    break;
                     case 'V':
+                        CANsend(BCAST_ID, CMD_LOWEST_SPEED, _1st);
+                    case 'v':
                         i2c_setup(VERYLOW_SPEED);
                         SEND("Very low speed\n");
                     break;
                     case 'Z':
                         CANsend(BCAST_ID, CMD_SENSORS_STATE, _1st);
                     break;
-#if 0
-                    case 'd':
-                    case 'g':
-                    case 't':
-                    case 's':
-                        senstest(_1st);
-                    break;
-                    case 'p':
-                        sensors_process();
-                    break;
-#endif
                     default: // help
                         SEND(
-                        "0..7 - start measurement on given controller\n"
-                        "A - start measurement on all controllers\n"
+                        "ALL little letters - without CAN messaging\n"
+                        "0..7 - start measurement on given controller (0 - this)\n"
                         "B - send broadcast CAN dummy message\n"
-                        "C - show coefficients\n"
+                        "c - show coefficients (current)\n"
                         "D - send CAN dummy message to master\n"
-                        "E - end themperature scan\n"
-                        "F - turn oFf sensors\n"
-                        "G - get CAN address\n"
-                        "H - high speed\n"
-                        "I - reinit CAN\n"
-                        "L - low speed\n"
-                        "O - turn On sensors\n"
+                        "Ee- end themperature scan\n"
+                        "Ff- turn oFf sensors\n"
+                        "g - get last CAN address\n"
+                        "Hh- high I2C speed\n"
+                        "i - reinit CAN (with new address)\n"
+                        "Ll- low I2C speed\n"
+                       // "o - turn On sensors\n"
                         "P - ping everyone over CAN\n"
-                        "R - reinit I2C\n"
-                        "S - Start themperature scan\n"
-                        "T - start temperature measurement\n"
-                        "V - very low speed\n"
+                        "Rr- reinit I2C\n"
+                        "Ss- Start themperature scan\n"
+                        "Tt- start temperature measurement\n"
+                        "u - check CAN status for errors\n"
+                        "Vv- very low I2C speed\n"
                         "Z - get sensors state over CAN\n"
-#if 0
-                        "\t\tTEST OPTIONS\n"
-                        "d - discovery\n"
-                        "g - get coeff\n"
-                        "t - measure temper\n"
-                        "s - show temper measured\n"
-                        "p - sensors_process()\n"
-#endif
                         );
                     break;
                 }

@@ -3,24 +3,23 @@
 Make regular scan of 8 sensors' pairs.
 USART speed 115200. Code for ../../kicad/stm32
 
-### Serial interface commands (ends with '\n'):
-- **0...9** - wait measurements of T from Nth controller (0==T for master)
-- **A** send everybody to start T measurement
+### Serial interface commands (ends with '\n'), small letter for only local processing:
+- **0...9** - wait measurements of T from Nth controller (0==current controller)
 - **B** send dummy CAN messages to broadcast address
-- **C** show coefficients for all thermosensors
+- **c** show coefficients for all thermosensors
 - **D** send dummy CAN messages to master (0) address
-- **E** end temperature scan
-- **F** turn sensors off
-- **G** get CAN address
-- **H** switch I2C to high speed (100kHz)
-- **I** reinit CAN 
-- **L** switch I2C to low speed (default, 10kHz)
-- **O** turn sensors on
+- **Ee** end temperature scan
+- **Ff** turn sensors off
+- **g** get last CAN address
+- **Hh** switch I2C to high speed (100kHz)
+- **i** reinit CAN
+- **Ll** switch I2C to low speed (default, 10kHz)
 - **P** ping everyone over CAN
-- **R** reinit I2C
-- **S** start temperature scan
-- **T** start single temperature measurement
-- **V** very low speed
+- **Rr** reinit I2C
+- **Ss** start temperature scan
+- **Tt** start single temperature measurement
+- **u** check CAN bus status for errors
+- **Vv** very low speed
 - **Z** get sensors state over CAN
 
 ### PINOUT

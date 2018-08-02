@@ -34,6 +34,13 @@ typedef enum{
     CMD_PING,               // request for PONG cmd
     CMD_START_MEASUREMENT,  // start thermal measurement
     CMD_SENSORS_STATE,      // reply data with sensors state
+    CMD_START_SCAN,         // run scan mode @ all controllers
+    CMD_STOP_SCAN,          // stop scan mode
+    CMD_SENSORS_OFF,        // turn off power of sensors
+    CMD_LOWEST_SPEED,       // lowest I2C speed
+    CMD_LOW_SPEED,          // low I2C speed (10kHz)
+    CMD_HIGH_SPEED,         // high I2C speed (100kHz)
+    CMD_REINIT_I2C,         // reinit I2C with current speed
     // dummy commands for test purposes
     CMD_DUMMY0 = 0xDA,
     CMD_DUMMY1 = 0xAD

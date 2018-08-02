@@ -62,6 +62,27 @@ void can_messages_proc(){
             case CMD_START_MEASUREMENT:
                 sensors_start();
             break;
+            case CMD_START_SCAN:
+                sensors_scan_mode = 1;
+            break;
+            case CMD_STOP_SCAN:
+                sensors_scan_mode = 0;
+            break;
+            case CMD_SENSORS_OFF:
+                sensors_off();
+            break;
+            case CMD_LOWEST_SPEED:
+                i2c_setup(VERYLOW_SPEED);
+            break;
+            case CMD_LOW_SPEED:
+                i2c_setup(LOW_SPEED);
+            break;
+            case CMD_HIGH_SPEED:
+                i2c_setup(HIGH_SPEED);
+            break;
+            case CMD_REINIT_I2C:
+                i2c_setup(CURRENT_SPEED);
+            break;
         }
     }else if(data[0] == DATA_MARK){ // process received data
         if(len < 3) return;
@@ -115,7 +136,7 @@ static CAN_status try2send(uint8_t *buf, uint8_t len, uint16_t id){
  * @param cmd - command to send
  */
 CAN_status can_send_cmd(uint16_t targetID, uint8_t cmd){
-    if(Controller_address != 0 && cmd != CMD_DUMMY0 && cmd != CMD_DUMMY1) return CAN_OK;
+    if(Controller_address != 0 && cmd != CMD_DUMMY0 && cmd != CMD_DUMMY1) return CAN_NOTMASTER;
     uint8_t buf[2];
     buf[0] = COMMAND_MARK;
     buf[1] = cmd;
@@ -163,10 +184,14 @@ int8_t send_temperatures(int8_t N){
     can_data[1] = a*10 + p;
     //char b[] = {'T', a+'0', p+'0', '=', '+'};
     int16_t t = Temperatures[a][p];
-    can_data[2] = t>>8;   // H byte
-    can_data[3] = t&0xff; // L byte
-    if(CAN_OK == can_send_data(can_data, 4)){ // OK, calculate next address
+    if(t == BAD_TEMPERATURE || t == NO_SENSOR){ // don't send data if it's absent on current measurement
         ++retn;
+    }else{
+        can_data[2] = t>>8;   // H byte
+        can_data[3] = t&0xff; // L byte
+        if(CAN_OK == can_send_data(can_data, 4)){ // OK, calculate next address
+            ++retn;
+        }
     }
     return retn;
 }
