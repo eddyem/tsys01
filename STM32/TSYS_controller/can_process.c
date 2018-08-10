@@ -113,7 +113,7 @@ void can_messages_proc(){
 #pragma message("TODO: process received T over USB!")
             break;
             default:
-                SEND("Unknown data received");
+                SEND("UNKNOWN_DATA");
         }
         newline();
     }
@@ -125,7 +125,7 @@ static CAN_status try2send(uint8_t *buf, uint8_t len, uint16_t id){
     while(Tms - Tstart < SEND_TIMEOUT_MS){
         if(CAN_OK == can_send(buf, len, id)) return CAN_OK;
     }
-    SEND("Bus busy!\n");
+    SEND("CAN_BUSY\n");
     return CAN_BUSY;
 }
 

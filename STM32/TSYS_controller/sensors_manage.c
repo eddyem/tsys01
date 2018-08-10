@@ -133,19 +133,19 @@ static void count_sensors(){
 // procedure call each time @ resetting
 static uint8_t resetproc(){
     uint8_t i, ctr = 0;
-    SEND("pair "); printu(curr_mul_addr);
-    SEND(" : ");
+    //SEND("pair "); printu(curr_mul_addr);
+    //SEND(" : ");
     for(i = 0; i < 2; ++i){
         if(write_i2c(Taddr[i], TSYS01_RESET)){
-            usart_putchar('0' + i);
+            //usart_putchar('0' + i);
             ++ctr;
             sens_present[i] |= 1<<curr_mul_addr; // set bit - found
         }else{ // not found
             sens_present[i] &= ~(1<<curr_mul_addr); // reset bit - not found
         }
     }
-    if(!ctr) SEND("not found");
-    newline();
+    //if(!ctr) SEND("not found");
+    //newline();
     return 0;
 }
 
@@ -314,11 +314,11 @@ void showcoeffs(){
 void showtemperature(){
     int a, p;
     if(Nsens_present == 0){
-        SEND("No sensors found\n");
+        //SEND("No sensors found\n");
         return;
     }
     if(Ntemp_measured == 0){
-        SEND("No right measurements\n");
+        //SEND("No right measurements\n");
         return;
     }
     for(a = 0; a <= MUL_MAX_ADDRESS; ++a){

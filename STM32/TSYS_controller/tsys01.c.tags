@@ -94,7 +94,7 @@ ADC_TR_HTÌ65536Ö0
 ADC_TR_LTÌ65536Ö0
 AHB2PERIPH_BASEÌ65536Ö0
 AHBPERIPH_BASEÌ65536Ö0
-ALL_OKÌ4Îanon_enum_3Ö0
+ALL_OKÌ4Îanon_enum_1Ö0
 APBPERIPH_BASEÌ65536Ö0
 BAD_TEMPERATUREÌ65536Ö0
 BCAST_IDÌ65536Ö0
@@ -116,8 +116,8 @@ CAN_BTR_TS2Ì65536Ö0
 CAN_BTR_TS2_0Ì65536Ö0
 CAN_BTR_TS2_1Ì65536Ö0
 CAN_BTR_TS2_2Ì65536Ö0
-CAN_BUSYÌ4Îanon_enum_2Ö0
-CAN_ERRORÌ4Îanon_enum_2Ö0
+CAN_BUSYÌ4Îanon_enum_4Ö0
+CAN_ERRORÌ4Îanon_enum_4Ö0
 CAN_ESR_BOFFÌ65536Ö0
 CAN_ESR_EPVFÌ65536Ö0
 CAN_ESR_EWGFÌ65536Ö0
@@ -1053,7 +1053,7 @@ CAN_FFA1R_FFA6Ì65536Ö0
 CAN_FFA1R_FFA7Ì65536Ö0
 CAN_FFA1R_FFA8Ì65536Ö0
 CAN_FFA1R_FFA9Ì65536Ö0
-CAN_FIFO_OVERRUNÌ4Îanon_enum_2Ö0
+CAN_FIFO_OVERRUNÌ4Îanon_enum_4Ö0
 CAN_FM1R_FBMÌ65536Ö0
 CAN_FM1R_FBM0Ì65536Ö0
 CAN_FM1R_FBM1Ì65536Ö0
@@ -1120,8 +1120,8 @@ CAN_MSR_SLAKÌ65536Ö0
 CAN_MSR_SLAKIÌ65536Ö0
 CAN_MSR_TXMÌ65536Ö0
 CAN_MSR_WKUIÌ65536Ö0
-CAN_NOTMASTERÌ4Îanon_enum_2Ö0
-CAN_OKÌ4Îanon_enum_2Ö0
+CAN_NOTMASTERÌ4Îanon_enum_4Ö0
+CAN_OKÌ4Îanon_enum_4Ö0
 CAN_RDH0R_DATA4Ì65536Ö0
 CAN_RDH0R_DATA5Ì65536Ö0
 CAN_RDH0R_DATA6Ì65536Ö0
@@ -1144,7 +1144,7 @@ CAN_RDT0R_TIMEÌ65536Ö0
 CAN_RDT1R_DLCÌ65536Ö0
 CAN_RDT1R_FMIÌ65536Ö0
 CAN_RDT1R_TIMEÌ65536Ö0
-CAN_READYÌ4Îanon_enum_2Ö0
+CAN_READYÌ4Îanon_enum_4Ö0
 CAN_RF0R_FMP0Ì65536Ö0
 CAN_RF0R_FOVR0Ì65536Ö0
 CAN_RF0R_FULL0Ì65536Ö0
@@ -1161,7 +1161,7 @@ CAN_RI1R_EXIDÌ65536Ö0
 CAN_RI1R_IDEÌ65536Ö0
 CAN_RI1R_RTRÌ65536Ö0
 CAN_RI1R_STIDÌ65536Ö0
-CAN_STOPÌ4Îanon_enum_2Ö0
+CAN_STOPÌ4Îanon_enum_4Ö0
 CAN_TDH0R_DATA4Ì65536Ö0
 CAN_TDH0R_DATA5Ì65536Ö0
 CAN_TDH0R_DATA6Ì65536Ö0
@@ -1234,10 +1234,10 @@ CAN_TSR_TME2Ì65536Ö0
 CAN_TSR_TXOK0Ì65536Ö0
 CAN_TSR_TXOK1Ì65536Ö0
 CAN_TSR_TXOK2Ì65536Ö0
-CAN_commandsÌ4096Ö0Ïanon_enum_8
+CAN_commandsÌ4096Ö0Ïanon_enum_9
 CAN_get_statusÌ16Í()Ö0ÏCAN_status
 CAN_get_statusÌ1024Í()Ö0ÏCAN_status
-CAN_messageÌ4096Ö0Ïanon_struct_1
+CAN_messageÌ4096Ö0Ïanon_struct_3
 CAN_messagebuf_popÌ16Í()Ö0ÏCAN_message *
 CAN_messagebuf_popÌ1024Í()Ö0ÏCAN_message *
 CAN_messagebuf_pushÌ16Í(CAN_message *msg)Ö0Ïint
@@ -1245,7 +1245,7 @@ CAN_reinitÌ16Í()Ö0Ïvoid
 CAN_reinitÌ1024Í()Ö0Ïvoid
 CAN_setupÌ16Í()Ö0Ïvoid
 CAN_setupÌ1024Í()Ö0Ïvoid
-CAN_statusÌ4096Ö0Ïanon_enum_2
+CAN_statusÌ4096Ö0Ïanon_enum_4
 CANsendÌ16Í(uint16_t targetID, uint8_t cmd, char echo)Ö0Ïvoid
 CECÌ65536Ö0
 CEC_BASEÌ65536Ö0
@@ -1291,54 +1291,66 @@ CEC_TXDR_RXDÌ65536Ö0
 CEC_TXDR_TXDÌ65536Ö0
 CLEAR_BITÌ131072Í(REG,BIT)Ö0
 CLEAR_REGÌ131072Í(REG)Ö0
-CMD_DUMMY0Ì4Îanon_enum_4Ö0
 CMD_DUMMY0Ì4Îanon_enum_5Ö0
+CMD_DUMMY0Ì4Îanon_enum_6Ö0
 CMD_DUMMY0Ì4Îanon_enum_7Ö0
 CMD_DUMMY0Ì4Îanon_enum_8Ö0
-CMD_DUMMY1Ì4Îanon_enum_4Ö0
+CMD_DUMMY0Ì4Îanon_enum_9Ö0
 CMD_DUMMY1Ì4Îanon_enum_5Ö0
+CMD_DUMMY1Ì4Îanon_enum_6Ö0
 CMD_DUMMY1Ì4Îanon_enum_7Ö0
 CMD_DUMMY1Ì4Îanon_enum_8Ö0
-CMD_HIGH_SPEEDÌ4Îanon_enum_4Ö0
+CMD_DUMMY1Ì4Îanon_enum_9Ö0
 CMD_HIGH_SPEEDÌ4Îanon_enum_5Ö0
+CMD_HIGH_SPEEDÌ4Îanon_enum_6Ö0
 CMD_HIGH_SPEEDÌ4Îanon_enum_7Ö0
 CMD_HIGH_SPEEDÌ4Îanon_enum_8Ö0
-CMD_LOWEST_SPEEDÌ4Îanon_enum_4Ö0
+CMD_HIGH_SPEEDÌ4Îanon_enum_9Ö0
 CMD_LOWEST_SPEEDÌ4Îanon_enum_5Ö0
+CMD_LOWEST_SPEEDÌ4Îanon_enum_6Ö0
 CMD_LOWEST_SPEEDÌ4Îanon_enum_7Ö0
 CMD_LOWEST_SPEEDÌ4Îanon_enum_8Ö0
-CMD_LOW_SPEEDÌ4Îanon_enum_4Ö0
+CMD_LOWEST_SPEEDÌ4Îanon_enum_9Ö0
 CMD_LOW_SPEEDÌ4Îanon_enum_5Ö0
+CMD_LOW_SPEEDÌ4Îanon_enum_6Ö0
 CMD_LOW_SPEEDÌ4Îanon_enum_7Ö0
 CMD_LOW_SPEEDÌ4Îanon_enum_8Ö0
-CMD_PINGÌ4Îanon_enum_4Ö0
+CMD_LOW_SPEEDÌ4Îanon_enum_9Ö0
 CMD_PINGÌ4Îanon_enum_5Ö0
+CMD_PINGÌ4Îanon_enum_6Ö0
 CMD_PINGÌ4Îanon_enum_7Ö0
 CMD_PINGÌ4Îanon_enum_8Ö0
-CMD_REINIT_I2CÌ4Îanon_enum_4Ö0
+CMD_PINGÌ4Îanon_enum_9Ö0
 CMD_REINIT_I2CÌ4Îanon_enum_5Ö0
+CMD_REINIT_I2CÌ4Îanon_enum_6Ö0
 CMD_REINIT_I2CÌ4Îanon_enum_7Ö0
 CMD_REINIT_I2CÌ4Îanon_enum_8Ö0
-CMD_SENSORS_OFFÌ4Îanon_enum_4Ö0
+CMD_REINIT_I2CÌ4Îanon_enum_9Ö0
 CMD_SENSORS_OFFÌ4Îanon_enum_5Ö0
+CMD_SENSORS_OFFÌ4Îanon_enum_6Ö0
 CMD_SENSORS_OFFÌ4Îanon_enum_7Ö0
 CMD_SENSORS_OFFÌ4Îanon_enum_8Ö0
-CMD_SENSORS_STATEÌ4Îanon_enum_4Ö0
+CMD_SENSORS_OFFÌ4Îanon_enum_9Ö0
 CMD_SENSORS_STATEÌ4Îanon_enum_5Ö0
+CMD_SENSORS_STATEÌ4Îanon_enum_6Ö0
 CMD_SENSORS_STATEÌ4Îanon_enum_7Ö0
 CMD_SENSORS_STATEÌ4Îanon_enum_8Ö0
-CMD_START_MEASUREMENTÌ4Îanon_enum_4Ö0
+CMD_SENSORS_STATEÌ4Îanon_enum_9Ö0
 CMD_START_MEASUREMENTÌ4Îanon_enum_5Ö0
+CMD_START_MEASUREMENTÌ4Îanon_enum_6Ö0
 CMD_START_MEASUREMENTÌ4Îanon_enum_7Ö0
 CMD_START_MEASUREMENTÌ4Îanon_enum_8Ö0
-CMD_START_SCANÌ4Îanon_enum_4Ö0
+CMD_START_MEASUREMENTÌ4Îanon_enum_9Ö0
 CMD_START_SCANÌ4Îanon_enum_5Ö0
+CMD_START_SCANÌ4Îanon_enum_6Ö0
 CMD_START_SCANÌ4Îanon_enum_7Ö0
 CMD_START_SCANÌ4Îanon_enum_8Ö0
-CMD_STOP_SCANÌ4Îanon_enum_4Ö0
+CMD_START_SCANÌ4Îanon_enum_9Ö0
 CMD_STOP_SCANÌ4Îanon_enum_5Ö0
+CMD_STOP_SCANÌ4Îanon_enum_6Ö0
 CMD_STOP_SCANÌ4Îanon_enum_7Ö0
 CMD_STOP_SCANÌ4Îanon_enum_8Ö0
+CMD_STOP_SCANÌ4Îanon_enum_9Ö0
 COMMAND_MARKÌ65536Ö0
 CONCATÌ131072Í(a,b)Ö0
 CONV_TIMEÌ65536Ö0
@@ -2277,7 +2289,7 @@ LED1_portÌ65536Ö0
 LED_blinkÌ131072Í(x)Ö0
 LED_offÌ131072Í(x)Ö0
 LED_onÌ131072Í(x)Ö0
-LINE_BUSYÌ4Îanon_enum_3Ö0
+LINE_BUSYÌ4Îanon_enum_1Ö0
 LOW_SPEEDÌ4Îanon_enum_0Ö0
 MASTER_IDÌ65536Ö0
 MODIFY_REGÌ131072Í(REG,CLEARMASK,SETMASK)Ö0
@@ -2918,16 +2930,16 @@ SEND_TIMEOUT_MSÌ65536Ö0
 SENSORS_OFFÌ131072Í()Ö0
 SENSORS_ONÌ131072Í()Ö0
 SENSORS_OVERCURNTÌ131072Í()Ö0
-SENS_GATHERINGÌ4Îanon_enum_6Ö0
-SENS_GET_COEFFSÌ4Îanon_enum_6Ö0
-SENS_INITINGÌ4Îanon_enum_6Ö0
-SENS_OFFÌ4Îanon_enum_6Ö0
-SENS_OVERCURNTÌ4Îanon_enum_6Ö0
-SENS_OVERCURNT_OFFÌ4Îanon_enum_6Ö0
-SENS_RESETINGÌ4Îanon_enum_6Ö0
-SENS_SLEEPINGÌ4Îanon_enum_6Ö0
-SENS_START_MSRMNTÌ4Îanon_enum_6Ö0
-SENS_WAITINGÌ4Îanon_enum_6Ö0
+SENS_GATHERINGÌ4Îanon_enum_2Ö0
+SENS_GET_COEFFSÌ4Îanon_enum_2Ö0
+SENS_INITINGÌ4Îanon_enum_2Ö0
+SENS_OFFÌ4Îanon_enum_2Ö0
+SENS_OVERCURNTÌ4Îanon_enum_2Ö0
+SENS_OVERCURNT_OFFÌ4Îanon_enum_2Ö0
+SENS_RESETINGÌ4Îanon_enum_2Ö0
+SENS_SLEEPINGÌ4Îanon_enum_2Ö0
+SENS_START_MSRMNTÌ4Îanon_enum_2Ö0
+SENS_WAITINGÌ4Îanon_enum_2Ö0
 SET_BITÌ131072Í(REG,BIT)Ö0
 SIG_ATOMIC_MAXÌ65536Ö0
 SIG_ATOMIC_MINÌ65536Ö0
@@ -3013,7 +3025,7 @@ STM32F0Ì65536Ö0
 STM32F042x6Ì65536Ö0
 STRÌ131072Í(s)Ö0
 STR_HELPERÌ131072Í(s)Ö0
-STR_TOO_LONGÌ4Îanon_enum_3Ö0
+STR_TOO_LONGÌ4Îanon_enum_1Ö0
 SYSCFGÌ65536Ö0
 SYSCFG_BASEÌ65536Ö0
 SYSCFG_CFGR1_ADC_DMA_RMPÌ65536Ö0
@@ -3145,7 +3157,7 @@ SYSCFG_EXTICR4_EXTI15_PBÌ65536Ö0
 SYSCFG_EXTICR4_EXTI15_PCÌ65536Ö0
 SYSCFG_EXTICR4_EXTI15_PDÌ65536Ö0
 SYSCFG_EXTICR4_EXTI15_PEÌ65536Ö0
-SensorsStateÌ4096Ö0Ïanon_enum_6
+SensorsStateÌ4096Ö0Ïanon_enum_2
 SstateÌ16384Ö0ÏSensorsState
 StartHSEÌ16Í()Ö0Ïinline void
 StartHSI48Ì16Í()Ö0Ïinline void
@@ -3588,7 +3600,7 @@ TSYS01_ADDR1Ì65536Ö0
 TSYS01_PROM_ADDR0Ì65536Ö0
 TSYS01_RESETÌ65536Ö0
 TSYS01_START_CONVÌ65536Ö0
-TXstatusÌ4096Ö0Ïanon_enum_3
+TXstatusÌ4096Ö0Ïanon_enum_1
 TaddrÌ16384Ö0Ïconst uint8_t
 TemperaturesÌ16384Ö0Ïint16_t
 TemperaturesÌ32768Ö0Ïint16_t
@@ -4190,6 +4202,7 @@ __PIE__Ì65536Ö0
 __PMTÌ65536Ö0
 __PMTÌ131072Í(args)Ö0
 __PRAGMA_REDEFINE_EXTNAMEÌ65536Ö0
+__PROTO_H__Ì65536Ö0
 __PTRDIFF_MAX__Ì65536Ö0
 __PTRDIFF_TYPE__Ì65536Ö0
 __REDIRECTÌ131072Í(name,proto,alias)Ö0
@@ -4457,14 +4470,15 @@ __wurÌ65536Ö0
 __x86_64Ì65536Ö0
 __x86_64__Ì65536Ö0
 anon_enum_0Ì2Ö0
+anon_enum_1Ì2Ö0
 anon_enum_2Ì2Ö0
-anon_enum_3Ì2Ö0
 anon_enum_4Ì2Ö0
 anon_enum_5Ì2Ö0
 anon_enum_6Ì2Ö0
 anon_enum_7Ì2Ö0
 anon_enum_8Ì2Ö0
-anon_struct_1Ì2048Ö0
+anon_enum_9Ì2Ö0
+anon_struct_3Ì2048Ö0
 bufovrÌ16384Ö0Ïint
 bufovrÌ32768Ö0Ïint
 calc_tÌ16Í(uint32_t t, int i)Ö0Ïuint16_t
@@ -4481,14 +4495,18 @@ can_send_cmdÌ1024Í(uint16_t targetID, uint8_t cmd)Ö0ÏCAN_status
 can_send_dataÌ16Í(uint8_t *data, uint8_t len)Ö0ÏCAN_status
 can_send_dataÌ1024Í(uint8_t *data, uint8_t len)Ö0ÏCAN_status
 can_statusÌ16384Ö0ÏCAN_status
+canerrorÌ16384Ö0Ïvolatile uint8_t
+canerrorÌ32768Ö0Ïvolatile uint8_t
 cec_can_isrÌ16Í()Ö0Ïvoid
+cmd_parserÌ16Í()Ö0Ïvoid
+cmd_parserÌ1024Í()Ö0Ïvoid
 cntrÌ16384Ö0Ïuint32_t
 coefficientsÌ16384Ö0Ïuint16_t
 count_sensorsÌ16Í()Ö0Ïvoid
 curI2CspeedÌ16384Ö0ÏI2C_SPEED
 curI2CspeedÌ32768Ö0ÏI2C_SPEED
 curr_mul_addrÌ16384Ö0Ïuint8_t
-dataÌ64Îanon_struct_1Ö0Ïuint8_t
+dataÌ64Îanon_struct_3Ö0Ïuint8_t
 datalenÌ16384Ö0Ïint
 dlenÌ16384Ö0Ïint
 dma1_channel2_3_isrÌ16Í()Ö0Ïvoid
@@ -4504,7 +4522,7 @@ i2c_setupÌ16Í(I2C_SPEED speed)Ö0Ïvoid
 i2c_setupÌ1024Í(I2C_SPEED speed)Ö0Ïvoid
 iwdg_setupÌ16Í()Ö0Ïvoid
 lastSensTÌ16384Ö0Ïuint32_t
-lengthÌ64Îanon_struct_1Ö0Ïuint8_t
+lengthÌ64Îanon_struct_3Ö0Ïuint8_t
 linerdyÌ16384Ö0Ïvolatile int
 linerdyÌ32768Ö0Ïvolatile int
 linuxÌ65536Ö0

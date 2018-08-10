@@ -4,7 +4,7 @@ Make regular scan of 8 sensors' pairs.
 USART speed 115200. Code for ../../kicad/stm32
 
 ### Serial interface commands (ends with '\n'), small letter for only local processing:
-- **0...9** - wait measurements of T from Nth controller (0==current controller)
+- **1...7** - send message to Nth controller, not broadcast (after number should be CAN command)
 - **B** send dummy CAN messages to broadcast address
 - **c** show coefficients for all thermosensors
 - **D** send dummy CAN messages to master (0) address
