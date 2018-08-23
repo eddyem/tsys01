@@ -1,0 +1,72 @@
+/*
+ *                                                                                                  geany_encoding=koi8-r
+ * datapoints.xy - coordinates of sensors
+ *
+ * Copyright 2018 Edward V. Emelianov <eddy@sao.ru, edward.emelianoff@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ *
+ */
+
+/**
+ * Unload#  X,dm        Y,dm        Controller#     Sensors Pair#
+ * 3        -3          -5          4               0
+ * 6        3           5           2               0
+ * 7        13          -4          1               0
+ * 9        3           -13         1               1,2
+ * 11       -9          -9          4               1
+ * 13       -13         4           3               0
+ * 15       -3          13          3               1,2
+ * 17       9           9           2               1
+ * 21       15          -12         1               3
+ * 24       -3          -20         4               2
+ * 27       -18         -7          3               3
+ * 30       -15         12          3               4
+ * 33       3           20          2               2
+ * 36       18          7           2               3
+ * 38       25          -10         1               4
+ * 40       16          -21         1               5
+ * 42       4           -26         4               3
+ * 44       -11         -25         4               4
+ * 46       -21         -17         4               5
+ * 48       -26         -5          3               5
+ * 50       -25         10          3               6
+ * 52       -16         21          3               7
+ * 54       -4          26          2               4
+ * 56       11          25          2               5
+ * 58       21          17          2               6
+ * 60       26          5           1               6
+ */
+
+// sensors groups coordinates: [Nsensor][Ncontroller][xy]
+static const int SensCoords[8][8][2] = {
+    // sensor 0, unloads: none,7,6,13,3
+    {{0,0},{13,-4},{3,5},{-13,4},{-3,-5}},
+    // sensor 1, unloads: none,9,17,15,11
+    {{0,0},{3,-13},{9,9},{-3,13},{-9,-9}},
+    // sensor 2, unloads: none,9,33,15,24
+    {{0,0},{3,-13},{3,20},{-3,13},{-3,-20}},
+    // sensor 3, unloads: none,21,36,27,42
+    {{0,0},{15,-12},{18,7},{-18,-7},{4,-26}},
+    // sensor 4, unloads: none,38,54,30,44
+    {{0,0},{25,-10},{-4,26},{-15,12},{-11,-25}},
+    // sensor 5, unloads: none,40,56,48,46
+    {{0,0},{16,-21},{11,25},{-26,-5},{-21,-17}},
+    // sensor 6, unloads: none,60,58,50
+    {{0,0},{26,5},{21,17},{-25,10}},
+    // sensor 7, unloads: none,none,none,52
+    {{0,0},{0,0},{0,0},{-16,21}},
+};
