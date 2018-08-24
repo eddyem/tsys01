@@ -4,6 +4,7 @@ BTA mirror temperature network daemon
 Gather information from temperature sensors and send it over ethernet by network request like
 hostname:4444/Tx
 where x is 0 for upper sensors, 1 for lower and 2 for T measured by main controller.
+hostname:4444/Tmean returns mean temperature
 
 Answer format: "X Y T t", where
 

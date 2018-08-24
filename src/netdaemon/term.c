@@ -159,6 +159,8 @@ static int send_cmd(int N, char cmd){
     if(N < 0 || N > 7) return 1;
     char buf[4] = {(char)N + '0', cmd, '\n', 0};
     char *rtn;
+    // clear all incomint data
+    while(read_string());
     //DBG("send cmd %s", buf);
     if(write_tty(buf, 3)) return 1;
     if((rtn = read_string())){

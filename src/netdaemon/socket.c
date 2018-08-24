@@ -39,6 +39,8 @@
 
 // temperatures: T0, T1, N2
 static char strT[3][BUFLEN];
+// mean temperature
+static double meanT;
 
 /**************** COMMON FUNCTIONS ****************/
 /**
@@ -171,8 +173,13 @@ static void *handle_socket(void *asock){
                 putlog("can't send data, some error occured");
             }
             pthread_mutex_unlock(&mutex);
-            break;
-        }else break; // here can be more parsers
+        }else if(strncmp("Tmean", found, 5) == 0){ // send user meanT
+            char tbuf[10];
+            ssize_t L = snprintf(tbuf, 10, "%.2f", meanT);
+            if(L != write(sock, tbuf, L)) WARN("write()");
+            //DBG("Ask Tmean = %g", meanT);
+        } // here can be more parsers
+        break;
     }
     close(sock);
     //DBG("closed");
@@ -219,7 +226,98 @@ static void *server(void *asock){
     putlog("server(): UNREACHABLE CODE REACHED!");
 }
 
-// data gathering & socket parsing
+typedef double Item;
+#define ELEM_SWAP(a, b) {register Item t = a; a = b; b = t;}
+#define PIX_SORT(a, b)  {if (a > b) ELEM_SWAP(a, b);}
+/**
+ * quick select - algo for approximate median calculation for array idata of size n
+ */
+Item quick_select(Item *idata, int n){
+    int low, high;
+    int median;
+    int middle, ll, hh;
+    Item *arr = MALLOC(Item, n);
+    memcpy(arr, idata, n*sizeof(Item));
+    low = 0 ; high = n-1 ; median = (low + high) / 2;
+    for(;;){
+        if(high <= low) // One element only
+            break;
+        if(high == low + 1){ // Two elements only
+            PIX_SORT(arr[low], arr[high]) ;
+            break;
+        }
+        // Find median of low, middle and high items; swap into position low
+        middle = (low + high) / 2;
+        PIX_SORT(arr[middle], arr[high]) ;
+        PIX_SORT(arr[low], arr[high]) ;
+        PIX_SORT(arr[middle], arr[low]) ;
+        // Swap low item (now in position middle) into position (low+1)
+        ELEM_SWAP(arr[middle], arr[low+1]) ;
+        // Nibble from each end towards middle, swapping items when stuck
+        ll = low + 1;
+        hh = high;
+        for(;;){
+            do ll++; while (arr[low] > arr[ll]);
+            do hh--; while (arr[hh] > arr[low]);
+            if(hh < ll) break;
+            ELEM_SWAP(arr[ll], arr[hh]) ;
+        }
+        // Swap middle item (in position low) back into correct position
+        ELEM_SWAP(arr[low], arr[hh]) ;
+        // Re-set active partition
+        if (hh <= median) low = ll;
+        if (hh >= median) high = hh - 1;
+    }
+    Item ret = arr[median];
+    FREE(arr);
+    return ret;
+}
+#undef PIX_SORT
+#undef ELEM_SWAP
+
+static void process_T(){
+    int i, Num = 0;
+    time_t tmeasmax = 0;
+    double arr[128];
+    // get statistics
+    poll_sensors(0); // poll N2
+    // scan over controllers on mirror & calculate median
+    for(i = 1; i < 8; ++i){
+        if(poll_sensors(i)){
+            int N, p;
+            for(p = 0; p < 2; ++p) for(N = 0; N < 8; ++ N){
+                double T = t_last[p][N][i];
+                time_t t = tmeasured[p][N][i];
+                if(T > -100. && T < 100.){
+                    arr[Num++] = T;
+                    if(t > tmeasmax) tmeasmax = t;
+                }
+            }
+        }
+    }
+    // calculate mean
+    double Tmed = quick_select(arr, Num);
+    double Tbot = Tmed - 3., Ttop = Tmed + 3.;
+    DBG("Got %d values, Tmed=%g", Num, Tmed);
+    // throw out all more than +-3degrC and calculate meanT
+    Num = 0;
+    double Tsum = 0.;
+    for(i = 1; i < 8; ++i){
+        int N, p;
+        for(p = 0; p < 2; ++p) for(N = 0; N < 8; ++ N){
+            double T = t_last[p][N][i];
+            if(T > Ttop || T < Tbot || tmeasmax - tmeasured[p][N][i] > 1800){
+                t_last[p][N][i] = -300.;
+            }else{
+                ++Num; Tsum += T;
+            }
+        }
+    }
+    meanT = Tsum / Num;
+    DBG("got %d, mean: %g\n\n", Num, meanT);
+}
+
+// data gathering & socket management
 static void daemon_(int sock){
     if(sock < 0) return;
     pthread_t sock_thread;
@@ -245,34 +343,33 @@ static void daemon_(int sock){
         char bufs[3][BUFLEN]; // temporary buffers
         char *ptrs[3] = {bufs[0], bufs[1], bufs[2]};
         size_t lens[3] = {BUFLEN, BUFLEN, BUFLEN}; // free space
+        process_T(); // get new temperatures & throw out bad results
         for(i = 0; i < 8; ++i){ // scan over controllers
-            if(poll_sensors(i)){
-                int N, p;
-                for(p = 0; p < 2; ++p) for(N = 0; N < 8; ++ N){
-                    double T = t_last[p][N][i];
-                    char **buf;
-                    size_t *len;
-                    //DBG("T%d [%d][%d] = %g",i, p,N,T);
-                    if(T > -100. && T < 100.){ // fill buffer
-                        size_t l;
-                        if(i == 0){
-                            buf = &ptrs[2]; len = &lens[2];
-                            // Nsens Npair T time
-                            l = snprintf(*buf, *len, "%d\t%d\t%.2f\t%ld\n", N, p, T,
-                                            tmeasured[p][N][i]);
-                        }else{
-                            buf = &ptrs[p]; len = &lens[p];
-                            // x y T time
-                            l = snprintf(*buf, *len, "%d\t%d\t%.2f\t%ld\n", SensCoords[N][i][0],
-                                            SensCoords[N][i][1], T, tmeasured[p][N][i]);
-                        }
-                        *len -= l;
-                        *buf += l;
+            int N, p;
+            for(p = 0; p < 2; ++p) for(N = 0; N < 8; ++ N){
+                double T = t_last[p][N][i];
+                char **buf;
+                size_t *len;
+                //DBG("T%d [%d][%d] = %g",i, p,N,T);
+                if(T > -100. && T < 100.){ // fill buffer
+                    size_t l;
+                    if(i == 0){
+                        buf = &ptrs[2]; len = &lens[2];
+                        // Nsens Npair T time
+                        l = snprintf(*buf, *len, "%d\t%d\t%.2f\t%ld\n", N, p, T,
+                                        tmeasured[p][N][i]);
+                    }else{
+                        buf = &ptrs[p]; len = &lens[p];
+                        // x y T time
+                        l = snprintf(*buf, *len, "%d\t%d\t%.2f\t%ld\n", SensCoords[N][i][0],
+                                        SensCoords[N][i][1], T, tmeasured[p][N][i]);
                     }
+                    *len -= l;
+                    *buf += l;
                 }
             }
         }
-        DBG("BUF0:\n%s\nBUF1:\n%s\nBUF2:\n%s", bufs[0],bufs[1],bufs[2]);
+        //DBG("BUF0:\n%s\nBUF1:\n%s\nBUF2:\n%s", bufs[0],bufs[1],bufs[2]);
         tgot = dtime();
         // copy temporary buffers to main
         pthread_mutex_lock(&mutex);

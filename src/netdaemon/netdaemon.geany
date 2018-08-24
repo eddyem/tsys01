@@ -20,13 +20,24 @@ indent_mode=3
 [project]
 name=netdaemon
 base_path=/home/eddy/Docs/SAO/BTA/MIRROR_CONTROL_termo/Project/netdaemon
+description=
 
 [long line marker]
 long_line_behaviour=1
 long_line_column=100
 
 [files]
-current_page=-1
+current_page=3
+FILE_NAME_0=0;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2Fnetdaemon%2Fcmdlnopts.c;0;4
+FILE_NAME_1=0;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2Fnetdaemon%2Fcmdlnopts.h;0;4
+FILE_NAME_2=0;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2Fnetdaemon%2Fmain.c;0;4
+FILE_NAME_3=9982;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2Fnetdaemon%2Fsocket.c;0;4
+FILE_NAME_4=0;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2Fnetdaemon%2Fsocket.h;0;4
+FILE_NAME_5=4650;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2Fnetdaemon%2Fterm.c;0;4
+FILE_NAME_6=0;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2Fnetdaemon%2Fterm.h;0;4
+FILE_NAME_7=3250;C;0;EKOI8-R;0;1;0;%2Fhome%2Feddy%2FDocs%2FSAO%2FBTA%2FMIRROR_CONTROL_termo%2FProject%2Fnetdaemon%2Fdatapoints.xy;0;4
+FILE_NAME_8=7594;C;0;EUTF-8;0;1;0;%2Fhome%2Feddy%2FDropbox%2FProjects%2Ffits_filter%2Fmedian.c;0;4
+FILE_NAME_9=0;C;0;EUTF-8;0;1;0;%2Fhome%2Feddy%2FDropbox%2FProjects%2Ffits_filter%2Fmedian.h;0;4
 
 [VTE]
 last_dir=/home/eddy

@@ -346,6 +346,8 @@ EL2HLTÌ65536Ö0
 EL2NSYNCÌ65536Ö0
 EL3HLTÌ65536Ö0
 EL3RSTÌ65536Ö0
+ELEM_SWAPÌ65536Ö0
+ELEM_SWAPÌ131072Í(a,b)Ö0
 ELIBACCÌ65536Ö0
 ELIBBADÌ65536Ö0
 ELIBEXECÌ65536Ö0
@@ -836,6 +838,7 @@ IUTF8Ì65536Ö0
 IXANYÌ65536Ö0
 IXOFFÌ65536Ö0
 IXONÌ65536Ö0
+ItemÌ4096Ö0Ïdouble
 LC_ADDRESSÌ65536Ö0
 LC_ADDRESS_MASKÌ65536Ö0
 LC_ALLÌ65536Ö0
@@ -1236,6 +1239,8 @@ PF_VSOCKÌ65536Ö0
 PF_WANPIPEÌ65536Ö0
 PF_X25Ì65536Ö0
 PIPE_BUFÌ65536Ö0
+PIX_SORTÌ65536Ö0
+PIX_SORTÌ131072Í(a,b)Ö0
 PKEY_DISABLE_ACCESSÌ65536Ö0
 PKEY_DISABLE_WRITEÌ65536Ö0
 POLLING_TMOUTÌ65536Ö0
@@ -4540,8 +4545,8 @@ __kernel_caddr_tÌ4096Ö0Ïchar *
 __kernel_clock_tÌ4096Ö0Ï__kernel_long_t
 __kernel_clockid_tÌ4096Ö0Ïint
 __kernel_daddr_tÌ4096Ö0Ïint
-__kernel_fd_setÌ4096Ö0Ïanon_struct_8
-__kernel_fsid_tÌ4096Ö0Ïanon_struct_9
+__kernel_fd_setÌ4096Ö0Ïanon_struct_21
+__kernel_fsid_tÌ4096Ö0Ïanon_struct_22
 __kernel_gid16_tÌ4096Ö0Ïunsigned short
 __kernel_gid32_tÌ4096Ö0Ïunsigned int
 __kernel_gid_tÌ4096Ö0Ïunsigned int
@@ -4618,6 +4623,7 @@ __sigevent_t_definedÌ65536Ö0
 __siginfo_t_definedÌ65536Ö0
 __sigset_t_definedÌ65536Ö0
 __sigstack_definedÌ65536Ö0
+__sigval_tÌ4096Ö0Ïsigval
 __sigval_t_definedÌ65536Ö0
 __size_tÌ65536Ö0
 __size_t__Ì65536Ö0
@@ -4689,7 +4695,13 @@ __wsumÌ4096Ö0Ï__u32
 __wurÌ65536Ö0
 __x86_64Ì65536Ö0
 __x86_64__Ì65536Ö0
+_attributeÌ64Îsigevent::anon_union_8::anon_struct_9Ö0Ïpthread_attr_t *
+_functionÌ1024Í(__sigval_t)Îsigevent::anon_union_8::anon_struct_9Ö0Ïvoid
+_padÌ64Îsigevent::anon_union_8Ö0Ïint
 _pthread_cleanup_bufferÌ2048Ö0
+_sigev_threadÌ64Îsigevent::anon_union_8Ö0Ïanon_struct_9
+_sigev_unÌ64ÎsigeventÖ0Ïanon_union_8
+_tidÌ64Îsigevent::anon_union_8Ö0Ï__pid_t
 abortÌ64ÎstdÖ0Ïusing
 abortÌ65536Ö0
 absÌ64ÎstdÖ0Ïusing
@@ -4718,11 +4730,13 @@ anon_enum_6Ì2Ö0
 anon_struct_0Ì2048Ö0
 anon_struct_1Ì2048Ö0
 anon_struct_10Ì2048Ö0
+anon_struct_21Ì2048Ö0
+anon_struct_22Ì2048Ö0
 anon_struct_4Ì2048Ö0
 anon_struct_5Ì2048Ö0
 anon_struct_7Ì2048Ö0
-anon_struct_8Ì2048Ö0
-anon_struct_9Ì2048Ö0
+anon_struct_9Ì2048Îsigevent::anon_union_8Ö0
+anon_union_8Ì8192ÎsigeventÖ0
 arg_doubleÌ4Îanon_enum_2Ö0
 arg_endÌ64Îprctl_mm_mapÖ0Ï__u64
 arg_floatÌ4Îanon_enum_2Ö0
@@ -4851,7 +4865,7 @@ fdimÌ64ÎstdÖ0Ïusing
 fdimÌ65536Ö0
 fdimfÌ65536Ö0
 fdimlÌ65536Ö0
-fds_bitsÌ64Îanon_struct_8Ö0Ïunsigned long
+fds_bitsÌ64Îanon_struct_21Ö0Ïunsigned long
 flagÌ64Îanon_struct_4Ö0Ïint *
 floorÌ64ÎstdÖ0Ïusing
 floorÌ65536Ö0
@@ -5028,6 +5042,7 @@ mbstowcsÌ64ÎstdÖ0Ïusing
 mbstowcsÌ65536Ö0
 mbtowcÌ64ÎstdÖ0Ïusing
 mbtowcÌ65536Ö0
+meanTÌ16384Ö0Ïdouble
 minÌ65536Ö0
 mmapbufÌ4096Ö0Ïanon_struct_1
 mode_tÌ4096Ö0Ï__mode_t
@@ -5090,6 +5105,7 @@ powÌ65536Ö0
 ppsfreqÌ64ÎtimexÖ0Ï__syscall_slong_t
 prctl_mm_mapÌ2048Ö0
 precisionÌ64ÎtimexÖ0Ï__syscall_slong_t
+process_TÌ16Í()Ö0Ïvoid
 pthread_cleanup_popÌ131072Í(execute)Ö0
 pthread_cleanup_pop_restore_npÌ131072Í(execute)Ö0
 pthread_cleanup_pushÌ131072Í(routine,arg)Ö0
@@ -5101,6 +5117,7 @@ qsortÌ64ÎstdÖ0Ïusing
 qsortÌ65536Ö0
 quick_exitÌ64ÎstdÖ0Ïusing
 quick_exitÌ65536Ö0
+quick_selectÌ16Í(Item *idata, int n)Ö0ÏItem
 r_WARNÌ16Í(const char *fmt, ...)Ö0Ïint
 r_pr_Ì16Í(const char *fmt, ...)Ö0Ïint
 r_pr_nottyÌ16Í(const char *fmt, ...)Ö0Ïint
@@ -5184,19 +5201,27 @@ si_uidÌ65536Ö0
 si_upperÌ65536Ö0
 si_utimeÌ65536Ö0
 si_valueÌ65536Ö0
+sigev_notifyÌ64ÎsigeventÖ0Ïint
 sigev_notify_attributesÌ65536Ö0
 sigev_notify_functionÌ65536Ö0
+sigev_signoÌ64ÎsigeventÖ0Ïint
+sigev_valueÌ64ÎsigeventÖ0Ï__sigval_t
+sigeventÌ2048Ö0
 sigeventÌ32768Ö0
+sigevent_tÌ4096Ö0Ïsigevent
 sigmaskÌ131072Í(sig)Ö0
 signalsÌ16Í(int signo)Ö0Ïvoid
 signalsÌ1024Í(int sig)Ö0Ïvoid
 signbitÌ64ÎstdÖ0Ïusing
 signbitÌ65536Ö0
 signbitÌ131072Í(x)Ö0
+sigvalÌ8192Ö0
 sinÌ64ÎstdÖ0Ïusing
 sinÌ65536Ö0
 sinhÌ64ÎstdÖ0Ïusing
 sinhÌ65536Ö0
+sival_intÌ64ÎsigvalÖ0Ïint
+sival_ptrÌ64ÎsigvalÖ0Ïvoid *
 sqrtÌ64ÎstdÖ0Ïusing
 sqrtÌ65536Ö0
 srandÌ64ÎstdÖ0Ïusing
@@ -5304,8 +5329,8 @@ va_argÌ131072Í(v,l)Ö0
 va_copyÌ131072Í(d,s)Ö0
 va_endÌ131072Í(v)Ö0
 va_startÌ131072Í(v,l)Ö0
+valÌ64Îanon_struct_22Ö0Ïint
 valÌ64Îanon_struct_4Ö0Ïint
-valÌ64Îanon_struct_9Ö0Ïint
 waittoreadÌ16Í(int sock)Ö0Ïint
 wcstombsÌ64ÎstdÖ0Ïusing
 wcstombsÌ65536Ö0
