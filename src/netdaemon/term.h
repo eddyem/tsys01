@@ -32,6 +32,8 @@
 #define     T_POLLING_TMOUT     (5.0)
 // T measurement time interval - 1 minute
 #define     T_INTERVAL          (60.0)
+// amount of measurement to plot mean graphs
+#define     GRAPHS_AMOUNT       (15)
 
 // Protocol
 #define CMD_SENSORS_OFF         'F'

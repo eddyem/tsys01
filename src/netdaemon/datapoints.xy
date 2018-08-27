@@ -52,7 +52,7 @@
  */
 
 // sensors groups coordinates: [Nsensor][Ncontroller][xy]
-static const int SensCoords[8][8][2] = {
+const int SensCoords[8][8][2] = {
     // sensor 0, unloads: none,7,6,13,3
     {{0,0},{13,-4},{3,5},{-13,4},{-3,-5}},
     // sensor 1, unloads: none,9,17,15,11

@@ -290,7 +290,7 @@ void restore_tty(){
 #endif
 // init:
 void tty_init(char *comdev){
-    DBG("\nOpen port...\n");
+    DBG("\nOpen port %s ...\n", comdev);
     do{
         comfd = open(comdev,O_RDWR|O_NOCTTY|O_NONBLOCK);
     }while (comfd == -1 && errno == EINTR);

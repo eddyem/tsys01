@@ -547,7 +547,8 @@ F_ULOCKÌ65536Ö0
 F_UNLCKÌ65536Ö0
 F_WRLCKÌ65536Ö0
 FlogÌ16384Ö0ÏFILE *
-GÌ16384Ö0Ïglob_pars
+GÌ16384Ö0Ïglob_pars *
+GÌ32768Ö0Ïglob_pars *
 GAI_NOWAITÌ65536Ö0
 GAI_WAITÌ65536Ö0
 GREENÌ65536Ö0
@@ -998,7 +999,7 @@ MSG_ZEROCOPYÌ65536Ö0
 MS_ASYNCÌ65536Ö0
 MS_INVALIDATEÌ65536Ö0
 MS_SYNCÌ65536Ö0
-MULT_PARÌ4Îanon_enum_3Ö0
+MULT_PARÌ4Îanon_enum_4Ö0
 M_1_PIÌ65536Ö0
 M_1_PIf128Ì65536Ö0
 M_1_PIf32Ì65536Ö0
@@ -1098,7 +1099,7 @@ NAME_MAXÌ65536Ö0
 NANÌ65536Ö0
 NCCÌ65536Ö0
 NCCSÌ65536Ö0
-NEED_ARGÌ4Îanon_enum_3Ö0
+NEED_ARGÌ4Îanon_enum_4Ö0
 NETDB_INTERNALÌ65536Ö0
 NETDB_SUCCESSÌ65536Ö0
 NFDBITSÌ65536Ö0
@@ -1125,7 +1126,7 @@ NL_SETMAXÌ65536Ö0
 NL_TEXTMAXÌ65536Ö0
 NOFLSHÌ65536Ö0
 NO_ADDRESSÌ65536Ö0
-NO_ARGSÌ4Îanon_enum_3Ö0
+NO_ARGSÌ4Îanon_enum_4Ö0
 NO_DATAÌ65536Ö0
 NO_RECOVERYÌ65536Ö0
 NR_OPENÌ65536Ö0
@@ -1159,7 +1160,7 @@ ONLRETÌ65536Ö0
 ONOCRÌ65536Ö0
 OPEN_MAXÌ65536Ö0
 OPOSTÌ65536Ö0
-OPT_ARGÌ4Îanon_enum_3Ö0
+OPT_ARGÌ4Îanon_enum_4Ö0
 O_ACCMODEÌ65536Ö0
 O_APPENDÌ65536Ö0
 O_ASYNCÌ65536Ö0
@@ -2147,6 +2148,7 @@ S_TYPEISMQÌ131072Í(buf)Ö0
 S_TYPEISSEMÌ131072Í(buf)Ö0
 S_TYPEISSHMÌ131072Í(buf)Ö0
 SensCoordsÌ16384Ö0Ïconst int
+SensCoordsÌ32768Ö0Ïconst int
 TAB0Ì65536Ö0
 TAB1Ì65536Ö0
 TAB2Ì65536Ö0
@@ -2258,9 +2260,9 @@ TIOCSWINSZÌ65536Ö0
 TIOCVHANGUPÌ65536Ö0
 TMP_MAXÌ65536Ö0
 TOSTOPÌ65536Ö0
-TRANS_ERRORÌ4Îanon_enum_6Ö0
-TRANS_SUCCEEDÌ4Îanon_enum_6Ö0
-TRANS_TIMEOUTÌ4Îanon_enum_6Ö0
+TRANS_ERRORÌ4Îanon_enum_2Ö0
+TRANS_SUCCEEDÌ4Îanon_enum_2Ö0
+TRANS_TIMEOUTÌ4Îanon_enum_2Ö0
 TRAP_BRKPTÌ65536Ö0
 TRAP_TRACEÌ65536Ö0
 TRUEÌ65536Ö0
@@ -3633,6 +3635,7 @@ __GNUC_STDC_INLINE__Ì65536Ö0
 __GNUC_VA_LISTÌ65536Ö0
 __GNUC__Ì65536Ö0
 __GNUG__Ì65536Ö0
+__GNUPLOT_H__Ì65536Ö0
 __GNU_GETTEXT_SUPPORTED_REVISIONÌ131072Í(major)Ö0
 __GNU_LIBRARY__Ì65536Ö0
 __GXX_ABI_VERSIONÌ65536Ö0
@@ -4545,8 +4548,8 @@ __kernel_caddr_tÌ4096Ö0Ïchar *
 __kernel_clock_tÌ4096Ö0Ï__kernel_long_t
 __kernel_clockid_tÌ4096Ö0Ïint
 __kernel_daddr_tÌ4096Ö0Ïint
-__kernel_fd_setÌ4096Ö0Ïanon_struct_21
-__kernel_fsid_tÌ4096Ö0Ïanon_struct_22
+__kernel_fd_setÌ4096Ö0Ïanon_struct_8
+__kernel_fsid_tÌ4096Ö0Ïanon_struct_9
 __kernel_gid16_tÌ4096Ö0Ïunsigned short
 __kernel_gid32_tÌ4096Ö0Ïunsigned int
 __kernel_gid_tÌ4096Ö0Ïunsigned int
@@ -4623,7 +4626,6 @@ __sigevent_t_definedÌ65536Ö0
 __siginfo_t_definedÌ65536Ö0
 __sigset_t_definedÌ65536Ö0
 __sigstack_definedÌ65536Ö0
-__sigval_tÌ4096Ö0Ïsigval
 __sigval_t_definedÌ65536Ö0
 __size_tÌ65536Ö0
 __size_t__Ì65536Ö0
@@ -4695,13 +4697,7 @@ __wsumÌ4096Ö0Ï__u32
 __wurÌ65536Ö0
 __x86_64Ì65536Ö0
 __x86_64__Ì65536Ö0
-_attributeÌ64Îsigevent::anon_union_8::anon_struct_9Ö0Ïpthread_attr_t *
-_functionÌ1024Í(__sigval_t)Îsigevent::anon_union_8::anon_struct_9Ö0Ïvoid
-_padÌ64Îsigevent::anon_union_8Ö0Ïint
 _pthread_cleanup_bufferÌ2048Ö0
-_sigev_threadÌ64Îsigevent::anon_union_8Ö0Ïanon_struct_9
-_sigev_unÌ64ÎsigeventÖ0Ïanon_union_8
-_tidÌ64Îsigevent::anon_union_8Ö0Ï__pid_t
 abortÌ64ÎstdÖ0Ïusing
 abortÌ65536Ö0
 absÌ64ÎstdÖ0Ïusing
@@ -4726,31 +4722,29 @@ anon_enum_19Ì2Ö0
 anon_enum_2Ì2Ö0
 anon_enum_20Ì2Ö0
 anon_enum_3Ì2Ö0
-anon_enum_6Ì2Ö0
+anon_enum_4Ì2Ö0
 anon_struct_0Ì2048Ö0
 anon_struct_1Ì2048Ö0
 anon_struct_10Ì2048Ö0
-anon_struct_21Ì2048Ö0
-anon_struct_22Ì2048Ö0
-anon_struct_4Ì2048Ö0
 anon_struct_5Ì2048Ö0
+anon_struct_6Ì2048Ö0
 anon_struct_7Ì2048Ö0
-anon_struct_9Ì2048Îsigevent::anon_union_8Ö0
-anon_union_8Ì8192ÎsigeventÖ0
-arg_doubleÌ4Îanon_enum_2Ö0
+anon_struct_8Ì2048Ö0
+anon_struct_9Ì2048Ö0
+arg_doubleÌ4Îanon_enum_3Ö0
 arg_endÌ64Îprctl_mm_mapÖ0Ï__u64
-arg_floatÌ4Îanon_enum_2Ö0
-arg_functionÌ4Îanon_enum_2Ö0
-arg_intÌ4Îanon_enum_2Ö0
-arg_longlongÌ4Îanon_enum_2Ö0
-arg_noneÌ4Îanon_enum_2Ö0
+arg_floatÌ4Îanon_enum_3Ö0
+arg_functionÌ4Îanon_enum_3Ö0
+arg_intÌ4Îanon_enum_3Ö0
+arg_longlongÌ4Îanon_enum_3Ö0
+arg_noneÌ4Îanon_enum_3Ö0
 arg_startÌ64Îprctl_mm_mapÖ0Ï__u64
-arg_stringÌ4Îanon_enum_2Ö0
+arg_stringÌ4Îanon_enum_3Ö0
 argfnÌ4096Ö0Ïtypedef bool
-argptrÌ64Îanon_struct_4Ö0Ïvoid *
 argptrÌ64Îanon_struct_5Ö0Ïvoid *
+argptrÌ64Îanon_struct_6Ö0Ïvoid *
 argsortÌ16Í(const void *a1, const void *a2)Ö0Ïint
-argtypeÌ4096Ö0Ïanon_enum_2
+argtypeÌ4096Ö0Ïanon_enum_3
 asinÌ64ÎstdÖ0Ïusing
 asinÌ65536Ö0
 asinhÌ64ÎstdÖ0Ïusing
@@ -4865,8 +4859,8 @@ fdimÌ64ÎstdÖ0Ïusing
 fdimÌ65536Ö0
 fdimfÌ65536Ö0
 fdimlÌ65536Ö0
-fds_bitsÌ64Îanon_struct_21Ö0Ïunsigned long
-flagÌ64Îanon_struct_4Ö0Ïint *
+fds_bitsÌ64Îanon_struct_8Ö0Ïunsigned long
+flagÌ64Îanon_struct_5Ö0Ïint *
 floorÌ64ÎstdÖ0Ïusing
 floorÌ65536Ö0
 fmaÌ64ÎstdÖ0Ïusing
@@ -4883,6 +4877,7 @@ fminfÌ65536Ö0
 fminlÌ65536Ö0
 fmodÌ64ÎstdÖ0Ïusing
 fmodÌ65536Ö0
+formfileÌ16Í(char *fname, double data[8][8])Ö0Ïint
 fpclassifyÌ64ÎstdÖ0Ïusing
 fpclassifyÌ65536Ö0
 fpclassifyÌ131072Í(x)Ö0
@@ -4892,6 +4887,7 @@ freeÌ65536Ö0
 freqÌ64ÎtimexÖ0Ï__syscall_slong_t
 frexpÌ64ÎstdÖ0Ïusing
 frexpÌ65536Ö0
+fullpathÌ16384Ö0Ïchar
 g_pr_Ì16Í(const char *fmt, ...)Ö0Ïint
 get_aptrÌ16Í(void *paptr, argtype type)Ö0Ïvoid *
 get_optindÌ16Í(int opt, myoption *options)Ö0Ïint
@@ -4904,14 +4900,15 @@ gid_tÌ4096Ö0Ï__gid_t
 globErrÌ16384Ö0Ïint
 globErrÌ32768Ö0Ïint
 glob_parsÌ4096Ö0Ïanon_struct_7
+gnuplotÌ16Í(char *path, char *fname)Ö0Ïvoid
 greenÌ1024Í(const char *fmt, ...)Ö0Ïint
 h_addrÌ65536Ö0
 h_errnoÌ65536Ö0
 handle_socketÌ16Í(void *asock)Ö0Ïvoid *
-has_argÌ64Îanon_struct_4Ö0Ïhasarg
 has_argÌ64Îanon_struct_5Ö0Ïhasarg
-hasargÌ4096Ö0Ïanon_enum_3
-helpÌ64Îanon_struct_4Ö0Ïconst char *
+has_argÌ64Îanon_struct_6Ö0Ïhasarg
+hasargÌ4096Ö0Ïanon_enum_4
+helpÌ64Îanon_struct_5Ö0Ïconst char *
 helpÌ16384Ö0Ïint
 helpstringÌ16384Ö0Ïchar *
 htobe16Ì131072Í(x)Ö0
@@ -5031,6 +5028,7 @@ lroundÌ65536Ö0
 lroundfÌ65536Ö0
 lroundlÌ65536Ö0
 mainÌ16Í(int argc, char **argv)Ö0Ïint
+makegraphsÌ64Îanon_struct_7Ö0Ïint
 mallocÌ64ÎstdÖ0Ïusing
 mallocÌ65536Ö0
 math_errhandlingÌ65536Ö0
@@ -5044,6 +5042,7 @@ mbtowcÌ64ÎstdÖ0Ïusing
 mbtowcÌ65536Ö0
 meanTÌ16384Ö0Ïdouble
 minÌ65536Ö0
+mknameÌ16Í(char *path, char *fname)Ö0Ïchar *
 mmapbufÌ4096Ö0Ïanon_struct_1
 mode_tÌ4096Ö0Ï__mode_t
 modesÌ64ÎtimexÖ0Ïunsigned int
@@ -5056,14 +5055,14 @@ myatodÌ16Í(void *num, const char *str, argtype t)Ö0Ïbool
 myatollÌ16Í(void *num, char *str, argtype t)Ö0Ïbool
 mygetcharÌ16Í()Ö0Ïint
 mygetcharÌ1024Í()Ö0Ïint
-myoptionÌ4096Ö0Ïanon_struct_4
-mysuboptionÌ4096Ö0Ïanon_struct_5
+myoptionÌ4096Ö0Ïanon_struct_5
+mysuboptionÌ4096Ö0Ïanon_struct_6
 n_addrtypeÌ64ÎnetentÖ0Ïint
 n_aliasesÌ64ÎnetentÖ0Ïchar * *
 n_nameÌ64ÎnetentÖ0Ïchar *
 n_netÌ64ÎnetentÖ0Ïuint32_t
-nameÌ64Îanon_struct_4Ö0Ïconst char *
 nameÌ64Îanon_struct_5Ö0Ïconst char *
+nameÌ64Îanon_struct_6Ö0Ïconst char *
 nanÌ65536Ö0
 nanfÌ65536Ö0
 nanlÌ65536Ö0
@@ -5097,6 +5096,8 @@ parse_argsÌ16Í(int argc, char **argv)Ö0Ïglob_pars *
 parse_argsÌ1024Í(int argc, char **argv)Ö0Ïglob_pars *
 parseargsÌ16Í(int *argc, char ***argv, myoption *options)Ö0Ïvoid
 parseargsÌ1024Í(int *argc, char ***argv, myoption *options)Ö0Ïvoid
+plotÌ16Í(double data[2][8][8], char *savepath)Ö0Ïvoid
+plotÌ1024Í(double data[2][8][8], char *savepath)Ö0Ïvoid
 poll_sensorsÌ16Í(int N)Ö0Ïint
 poll_sensorsÌ1024Í(int N)Ö0Ïint
 portÌ64Îanon_struct_7Ö0Ïchar *
@@ -5162,6 +5163,7 @@ s6_addr32Ì65536Ö0
 s_WARNÌ16Í(const char *fmt, ...)Ö0Ïint
 sa_handlerÌ65536Ö0
 sa_sigactionÌ65536Ö0
+savepathÌ64Îanon_struct_7Ö0Ïchar *
 scalblnÌ64ÎstdÖ0Ïusing
 scalblnÌ65536Ö0
 scalblnfÌ65536Ö0
@@ -5201,27 +5203,19 @@ si_uidÌ65536Ö0
 si_upperÌ65536Ö0
 si_utimeÌ65536Ö0
 si_valueÌ65536Ö0
-sigev_notifyÌ64ÎsigeventÖ0Ïint
 sigev_notify_attributesÌ65536Ö0
 sigev_notify_functionÌ65536Ö0
-sigev_signoÌ64ÎsigeventÖ0Ïint
-sigev_valueÌ64ÎsigeventÖ0Ï__sigval_t
-sigeventÌ2048Ö0
 sigeventÌ32768Ö0
-sigevent_tÌ4096Ö0Ïsigevent
 sigmaskÌ131072Í(sig)Ö0
 signalsÌ16Í(int signo)Ö0Ïvoid
 signalsÌ1024Í(int sig)Ö0Ïvoid
 signbitÌ64ÎstdÖ0Ïusing
 signbitÌ65536Ö0
 signbitÌ131072Í(x)Ö0
-sigvalÌ8192Ö0
 sinÌ64ÎstdÖ0Ïusing
 sinÌ65536Ö0
 sinhÌ64ÎstdÖ0Ïusing
 sinhÌ65536Ö0
-sival_intÌ64ÎsigvalÖ0Ïint
-sival_ptrÌ64ÎsigvalÖ0Ïvoid *
 sqrtÌ64ÎstdÖ0Ïusing
 sqrtÌ65536Ö0
 srandÌ64ÎstdÖ0Ïusing
@@ -5295,7 +5289,7 @@ tm_zoneÌ64ÎtmÖ0Ïconst char *
 tmeasuredÌ16384Ö0Ïtime_t
 tmeasuredÌ32768Ö0Ïtime_t
 toleranceÌ64ÎtimexÖ0Ï__syscall_slong_t
-trans_statusÌ4096Ö0Ïanon_enum_6
+trans_statusÌ4096Ö0Ïanon_enum_2
 truncÌ64ÎstdÖ0Ïusing
 truncÌ65536Ö0
 truncfÌ65536Ö0
@@ -5307,8 +5301,8 @@ tty_initÌ16Í(char *comdev)Ö0Ïvoid
 tty_initÌ1024Í(char *comdev)Ö0Ïvoid
 tv_nsecÌ64ÎtimespecÖ0Ï__syscall_slong_t
 tv_secÌ64ÎtimespecÖ0Ï__time_t
-typeÌ64Îanon_struct_4Ö0Ïargtype
 typeÌ64Îanon_struct_5Ö0Ïargtype
+typeÌ64Îanon_struct_6Ö0Ïargtype
 uid_tÌ4096Ö0Ï__uid_t
 uint16_tÌ4096Ö0Ï__uint16_t
 uint32_tÌ4096Ö0Ï__uint32_t
@@ -5329,8 +5323,8 @@ va_argÌ131072Í(v,l)Ö0
 va_copyÌ131072Í(d,s)Ö0
 va_endÌ131072Í(v)Ö0
 va_startÌ131072Í(v,l)Ö0
-valÌ64Îanon_struct_22Ö0Ïint
-valÌ64Îanon_struct_4Ö0Ïint
+valÌ64Îanon_struct_5Ö0Ïint
+valÌ64Îanon_struct_9Ö0Ïint
 waittoreadÌ16Í(int sock)Ö0Ïint
 wcstombsÌ64ÎstdÖ0Ïusing
 wcstombsÌ65536Ö0

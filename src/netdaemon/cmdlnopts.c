@@ -30,7 +30,7 @@
  * here are global parameters initialisation
  */
 int help;
-glob_pars  G;
+static glob_pars  G;
 
 // default values for Gdefault & help
 #define DEFAULT_COMDEV  "/dev/ttyUSB0"
@@ -42,6 +42,8 @@ glob_pars const Gdefault = {
     .device = DEFAULT_COMDEV,
     .port = DEFAULT_PORT,
     .terminal = 0,
+    .savepath = NULL,
+    .makegraphs = 0,
     .rest_pars = NULL,
     .rest_pars_num = 0
 };
@@ -56,6 +58,8 @@ myoption cmdlnopts[] = {
     {"device",  NEED_ARG,   NULL,   'i',    arg_string, APTR(&G.device),    _("serial device name (default: " DEFAULT_COMDEV ")")},
     {"port",    NEED_ARG,   NULL,   'p',    arg_string, APTR(&G.port),      _("network port to connect (default: " DEFAULT_PORT ")")},
     {"terminal",NO_ARGS,    NULL,   't',    arg_int,    APTR(&G.terminal),  _("run as terminal")},
+    {"savepath",NEED_ARG,   NULL,   's',    arg_string, APTR(&G.savepath),  _("path where files would be saved (if none - don't save)")},
+    {"graphplot",NO_ARGS,   NULL,   'g',    arg_int,    APTR(&G.makegraphs),_("make graphics with gnuplot")},
    end_option
 };
 

@@ -1,0 +1,35 @@
+#!/bin/bash
+cat << EOF > gnutplt
+#!/usr/bin/gnuplot
+set contour
+unset surface
+set cntrparam order 4
+set cntrparam bspline
+set cntrparam levels auto 6
+set view map
+set size square
+set xrange [-30:30]
+set yrange [-30:30]
+set dgrid3d 20,20,20
+set table "contour.txt"
+splot '$1' u 1:2:3
+unset table
+unset contour
+set surface
+set table "dgrid.txt"
+splot '$1' u 1:2:3
+unset table
+reset
+set terminal canvas enhanced mousing size 1024,768 jsdir 'js'
+set output "$1.html"
+set size square
+set xrange [-30:30]
+set yrange [-30:30]
+set pm3d map
+unset key
+#set label font ",2"
+splot 'dgrid.txt' w pm3d, 'contour.txt' w l lc rgb "black", '$1' u 1:2:3:3 with labels font ",8"
+EOF
+
+chmod 755 gnutplt
+./gnutplt

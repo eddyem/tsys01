@@ -25,6 +25,8 @@
 #include "cmdlnopts.h"
 #include "socket.h"
 
+glob_pars *G;
+
 void signals(int signo){
     restore_console();
     restore_tty();
@@ -39,9 +41,12 @@ int main(int argc, char **argv){
     signal(SIGINT, signals);  // ctrl+C - quit
     signal(SIGQUIT, signals); // ctrl+\ - quit
     signal(SIGTSTP, SIG_IGN); // ignore ctrl+Z
-    glob_pars *G = parse_args(argc, argv);
+    G = parse_args(argc, argv);
     if(G->rest_pars_num)
         openlogfile(G->rest_pars[0]);
+    if(G->makegraphs && !G->savepath){
+        ERRX(_("Point the path to graphical files"));
+    }
     #ifndef EBUG
     if(daemon(1, 0)){
         ERR("daemon()");
@@ -61,6 +66,7 @@ int main(int argc, char **argv){
         }
     }
     #endif
+    DBG("dev: %s", G->device);
     try_connect(G->device);
     if(check_sensors()){
         putlog("no sensors detected");

@@ -32,6 +32,8 @@
 #include <sys/syscall.h> // syscall
 
 #include "datapoints.xy" // sensors coordinates
+#include "gnuplot.h"     // plot graphs
+#include "cmdlnopts.h"   // glob_pars
 
 #define BUFLEN    (10240)
 // Max amount of connections
@@ -41,6 +43,8 @@
 static char strT[3][BUFLEN];
 // mean temperature
 static double meanT;
+
+extern glob_pars *G;
 
 /**************** COMMON FUNCTIONS ****************/
 /**
@@ -276,9 +280,12 @@ Item quick_select(Item *idata, int n){
 #undef ELEM_SWAP
 
 static void process_T(){
-    int i, Num = 0;
+    int i, N, p, Num = 0;
     time_t tmeasmax = 0;
     double arr[128];
+    // mean temperatures over 15 scans
+    static double Tmean[2][8][8];
+    static int Nmean; // amount of measurements for Tmean
     // get statistics
     poll_sensors(0); // poll N2
     // scan over controllers on mirror & calculate median
@@ -303,14 +310,26 @@ static void process_T(){
     Num = 0;
     double Tsum = 0.;
     for(i = 1; i < 8; ++i){
-        int N, p;
         for(p = 0; p < 2; ++p) for(N = 0; N < 8; ++ N){
             double T = t_last[p][N][i];
             if(T > Ttop || T < Tbot || tmeasmax - tmeasured[p][N][i] > 1800){
                 t_last[p][N][i] = -300.;
+                Tmean[p][N][i] = -3e9;
             }else{
                 ++Num; Tsum += T;
+                Tmean[p][N][i] += T;
             }
+        }
+    }
+    // make graphics
+    if(G->savepath){
+        if(++Nmean == GRAPHS_AMOUNT){
+            for(i = 1; i < 8; ++i)for(p = 0; p < 2; ++p)for(N = 0; N < 8; ++ N){
+                Tmean[p][N][i] /= Nmean;
+            }
+            plot(Tmean, G->savepath);
+            memset(Tmean, 0, sizeof(double)*2*8*8);
+            Nmean = 0;
         }
     }
     meanT = Tsum / Num;
@@ -340,9 +359,10 @@ static void daemon_(int sock){
         if(dtime() - tgot < T_INTERVAL) continue;
         // get data
         int i;
-        char bufs[3][BUFLEN]; // temporary buffers
+        char bufs[3][BUFLEN]; // temporary buffers: T0, T1, TN2
         char *ptrs[3] = {bufs[0], bufs[1], bufs[2]};
         size_t lens[3] = {BUFLEN, BUFLEN, BUFLEN}; // free space
+        tgot = dtime();
         process_T(); // get new temperatures & throw out bad results
         for(i = 0; i < 8; ++i){ // scan over controllers
             int N, p;
@@ -370,7 +390,6 @@ static void daemon_(int sock){
             }
         }
         //DBG("BUF0:\n%s\nBUF1:\n%s\nBUF2:\n%s", bufs[0],bufs[1],bufs[2]);
-        tgot = dtime();
         // copy temporary buffers to main
         pthread_mutex_lock(&mutex);
         memcpy(strT, bufs, sizeof(strT));
