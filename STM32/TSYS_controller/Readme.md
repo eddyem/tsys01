@@ -43,9 +43,20 @@ Variable data length: from 1 to 7 bytes.
 First byte of every sequence is command mark (0xA5) or data mark (0x5A).
 
 Commands:
-- CMD_PING - send from master to receive answer in data packet if target alive.
-- CMD_START_MEASUREMENT - start single temperature measurement.
-- CMD_SENSORS_STATE - state of sensors.
+-    CMD_PING                request for PONG cmd
+-    CMD_START_MEASUREMENT   start single temperature measurement
+-    CMD_SENSORS_STATE       get sensors state
+-    CMD_START_SCAN          run scan mode 
+-    CMD_STOP_SCAN           stop scan mode
+-    CMD_SENSORS_OFF         turn off power of sensors
+-    CMD_LOWEST_SPEED        lowest I2C speed
+-    CMD_LOW_SPEED           low I2C speed (10kHz)
+-    CMD_HIGH_SPEED          high I2C speed (100kHz)
+-    CMD_REINIT_I2C          reinit I2C with current speed
+
+Dummy commands for test purposes:
+-    CMD_DUMMY0 = 0xDA,
+-    CMD_DUMMY1 = 0xAD
 
 Data format:
 - 1 byte - Controller number
