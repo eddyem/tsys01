@@ -20,10 +20,8 @@
  * MA 02110-1301, USA.
  *
  */
-#include "stm32f0.h"
 #include "hardware.h"
 #include "i2c.h"
-#include "usart.h"
 
 /**
  * I2C for TSYS01
@@ -53,36 +51,38 @@ static uint32_t cntr;
 uint8_t write_i2c(uint8_t addr, uint8_t data){
     cntr = Tms;
     I2C1->ICR = 0x3f38; // clear all errors
-    while(I2C1->ISR & I2C_ISR_BUSY) if(Tms - cntr > I2C_TIMEOUT){
-        //MSG("always busy\n");
+    while(I2C1->ISR & I2C_ISR_BUSY){
+        IWDG->KR = IWDG_REFRESH;
+        if(Tms - cntr > I2C_TIMEOUT){
         return 0;  // check busy
-    }
+    }}
     cntr = Tms;
-    while(I2C1->CR2 & I2C_CR2_START) if(Tms - cntr > I2C_TIMEOUT){
-        //MSG("always start\n");
+    while(I2C1->CR2 & I2C_CR2_START){
+        IWDG->KR = IWDG_REFRESH;
+        if(Tms - cntr > I2C_TIMEOUT){
         return 0; // check start
-    }
+    }}
     //I2C1->ICR = 0x3f38; // clear all errors
     I2C1->CR2 = 1<<16 | addr | I2C_CR2_AUTOEND;  // 1 byte, autoend
     // now start transfer
     I2C1->CR2 |= I2C_CR2_START;
     cntr = Tms;
     while(!(I2C1->ISR & I2C_ISR_TXIS)){ // ready to transmit
+        IWDG->KR = IWDG_REFRESH;
         if(I2C1->ISR & I2C_ISR_NACKF){
             I2C1->ICR |= I2C_ICR_NACKCF;
-            //I2C1->ICR = 0x3f38;
-            //MSG("NACK\n");
             return 0;
         }
         if(Tms - cntr > I2C_TIMEOUT){
-            //I2C1->ICR = 0x3f38;
-            //MSG("Timeout\n");
             return 0;
         }
     }
     I2C1->TXDR = data; // send data
     // wait for data gone
-    while(I2C1->ISR & I2C_ISR_BUSY) if(Tms - cntr > I2C_TIMEOUT){break;}
+    while(I2C1->ISR & I2C_ISR_BUSY){
+        IWDG->KR = IWDG_REFRESH;
+        if(Tms - cntr > I2C_TIMEOUT){break;}
+    }
     return 1;
 }
 
@@ -94,15 +94,17 @@ uint8_t read_i2c(uint8_t addr, uint32_t *data, uint8_t nbytes){
     uint32_t result = 0;
     cntr = Tms;
     //MSG("read_i2c\n");
-    while(I2C1->ISR & I2C_ISR_BUSY) if(Tms - cntr > I2C_TIMEOUT){
-        //MSG("always busy\n");
+    while(I2C1->ISR & I2C_ISR_BUSY){
+        IWDG->KR = IWDG_REFRESH;
+        if(Tms - cntr > I2C_TIMEOUT){
         return 0;  // check busy
-    }
+    }}
     cntr = Tms;
-    while(I2C1->CR2 & I2C_CR2_START) if(Tms - cntr > I2C_TIMEOUT){
-        //MSG("always start\n");
+    while(I2C1->CR2 & I2C_CR2_START){
+        IWDG->KR = IWDG_REFRESH;
+        if(Tms - cntr > I2C_TIMEOUT){
         return 0; // check start
-    }
+    }}
   //  I2C1->ICR = 0x3f38; // clear all errors
     // read N bytes
     I2C1->CR2 = (nbytes<<16) | addr | 1 | I2C_CR2_AUTOEND | I2C_CR2_RD_WRN;
@@ -111,15 +113,12 @@ uint8_t read_i2c(uint8_t addr, uint32_t *data, uint8_t nbytes){
     cntr = Tms;
     for(i = 0; i < nbytes; ++i){
         while(!(I2C1->ISR & I2C_ISR_RXNE)){ // wait for data
+            IWDG->KR = IWDG_REFRESH;
             if(I2C1->ISR & I2C_ISR_NACKF){
                 I2C1->ICR |= I2C_ICR_NACKCF;
-                //I2C1->ICR = 0x3f38;
-                //MSG("NACK\n");
                 return 0;
             }
             if(Tms - cntr > I2C_TIMEOUT){
-                //I2C1->ICR = 0x3f38;
-                //MSG("Timeout\n");
                 return 0;
             }
         }

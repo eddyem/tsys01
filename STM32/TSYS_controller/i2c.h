@@ -21,6 +21,8 @@
  *
  */
 
+#include "stm32f0.h"
+
 // timeout of I2C bus in ms
 #define I2C_TIMEOUT             (100)
 // CSB=1, address 1110110

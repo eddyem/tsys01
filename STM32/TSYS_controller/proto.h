@@ -24,6 +24,25 @@
 #ifndef __PROTO_H__
 #define __PROTO_H__
 
-void cmd_parser();
+#include "stm32f0.h"
+
+// macro for static strings
+#define SEND(str) do{addtobuf(str);}while(0)
+
+#ifdef EBUG
+#define MSG(str)  do{addtobuf(__FILE__ " (L" STR(__LINE__) "): " str);}while(0)
+#else
+#define MSG(str)
+#endif
+
+#define newline() do{bufputchar('\n');}while(0)
+
+extern uint8_t noLED;
+void cmd_parser(char *buf, uint8_t isUSB);
+void addtobuf(const char *txt);
+void bufputchar(char ch);
+void printu(uint32_t val);
+void printuhex(uint32_t val);
+void sendbuf();
 
 #endif // __PROTO_H__

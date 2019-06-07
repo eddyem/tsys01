@@ -1,4 +1,4 @@
-/*us
+/*
  * usart.c
  *
  * Copyright 2017 Edward V. Emelianoff <eddy@sao.ru, edward.emelianoff@gmail.com>
@@ -76,23 +76,19 @@ TXstatus usart_send_blocking(const char *str, int len){
     bufovr = 0;
     for(i = 0; i < len; ++i){
         USARTX -> TDR = *str++;
-        while(!(USARTX->ISR & USART_ISR_TXE));
+        while(!(USARTX->ISR & USART_ISR_TXE)){IWDG->KR = IWDG_REFRESH;};
     }
     return ALL_OK;
 }
 
-void usart_putchar(const char ch){
-    while(!txrdy);
-    USARTX -> TDR = ch;
-    while(!(USARTX->ISR & USART_ISR_TXE));
+void usart_send_blck(const char *str){
+    while(!txrdy){IWDG->KR = IWDG_REFRESH;}
+    bufovr = 0;
+    while(*str){
+        USARTX -> TDR = *str++;
+        while(!(USARTX->ISR & USART_ISR_TXE)){IWDG->KR = IWDG_REFRESH;};
+    }
 }
-
-void newline(){
-    while(!txrdy);
-    USARTX -> TDR = '\n';
-    while(!(USARTX->ISR & USART_ISR_TXE));
-}
-
 
 void usart_setup(){
 // Nucleo's USART2 connected to VCP proxy of st-link
@@ -193,41 +189,6 @@ void usart1_isr(){
             #ifdef CHECK_TMOUT
             tmout = 0;
             #endif
-        }
-    }
-}
-
-// print 32bit unsigned int
-void printu(uint32_t val){
-    char bufa[11], bufb[10];
-    int l = 0, bpos = 0;
-    if(!val){
-        bufa[0] = '0';
-        l = 1;
-    }else{
-        while(val){
-            bufb[l++] = val % 10 + '0';
-            val /= 10;
-        }
-        int i;
-        bpos += l;
-        for(i = 0; i < l; ++i){
-            bufa[--bpos] = bufb[i];
-        }
-    }
-    while(LINE_BUSY == usart_send_blocking(bufa, l+bpos));
-}
-
-// print 32bit unsigned int as hex
-void printuhex(uint32_t val){
-    SEND("0x");
-    uint8_t *ptr = (uint8_t*)&val + 3;
-    int i, j;
-    for(i = 0; i < 4; ++i, --ptr){
-        for(j = 1; j > -1; --j){
-            uint8_t half = (*ptr >> (4*j)) & 0x0f;
-            if(half < 10) usart_putchar(half + '0');
-            else usart_putchar(half - 10 + 'a');
         }
     }
 }

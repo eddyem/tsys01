@@ -1,7 +1,8 @@
 /*
- * usart.h
+ *                                                                                                  geany_encoding=koi8-r
+ * usb.h
  *
- * Copyright 2017 Edward V. Emelianoff <eddy@sao.ru, edward.emelianoff@gmail.com>
+ * Copyright 2018 Edward V. Emelianov <eddy@sao.ru, edward.emelianoff@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,33 +18,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
+ *
  */
 #pragma once
-#ifndef __USART_H__
-#define __USART_H__
+#ifndef __USB_H__
+#define __USB_H__
 
-// input and output buffers size
-#define UARTBUFSZ  (64)
-// timeout between data bytes
-#ifndef TIMEOUT_MS
-#define TIMEOUT_MS (1500)
-#endif
+#include "hardware.h"
 
-typedef enum{
-    ALL_OK,
-    LINE_BUSY,
-    STR_TOO_LONG
-} TXstatus;
+#define BUFFSIZE   (64)
 
-#define usartrx()  (linerdy)
-#define usartovr() (bufovr)
+void USB_setup();
+void usb_proc();
+void USB_send(const char *buf);
+int USB_receive(char *buf, int bufsize);
+int USB_configured();
 
-extern volatile int linerdy, bufovr, txrdy;
-
-void usart_setup();
-int usart_getline(char **line);
-TXstatus usart_send(const char *str, int len);
-TXstatus usart_send_blocking(const char *str, int len);
-void usart_send_blck(const char *str);
-
-#endif // __USART_H__
+#endif // __USB_H__

@@ -41,6 +41,12 @@ typedef enum{
     CMD_LOW_SPEED,          // low I2C speed (10kHz)
     CMD_HIGH_SPEED,         // high I2C speed (100kHz)
     CMD_REINIT_I2C,         // reinit I2C with current speed
+    CMD_CHANGE_MASTER_B,    // change master id to broadcast
+    CMD_CHANGE_MASTER,      // change master id to 0
+    CMD_GETMCUTEMP,         // MCU temperature value
+    CMD_GETUIVAL,           // request to get values of V12, V5, I12 and V3.3
+    CMD_GETUIVAL0,          // answer with values of V12 and V5
+    CMD_GETUIVAL1,          // answer with values of I12 and V3.3
     // dummy commands for test purposes
     CMD_DUMMY0 = 0xDA,
     CMD_DUMMY1 = 0xAD

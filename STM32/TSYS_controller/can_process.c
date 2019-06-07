@@ -20,36 +20,82 @@
  * MA 02110-1301, USA.
  *
  */
-#include "can_process.h"
-#include "sensors_manage.h"
+#include "adc.h"
 #include "can.h"
-#include "usart.h"
+#include "can_process.h"
+#include "proto.h"
+#include "sensors_manage.h"
 
 extern volatile uint32_t Tms; // timestamp data
+// id of master - all data will be sent to it
+static uint16_t master_id = MASTER_ID;
+
+static inline void sendmcut(uint8_t *data){
+    uint8_t t[3];
+    uint16_t T = getMCUtemp();
+    t[0] = data[1]; // command itself
+    t[1] = (T >> 8) & 0xff; // H
+    t[2] = T & 0xff;        // L
+    can_send_data(t,3);
+}
+
+static inline void senduival(){
+    uint8_t buf[5];
+    uint16_t *vals = getUval();
+    buf[0] = CMD_GETUIVAL0; // V12 and V5
+    buf[1] = vals[0] >> 8;  // H
+    buf[2] = vals[0] & 0xff;// L
+    buf[3] = vals[1] >> 8; // -//-
+    buf[4] = vals[1] & 0xff;
+    can_send_data(buf, 5);
+    buf[0] = CMD_GETUIVAL1; // I12 and V3.3
+    buf[1] = vals[2] >> 8;  // H
+    buf[2] = vals[2] & 0xff;// L
+    buf[3] = vals[3] >> 8; // -//-
+    buf[4] = vals[3] & 0xff;
+    can_send_data(buf, 5);
+}
+
+static inline void showui(char *v1, char *v2, uint8_t *data){
+    char N = '0' + data[1];
+    addtobuf(v1);
+    bufputchar(N);
+    bufputchar('=');
+    uint16_t v = data[3]<<8 | data[4];
+    printu(v);
+    newline();
+    addtobuf(v2);
+    bufputchar(N);
+    bufputchar('=');
+    v = data[5]<<8 | data[6];
+    printu(v);
+}
 
 void can_messages_proc(){
     CAN_message *can_mesg = CAN_messagebuf_pop();
     if(!can_mesg) return; // no data in buffer
     uint8_t len = can_mesg->length;
+    IWDG->KR = IWDG_REFRESH;
 #ifdef EBUG
-    SEND("got message, len: "); usart_putchar('0' + len);
+    SEND("got message, len: "); bufputchar('0' + len);
     SEND(", data: ");
     uint8_t ctr;
     for(ctr = 0; ctr < len; ++ctr){
         printuhex(can_mesg->data[ctr]);
-        usart_putchar(' ');
+        bufputchar(' ');
     }
     newline();
 #endif
     uint8_t *data = can_mesg->data, b[2];
     b[0] = data[1];
+    int16_t t;
     if(data[0] == COMMAND_MARK){   // process commands
         if(len < 2) return;
         switch(data[1]){
             case CMD_DUMMY0:
             case CMD_DUMMY1:
                 SEND("DUMMY");
-                usart_putchar('0' + (data[1]==CMD_DUMMY0 ? 0 : 1));
+                bufputchar('0' + (data[1]==CMD_DUMMY0 ? 0 : 1));
                 newline();
             break;
             case CMD_PING: // pong
@@ -83,34 +129,62 @@ void can_messages_proc(){
             case CMD_REINIT_I2C:
                 i2c_setup(CURRENT_SPEED);
             break;
+            case CMD_CHANGE_MASTER_B:
+                master_id = BCAST_ID;
+            break;
+            case CMD_CHANGE_MASTER:
+                master_id = MASTER_ID;
+            break;
+            case CMD_GETMCUTEMP:
+                sendmcut(data);
+            break;
+            case CMD_GETUIVAL:
+                senduival();
+            break;
         }
     }else if(data[0] == DATA_MARK){ // process received data
         if(len < 3) return;
         switch(data[2]){
             case CMD_PING:
                 SEND("PONG");
-                usart_putchar('0' + data[1]);
+                bufputchar('0' + data[1]);
             break;
             case CMD_SENSORS_STATE:
                 SEND("SSTATE");
-                usart_putchar('0' + data[1]);
-                usart_putchar('=');
+                bufputchar('0' + data[1]);
+                bufputchar('=');
                 printu(data[3]);
             break;
             case CMD_START_MEASUREMENT: // temperature
                 if(len != 6) return;
-                usart_putchar('T');
-                usart_putchar('0' + data[1]);
-                usart_putchar('_');
+                bufputchar('T');
+                bufputchar('0' + data[1]);
+                bufputchar('_');
                 printu(data[3]);
-                usart_putchar('=');
-                int16_t t = data[4]<<8 | data[5];
+                bufputchar('=');
+                t = data[4]<<8 | data[5];
                 if(t < 0){
                     t = -t;
-                    usart_putchar('-');
+                    bufputchar('-');
                 }
                 printu(t);
-#pragma message("TODO: process received T over USB!")
+            break;
+            case CMD_GETMCUTEMP:
+                addtobuf("TMCU");
+                bufputchar('0' + data[1]);
+                bufputchar('=');
+                t = data[3]<<8 | data[4];
+                if(t < 0){
+                    bufputchar('-');
+                    t = -t;
+                }
+                printu(t);
+            break;
+            case CMD_GETUIVAL0: // V12 and V5
+                showui("V12_", "V5_", data);
+            break;
+            case CMD_GETUIVAL1: // I12 and V3.3
+                showui("I12_", "V33_", data);
             break;
             default:
                 SEND("UNKNOWN_DATA");
@@ -124,6 +198,7 @@ static CAN_status try2send(uint8_t *buf, uint8_t len, uint16_t id){
     uint32_t Tstart = Tms;
     while(Tms - Tstart < SEND_TIMEOUT_MS){
         if(CAN_OK == can_send(buf, len, id)) return CAN_OK;
+        IWDG->KR = IWDG_REFRESH;
     }
     SEND("CAN_BUSY\n");
     return CAN_BUSY;
@@ -136,7 +211,7 @@ static CAN_status try2send(uint8_t *buf, uint8_t len, uint16_t id){
  * @param cmd - command to send
  */
 CAN_status can_send_cmd(uint16_t targetID, uint8_t cmd){
-    if(Controller_address != 0 && cmd != CMD_DUMMY0 && cmd != CMD_DUMMY1) return CAN_NOTMASTER;
+    //if(Controller_address != 0 && cmd != CMD_DUMMY0 && cmd != CMD_DUMMY1) return CAN_NOTMASTER;
     uint8_t buf[2];
     buf[0] = COMMAND_MARK;
     buf[1] = cmd;
@@ -151,7 +226,7 @@ CAN_status can_send_data(uint8_t *data, uint8_t len){
     buf[1] = Controller_address;
     int i;
     for(i = 0; i < len; ++i) buf[i+2] = *data++;
-    return try2send(buf, len+2, MASTER_ID);
+    return try2send(buf, len+2, master_id);
 }
 
 /**

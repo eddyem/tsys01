@@ -23,7 +23,7 @@
 #include <string.h> // memcpy
 #include "can.h"
 #include "hardware.h"
-#include "usart.h"
+#include "proto.h"
 
 // incoming message buffer size
 #define CAN_INMESSAGE_SIZE  (6)
@@ -56,24 +56,17 @@ static int CAN_messagebuf_push(CAN_message *msg){
     memcpy(&messages[first_free_idx++], msg, sizeof(CAN_message));
     // need to roll?
     if(first_free_idx == CAN_INMESSAGE_SIZE) first_free_idx = 0;
-    #ifdef EBUG
-    MSG("1st free: "); usart_putchar('0' + first_free_idx); newline();
-    #endif
     return 0;
 }
 
 // pop message from buffer
 CAN_message *CAN_messagebuf_pop(){
     if(first_nonfree_idx < 0) return NULL;
-    #ifdef EBUG
-    MSG("read from idx "); usart_putchar('0' + first_nonfree_idx); newline();
-    #endif
     CAN_message *msg = &messages[first_nonfree_idx++];
     if(first_nonfree_idx == CAN_INMESSAGE_SIZE) first_nonfree_idx = 0;
     if(first_nonfree_idx == first_free_idx){ // buffer is empty - refresh it
         first_nonfree_idx = -1;
         first_free_idx = 0;
-        MSG("refresh buffer\n");
     }
     return msg;
 }
@@ -81,7 +74,7 @@ CAN_message *CAN_messagebuf_pop(){
 // get CAN address data from GPIO pins
 void readCANID(){
     uint8_t CAN_addr = READ_CAN_INV_ADDR();
-    Controller_address = ~CAN_addr & 0x7;
+    Controller_address = ~CAN_addr & 0x0f;
     CANID = (CAN_ID_PREFIX & CAN_ID_MASK) | Controller_address;
 }
 
@@ -168,42 +161,14 @@ void can_proc(){
         RCC->APB1RSTR &= ~RCC_APB1RSTR_CANRST;
         can_status = CAN_ERROR;
     }
-#ifdef EBUG
-    static uint32_t esr, msr, tsr;
-    uint32_t msr_now = CAN->MSR & 0xf;
-    if(esr != CAN->ESR || msr != msr_now || tsr != CAN->TSR){
-        MSG("Timestamp: ");
-        printu(Tms);
-        newline();
-    }
-    if((CAN->ESR) != esr){
-        usart_putchar(((CAN->ESR & CAN_ESR_BOFF) != 0) + '0');
-        esr = CAN->ESR;
-        MSG("CAN->ESR: ");
-        printuhex(esr); newline();
-    }
-    if(msr_now != msr){
-        msr = msr_now;
-        MSG("CAN->MSR & 0xf: ");
-        printuhex(msr); newline();
-    }
-    if(CAN->TSR != tsr){
-        tsr = CAN->TSR;
-        MSG("CAN->TSR: ");
-        printuhex(tsr); newline();
-    }
-#endif
 }
 
 CAN_status can_send(uint8_t *msg, uint8_t len, uint16_t target_id){
-    LED_on(LED1); // turn ON LED1 at first data sent/receive
+    if(!noLED) LED_on(LED1); // turn ON LED1 at first data sent/receive
     uint8_t mailbox = 0;
     // check first free mailbox
     if(CAN->TSR & (CAN_TSR_TME)){
         mailbox = (CAN->TSR & CAN_TSR_CODE) >> 24;
-        #ifdef EBUG
-        MSG("select "); usart_putchar('0'+mailbox); SEND(" mailbox\n");
-        #endif
     }else{ // no free mailboxes
         return CAN_BUSY;
     }
@@ -212,18 +177,25 @@ CAN_status can_send(uint8_t *msg, uint8_t len, uint16_t target_id){
     switch(len){
         case 8:
             hb |= (uint32_t)msg[7] << 24;
+            __attribute__((fallthrough));
         case 7:
             hb |= (uint32_t)msg[6] << 16;
+            __attribute__((fallthrough));
         case 6:
             hb |= (uint32_t)msg[5] << 8;
+            __attribute__((fallthrough));
         case 5:
             hb |= (uint32_t)msg[4];
+            __attribute__((fallthrough));
         case 4:
             lb |= (uint32_t)msg[3] << 24;
+            __attribute__((fallthrough));
         case 3:
             lb |= (uint32_t)msg[2] << 16;
+            __attribute__((fallthrough));
         case 2:
             lb |= (uint32_t)msg[1] << 8;
+            __attribute__((fallthrough));
         default:
             lb |= (uint32_t)msg[0];
     }
@@ -238,12 +210,7 @@ static void can_process_fifo(uint8_t fifo_num){
     if(fifo_num > 1) return;
     CAN_FIFOMailBox_TypeDef *box = &CAN->sFIFOMailBox[fifo_num];
     volatile uint32_t *RFxR = (fifo_num) ? &CAN->RF1R : &CAN->RF0R;
-    LED_on(LED1); // turn ON LED1 at first data sent/receive
-    MSG("Receive, RDTR=");
-    #ifdef EBUG
-    printuhex(box->RDTR);
-    newline();
-    #endif
+    if(!noLED) LED_on(LED1); // turn ON LED1 at first data sent/receive
     // read all
     while(*RFxR & CAN_RF0R_FMP0){ // amount of messages pending
         // CAN_RDTxR: (16-31) - timestamp, (8-15) - filter match index, (0-3) - data length
@@ -257,18 +224,25 @@ static void can_process_fifo(uint8_t fifo_num){
             switch(len){
                 case 8:
                     dat[7] = hb>>24;
+                    __attribute__((fallthrough));
                 case 7:
                     dat[6] = (hb>>16) & 0xff;
+                    __attribute__((fallthrough));
                 case 6:
                     dat[5] = (hb>>8) & 0xff;
+                    __attribute__((fallthrough));
                 case 5:
                     dat[4] = hb & 0xff;
+                    __attribute__((fallthrough));
                 case 4:
                     dat[3] = lb>>24;
+                    __attribute__((fallthrough));
                 case 3:
                     dat[2] = (lb>>16) & 0xff;
+                    __attribute__((fallthrough));
                 case 2:
                     dat[1] = (lb>>8) & 0xff;
+                    __attribute__((fallthrough));
                 case 1:
                     dat[0] = lb & 0xff;
             }
@@ -288,9 +262,6 @@ void cec_can_isr(){
         CAN->RF1R &= ~CAN_RF1R_FOVR1;
         can_status = CAN_FIFO_OVERRUN;
     }
-    #ifdef EBUG
-    if(can_status == CAN_FIFO_OVERRUN) MSG("fifo 0 overrun\n");
-    #endif
     if(CAN->MSR & CAN_MSR_ERRI){ // Error
         CAN->MSR &= ~CAN_MSR_ERRI;
         // request abort for problem mailbox

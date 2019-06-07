@@ -26,8 +26,8 @@
 
 #include "hardware.h"
 
-// identifier mask (for ORing with Controller_address
-#define CAN_ID_MASK     ((uint16_t)0x7F8)
+// identifier mask
+#define CAN_ID_MASK     ((uint16_t)0x7F0)
 // prefix of identifiers
 #define CAN_ID_PREFIX   ((uint16_t)0xAAA)
 // this is master - Controller_address==0

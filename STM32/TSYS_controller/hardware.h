@@ -75,7 +75,7 @@
 #define SENSORS_OVERCURNT()  ((1<<3) != (GPIOB->IDR & (1<<3)))
 
 // CAN address - PA13..PA15
-#define READ_CAN_INV_ADDR()  ((GPIOA->IDR & (0x7<<13))>>13)
+#define READ_CAN_INV_ADDR()  (((GPIOA->IDR & (0x7<<13))>>13) | ((GPIOB->IDR & (1<<15)) >> 12))
 extern uint8_t Controller_address;
 
 typedef enum{

@@ -18,14 +18,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-
-#include "hardware.h"
-#include "usart.h"
-#include "i2c.h"
-#include "sensors_manage.h"
+#include "adc.h"
 #include "can.h"
 #include "can_process.h"
+#include "hardware.h"
+#include "i2c.h"
 #include "proto.h"
+#include "sensors_manage.h"
+#include "usart.h"
+#include "usb.h"
 
 #pragma message("USARTNUM=" STR(USARTNUM))
 #pragma message("I2CPINS=" STR(I2CPINS))
@@ -67,12 +68,13 @@ static void iwdg_setup(){
 int main(void){
     uint32_t lastT = 0, lastS = 0;
     uint8_t gotmeasurement = 0;
+    char inbuf[256];
     sysreset();
     SysTick_Config(6000, 1);
     gpio_setup();
+    adc_setup();
     usart_setup();
     i2c_setup(LOW_SPEED);
-    iwdg_setup();
     CAN_setup();
 
     SEND("Greetings! My address is ");
@@ -86,11 +88,13 @@ int main(void){
         SEND("SOFTRESET=1\n");
     }
     RCC->CSR |= RCC_CSR_RMVF; // remove reset flags
+    USB_setup();
+    iwdg_setup();
 
     while (1){
         IWDG->KR = IWDG_REFRESH; // refresh watchdog
         if(lastT > Tms || Tms - lastT > 499){
-            LED_blink(LED0);
+            if(!noLED) LED_blink(LED0);
             lastT = Tms;
             // send dummy command to noone to test CAN bus
             can_send_cmd(NOONE_ID, CMD_DUMMY0);
@@ -104,7 +108,7 @@ int main(void){
         if(stat == CAN_FIFO_OVERRUN){
             SEND("CAN bus fifo overrun occured!\n");
         }else if(stat == CAN_ERROR){
-            LED_off(LED1);
+            if(!noLED) LED_off(LED1);
             CAN_setup();
             canerror = 1;
         }
@@ -117,9 +121,19 @@ int main(void){
         }else{
             gotmeasurement = 0;
         }
-        if(usartrx()){ // usart1 received data, store in in buffer
-            cmd_parser();
+        usb_proc();
+        uint8_t r = 0;
+        if((r = USB_receive(inbuf, 255))){
+            inbuf[r] = 0;
+            cmd_parser(inbuf, 1);
         }
+        if(usartrx()){ // usart1 received data, store in in buffer
+            char *txt = NULL;
+            r = usart_getline(&txt);
+            txt[r] = 0;
+            cmd_parser(txt, 0);
+        }
+        sendbuf();
     }
     return 0;
 }

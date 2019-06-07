@@ -40,16 +40,16 @@ extern int16_t Temperatures[MUL_MAX_ADDRESS+1][2];
 extern uint8_t sens_present[2];
 
 typedef enum{
-     SENS_INITING           // power on
-    ,SENS_RESETING          // discovery sensors resetting them
-    ,SENS_GET_COEFFS        // get coefficients from all sensors
-    ,SENS_SLEEPING          // wait for a time to process measurements
-    ,SENS_START_MSRMNT      // send command 2 start measurement
-    ,SENS_WAITING           // wait for measurements end
-    ,SENS_GATHERING         // collect information
-    ,SENS_OFF               // sensors' power is off by external command
-    ,SENS_OVERCURNT         // overcurrent detected @ any stage
-    ,SENS_OVERCURNT_OFF     // sensors' power is off due to continuous overcurrent
+     SENS_INITING           // 0 power on
+    ,SENS_RESETING          // 1 discovery sensors resetting them
+    ,SENS_GET_COEFFS        // 2 get coefficients from all sensors
+    ,SENS_SLEEPING          // 3 wait for a time to process measurements
+    ,SENS_START_MSRMNT      // 4 send command 2 start measurement
+    ,SENS_WAITING           // 5 wait for measurements end
+    ,SENS_GATHERING         // 6 collect information
+    ,SENS_OFF               // 7 sensors' power is off by external command
+    ,SENS_OVERCURNT         // 8 overcurrent detected @ any stage
+    ,SENS_OVERCURNT_OFF     // 9 sensors' power is off due to continuous overcurrent
 } SensorsState;
 
 SensorsState sensors_get_state();
@@ -58,12 +58,7 @@ void sensors_process();
 void sensors_off();
 void sensors_on();
 void sensors_start();
-
 void showcoeffs();
 void showtemperature();
-
-#ifdef EBUG
-void senstest(char cmd);
-#endif
 
 #endif // __SENSORS_MANAGE_H__
