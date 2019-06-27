@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name stm32-rescue)(type Legacy)(uri ${KIPRJMOD}/stm32-rescue.lib)(options "")(descr ""))
+  (lib (name acs712)(type Legacy)(uri ${KIPRJMOD}/acs712.lib)(options "")(descr ""))
+)

@@ -1,54 +1,147 @@
-Component,Description,Part,References,Value,Footprint,Quantity Per PCB,Datasheet,Manufacturer
-1,,C,C5 C6 C7 C8 C9 C11 C12 C13 C14 C15,0.1,C_0603_1608Metric_Pad0.84x1.00mm_HandSolder,10,,
-2,,CP,C4,100u,CP_Radial_D8.0mm_P3.50mm,1,,
-3,,CP,C1 C2 C3,47u,CP_EIA-3216-18_Kemet-A_Pad1.53x1.40mm_HandSolder,3,,
-4,,D,D1,1n5822,D_DO-201_P12.70mm_Horizontal,1,,
-5,,LED-RESCUE-stm32,D2,LED,LED_0805_2012Metric_Pad0.97x1.50mm_HandSolder,1,,
-6,,LED-RESCUE-stm32,D5,LED0,LED_0805_2012Metric_Pad0.97x1.50mm_HandSolder,1,,
-7,,LED-RESCUE-stm32,D6,LED1,LED_0805_2012Metric_Pad0.97x1.50mm_HandSolder,1,,
-8,,D_Schottky,D4,MBRS130L,D_SMB_Handsoldering,1,,
-9,,PESD1CAN,D3,PESD1CAN,SOT-23,1,,
-10,,D_Zener,D8 D9 D10 D11,TVS 3v3,D_0805_2012Metric_Pad0.97x1.50mm_HandSolder,4,,
-11,,USB6B1,D7,USB6B1,SOIC-8_3.9x4.9mm_P1.27mm,1,,
-12,,Jumper_NO_Small,JP1,Terminal,PinHeader_1x02_P2.54mm_Vertical,1,,
-13,,L,L1,100u,C_Rect_L9.0mm_W2.5mm_P7.50mm_MKT,1,,
-14,,CONN_01X01,P15 P16 P17 P18,Hole,Hole_3mm,4,,
-15,,CONN_01X08,P1 P14,RJ45-CAN_power,RJ45,2,,
-16,,CONN_01X04,P2 P3 P4 P5 P6 P7 P8 P9,RJ9-sensor,RJ9-4P4C,8,,
-17,,CONN_01X03,P12,USART_BOOT,PinHeader_1x03_P2.54mm_Vertical,1,,
-18,,USB_A-RESCUE-stm32,P13,USB_A,USB_Mini-B_Lumber_2486_Horizontal,1,,
-19,,Q_PMOS_GSD,Q1,AO3407,SOT-23_Handsoldering,1,,
-20,,R,R26 R27 R28 R36,10k,R_0603_1608Metric_Pad0.84x1.00mm_HandSolder,4,,
-21,,R,R9,120,R_0603_1608Metric_Pad0.84x1.00mm_HandSolder,1,,
-22,,R,R32 R33 R34 R35,22,R_0603_1608Metric_Pad0.84x1.00mm_HandSolder,4,,
-23,,R,R3,220k,R_0603_1608Metric_Pad0.84x1.00mm_HandSolder,1,,
-24,,R,R31,2k 1%,R_0603_1608Metric_Pad0.84x1.00mm_HandSolder,1,,
-25,,R,R5 R29 R30,330,R_0603_1608Metric_Pad0.84x1.00mm_HandSolder,3,,
-26,,R,R1 R2 R6 R7,47k,R_0603_1608Metric_Pad0.84x1.00mm_HandSolder,4,,
-27,,R,R8 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19 R20 R21 R22 R23 R24 R25,4k7,R_0603_1608Metric_Pad0.84x1.00mm_HandSolder,17,,
-28,,R,R4,56k,R_0603_1608Metric_Pad0.84x1.00mm_HandSolder,1,,
-29,"Push button switch, generic, two pins",SW_Push,SW2,Boot,SW_SPST_FSMSM,1,,
-30,"Push button switch, generic, two pins",SW_Push,SW1,Reset,SW_SPST_FSMSM,1,,
-31,"3x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol",SW_DIP_x03,SW3,SW_DIP_x03,DIP-6_W7.62mm,1,,
-32,,74HC4051,U5 U6,74HC4051,SOIC-16_3.9x9.9mm_P1.27mm,2,,
-33,,LM1117-3.3-RESCUE-stm32,U2 U3,LM1117-3.3,SOT-223,2,,
-34,,LM2576HV,U1,LM2576HV,TO-220-5_Vertical_StaggeredType2,1,,Texas Instruments
-35,,MAX471-RESCUE-stm32,U9,MAX471,SOIC-8_3.9x4.9mm_P1.27mm,1,,
-36,,MCP2551-I/SN,U4,MCP2551-I/SN,SOIC-8_3.9x4.9mm_P1.27mm,1,,
-37,,STM32F042C6Tx,U7,STM32F042C6Tx,LQFP-48_7x7mm_P0.5mm,1,,
-38,,TPS2051,U8,TPS2051,SOIC-8_3.9x4.9mm_P1.27mm,1,,
+"Source:","/home/eddy/Docs/SAO/BTA/MIRROR_CONTROL_termo/Project/kicad/stm32/stm32.sch"
+"Date:","Чт 13 июн 2019 11:38:13"
+"Tool:","Eeschema (6.0.0-rc1-dev-1613-ga55d9819b)"
+"Generator:","/usr/local/share/kicad/plugins/bom_csv_grouped_by_value.py"
+"Component Count:","92"
+
+"Individual Components:"
+
+"Item","Qty","Reference(s)","Value","LibPart","Footprint","Datasheet","Manufacturer"
+"","","C1","47u","stm32-rescue:CP","Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A_Pad1.53x1.40mm_HandSolder","",""
+"","","C2","47u","stm32-rescue:CP","Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A_Pad1.53x1.40mm_HandSolder","",""
+"","","C3","47u","stm32-rescue:CP","Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A_Pad1.53x1.40mm_HandSolder","",""
+"","","C4","100u","stm32-rescue:CP","Capacitor_THT:CP_Radial_D8.0mm_P3.50mm","",""
+"","","C5","0.1","stm32-rescue:C","Capacitor_SMD:C_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","C6","0.1","stm32-rescue:C","Capacitor_SMD:C_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","C7","0.1","stm32-rescue:C","Capacitor_SMD:C_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","C8","0.1","stm32-rescue:C","Capacitor_SMD:C_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","C9","0.1","stm32-rescue:C","Capacitor_SMD:C_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","C11","0.1","stm32-rescue:C","Capacitor_SMD:C_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","C12","0.1","stm32-rescue:C","Capacitor_SMD:C_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","C13","0.1","stm32-rescue:C","Capacitor_SMD:C_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","C14","0.1","stm32-rescue:C","Capacitor_SMD:C_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","C15","0.1","stm32-rescue:C","Capacitor_SMD:C_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","D1","1n5822","stm32-rescue:D","Diode_THT:D_DO-201_P12.70mm_Horizontal","",""
+"","","D2","MM3Z7V5","Device:D_Zener","Diode_SMD:D_0805_2012Metric_Pad1.15x1.40mm_HandSolder","~",""
+"","","D3","PESD1CAN","stm32-rescue:PESD1CAN","Package_TO_SOT_SMD:SOT-23","",""
+"","","D4","MBRS130L","stm32-rescue:D_Schottky","Diode_SMD:D_SMB_Handsoldering","",""
+"","","D5","LED0","stm32-rescue:LED-RESCUE-stm32","LED_SMD:LED_0805_2012Metric_Pad0.97x1.50mm_HandSolder","",""
+"","","D6","LED1","stm32-rescue:LED-RESCUE-stm32","LED_SMD:LED_0805_2012Metric_Pad0.97x1.50mm_HandSolder","",""
+"","","D7","USB6B1","stm32-rescue:USB6B1","Package_SOIC:SOIC-8_3.9x4.9mm_P1.27mm","",""
+"","","D8","TVS 3v3","stm32-rescue:D_Zener","Diode_SMD:D_0805_2012Metric_Pad0.97x1.50mm_HandSolder","",""
+"","","D9","TVS 3v3","stm32-rescue:D_Zener","Diode_SMD:D_0805_2012Metric_Pad0.97x1.50mm_HandSolder","",""
+"","","D10","TVS 3v3","stm32-rescue:D_Zener","Diode_SMD:D_0805_2012Metric_Pad0.97x1.50mm_HandSolder","",""
+"","","D11","TVS 3v3","stm32-rescue:D_Zener","Diode_SMD:D_0805_2012Metric_Pad0.97x1.50mm_HandSolder","",""
+"","","J1","DB9_Female","Connector:DB9_Female","Connector_Dsub:DSUB-9_Female_Horizontal_P2.77x2.84mm_EdgePinOffset7.70mm_Housed_MountingHolesOffset9.12mm"," ~",""
+"","","J2","DB9_Male","Connector:DB9_Male","Connector_Dsub:DSUB-9_Male_Horizontal_P2.77x2.84mm_EdgePinOffset7.70mm_Housed_MountingHolesOffset9.12mm"," ~",""
+"","","J3","Conn_02x04_Odd_Even","Connector_Generic:Conn_02x04_Odd_Even","Connector_PinHeader_2.54mm:PinHeader_2x04_P2.54mm_Vertical","~",""
+"","","JP1","Terminal","stm32-rescue:Jumper_NO_Small","Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical","",""
+"","","L1","100u","stm32-rescue:L","Capacitor_THT:C_Rect_L9.0mm_W2.5mm_P7.50mm_MKT","",""
+"","","P2","RJ9-sensor","stm32-rescue:CONN_01X04","my_footprints:RJ9-4P4C","",""
+"","","P3","RJ9-sensor","stm32-rescue:CONN_01X04","my_footprints:RJ9-4P4C","",""
+"","","P4","RJ9-sensor","stm32-rescue:CONN_01X04","my_footprints:RJ9-4P4C","",""
+"","","P5","RJ9-sensor","stm32-rescue:CONN_01X04","my_footprints:RJ9-4P4C","",""
+"","","P6","RJ9-sensor","stm32-rescue:CONN_01X04","my_footprints:RJ9-4P4C","",""
+"","","P7","RJ9-sensor","stm32-rescue:CONN_01X04","my_footprints:RJ9-4P4C","",""
+"","","P8","RJ9-sensor","stm32-rescue:CONN_01X04","my_footprints:RJ9-4P4C","",""
+"","","P9","RJ9-sensor","stm32-rescue:CONN_01X04","my_footprints:RJ9-4P4C","",""
+"","","P12","USART_BOOT","stm32-rescue:CONN_01X03","Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical","",""
+"","","P13","USB_A","stm32-rescue:USB_A-RESCUE-stm32","Connector_USB:USB_Mini-B_Lumber_2486_Horizontal","",""
+"","","P15","Hole","stm32-rescue:CONN_01X01","my_footprints:Hole_3mm","",""
+"","","P16","Hole","stm32-rescue:CONN_01X01","my_footprints:Hole_3mm","",""
+"","","P17","Hole","stm32-rescue:CONN_01X01","my_footprints:Hole_3mm","",""
+"","","P18","Hole","stm32-rescue:CONN_01X01","my_footprints:Hole_3mm","",""
+"","","Q1","AO3407","stm32-rescue:Q_PMOS_GSD","Package_TO_SOT_SMD:SOT-23_Handsoldering","",""
+"","","R1","47k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R2","47k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R3","220k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R4","56k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R5","10k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder","",""
+"","","R6","47k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R7","47k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R8","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R9","120","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R10","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R11","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R12","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R13","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R14","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R15","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R16","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R17","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R18","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R19","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R20","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R21","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R22","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R23","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R24","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R25","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R26","10k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R27","10k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R28","10k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R29","330","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R30","330","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R31","2k 1%","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R32","22","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R33","22","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R34","22","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R35","22","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","R36","10k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"","","SW1","Reset","Switch:SW_Push","Button_Switch_SMD:SW_SPST_FSMSM","",""
+"","","SW2","Boot","Switch:SW_Push","Button_Switch_SMD:SW_SPST_FSMSM","",""
+"","","U1","LM2576HV","stm32-rescue:LM2576HV","Package_TO_SOT_THT:TO-220-5_Vertical_StaggeredType2","","Texas Instruments"
+"","","U2","LM1117-3.3","stm32-rescue:LM1117-3.3-RESCUE-stm32","Package_TO_SOT_SMD:SOT-223","",""
+"","","U3","LM1117-3.3","stm32-rescue:LM1117-3.3-RESCUE-stm32","Package_TO_SOT_SMD:SOT-223","",""
+"","","U4","MCP2551-I/SN","stm32-rescue:MCP2551-I_SN","Package_SOIC:SOIC-8_3.9x4.9mm_P1.27mm","",""
+"","","U5","74HC4051","stm32-rescue:74HC4051","Package_SOIC:SOIC-16_3.9x9.9mm_P1.27mm","",""
+"","","U6","74HC4051","stm32-rescue:74HC4051","Package_SOIC:SOIC-16_3.9x9.9mm_P1.27mm","",""
+"","","U7","STM32F042C6Tx","stm32-rescue:STM32F042C6Tx","Package_QFP:LQFP-48_7x7mm_P0.5mm","",""
+"","","U8","TPS2051","stm32-rescue:TPS2051","Package_SOIC:SOIC-8_3.9x4.9mm_P1.27mm","",""
+"","","U9","MAX471","stm32-rescue:MAX471-RESCUE-stm32","Package_SOIC:SOIC-8_3.9x4.9mm_P1.27mm","",""
 
 
 
+"Collated Components:"
 
-
-Component Groups:,38
-Component Count:,92
-Fitted Components:,92
-Number of PCBs:,1
-Total components:,92
-Schematic Version:,
-Schematic Date:,
-BoM Date:, 04  2018 11:18:11
-Schematic Source:,/home/eddy/Docs/SAO/BTA/MIRROR_CONTROL_termo/Project/kicad/stm32/stm32.sch
-KiCad Version:,Eeschema 4.0.7
+"Item","Qty","Reference(s)","Value","LibPart","Footprint","Datasheet","Manufacturer"
+"1","3","C1, C2, C3","47u","stm32-rescue:CP","Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A_Pad1.53x1.40mm_HandSolder","",""
+"2","1","C4","100u","stm32-rescue:CP","Capacitor_THT:CP_Radial_D8.0mm_P3.50mm","",""
+"3","10","C5, C6, C7, C8, C9, C11, C12, C13, C14, C15","0.1","stm32-rescue:C","Capacitor_SMD:C_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"4","1","D1","1n5822","stm32-rescue:D","Diode_THT:D_DO-201_P12.70mm_Horizontal","",""
+"5","1","D2","MM3Z7V5","Device:D_Zener","Diode_SMD:D_0805_2012Metric_Pad1.15x1.40mm_HandSolder","~",""
+"6","1","D3","PESD1CAN","stm32-rescue:PESD1CAN","Package_TO_SOT_SMD:SOT-23","",""
+"7","1","D4","MBRS130L","stm32-rescue:D_Schottky","Diode_SMD:D_SMB_Handsoldering","",""
+"8","1","D5","LED0","stm32-rescue:LED-RESCUE-stm32","LED_SMD:LED_0805_2012Metric_Pad0.97x1.50mm_HandSolder","",""
+"9","1","D6","LED1","stm32-rescue:LED-RESCUE-stm32","LED_SMD:LED_0805_2012Metric_Pad0.97x1.50mm_HandSolder","",""
+"10","1","D7","USB6B1","stm32-rescue:USB6B1","Package_SOIC:SOIC-8_3.9x4.9mm_P1.27mm","",""
+"11","4","D8, D9, D10, D11","TVS 3v3","stm32-rescue:D_Zener","Diode_SMD:D_0805_2012Metric_Pad0.97x1.50mm_HandSolder","",""
+"12","1","J1","DB9_Female","Connector:DB9_Female","Connector_Dsub:DSUB-9_Female_Horizontal_P2.77x2.84mm_EdgePinOffset7.70mm_Housed_MountingHolesOffset9.12mm"," ~",""
+"13","1","J2","DB9_Male","Connector:DB9_Male","Connector_Dsub:DSUB-9_Male_Horizontal_P2.77x2.84mm_EdgePinOffset7.70mm_Housed_MountingHolesOffset9.12mm"," ~",""
+"14","1","J3","Conn_02x04_Odd_Even","Connector_Generic:Conn_02x04_Odd_Even","Connector_PinHeader_2.54mm:PinHeader_2x04_P2.54mm_Vertical","~",""
+"15","1","JP1","Terminal","stm32-rescue:Jumper_NO_Small","Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical","",""
+"16","1","L1","100u","stm32-rescue:L","Capacitor_THT:C_Rect_L9.0mm_W2.5mm_P7.50mm_MKT","",""
+"17","8","P2, P3, P4, P5, P6, P7, P8, P9","RJ9-sensor","stm32-rescue:CONN_01X04","my_footprints:RJ9-4P4C","",""
+"18","1","P12","USART_BOOT","stm32-rescue:CONN_01X03","Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical","",""
+"19","1","P13","USB_A","stm32-rescue:USB_A-RESCUE-stm32","Connector_USB:USB_Mini-B_Lumber_2486_Horizontal","",""
+"20","4","P15, P16, P17, P18","Hole","stm32-rescue:CONN_01X01","my_footprints:Hole_3mm","",""
+"21","1","Q1","AO3407","stm32-rescue:Q_PMOS_GSD","Package_TO_SOT_SMD:SOT-23_Handsoldering","",""
+"22","4","R1, R2, R6, R7","47k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"23","1","R3","220k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"24","1","R4","56k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"25","1","R5","10k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder","",""
+"26","17","R8, R10, R11, R12, R13, R14, R15, R16, R17, R18, R19, R20, R21, R22, R23, R24, R25","4k7","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"27","1","R9","120","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"28","4","R26, R27, R28, R36","10k","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"29","2","R29, R30","330","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"30","1","R31","2k 1%","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"31","4","R32, R33, R34, R35","22","stm32-rescue:R","Resistor_SMD:R_0603_1608Metric_Pad0.84x1.00mm_HandSolder","",""
+"32","1","SW1","Reset","Switch:SW_Push","Button_Switch_SMD:SW_SPST_FSMSM","",""
+"33","1","SW2","Boot","Switch:SW_Push","Button_Switch_SMD:SW_SPST_FSMSM","",""
+"34","1","U1","LM2576HV","stm32-rescue:LM2576HV","Package_TO_SOT_THT:TO-220-5_Vertical_StaggeredType2","","Texas Instruments"
+"35","2","U2, U3","LM1117-3.3","stm32-rescue:LM1117-3.3-RESCUE-stm32","Package_TO_SOT_SMD:SOT-223","",""
+"36","1","U4","MCP2551-I/SN","stm32-rescue:MCP2551-I_SN","Package_SOIC:SOIC-8_3.9x4.9mm_P1.27mm","",""
+"37","2","U5, U6","74HC4051","stm32-rescue:74HC4051","Package_SOIC:SOIC-16_3.9x9.9mm_P1.27mm","",""
+"38","1","U7","STM32F042C6Tx","stm32-rescue:STM32F042C6Tx","Package_QFP:LQFP-48_7x7mm_P0.5mm","",""
+"39","1","U8","TPS2051","stm32-rescue:TPS2051","Package_SOIC:SOIC-8_3.9x4.9mm_P1.27mm","",""
+"40","1","U9","MAX471","stm32-rescue:MAX471-RESCUE-stm32","Package_SOIC:SOIC-8_3.9x4.9mm_P1.27mm","",""
