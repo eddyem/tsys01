@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name my_footprints)(type KiCad)(uri /home/eddy/Docs/SAO/BTA/MIRROR_CONTROL_termo/Project/kicad/Sensors_tester_with_screen/my_footprints.pretty)(options "")(descr ""))
+  (lib (name Battery)(type KiCad)(uri ${KISYSMOD}/Battery.pretty)(options "")(descr ""))
+)
