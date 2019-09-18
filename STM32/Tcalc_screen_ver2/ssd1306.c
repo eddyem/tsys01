@@ -22,7 +22,8 @@
  */
 #include "spi.h"
 #include "ssd1306.h"
-#include "usart.h"
+//#include "usart.h"
+#include "proto.h"
 #include <string.h> // memset
 
 #define RST_PAUSE       (10)

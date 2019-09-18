@@ -23,7 +23,6 @@
 #include "i2c.h"
 #include "proto.h"
 #include "ssd1306.h"
-#include "usart.h"
 #include "usb.h"
 
 static uint16_t coefficients[2][5]; // Coefficients for given sensors
@@ -60,15 +59,8 @@ uint8_t sprintu(char *buf, uint8_t buflen, uint32_t val){
     }
     return l;
 }
-/*
-// print 32bit unsigned int
-void printu(uint32_t val){
-    char buf[11];
-    uint8_t l = sprintu(buf, 11, val);
-    while(LINE_BUSY == usart_send_blocking(buf, l));
-}*/
 
-void getcoeffs(uint8_t addr){ // show norm coefficiens
+void getcoeffs(uint8_t addr){ // get norm coefficiens
     int i;
     const uint8_t regs[5] = {0xAA, 0xA8, 0xA6, 0xA4, 0xA2}; // commands for coefficients
     uint32_t K;
@@ -98,7 +90,6 @@ uint8_t calc_t(uint32_t t, int i){
         getcoeffs(Taddr[i]);
     }
     if(coefficients[i][0] == 0){
-        USEND("no sensor\n");
         return 0;
     }
     if (t < 6500000 || t > 13000000) return 0; // wrong value - too small or too large
@@ -148,7 +139,8 @@ int main(void){
     SysTick_Config(6000, 1);
     gpio_setup();
     LED_on(LED0);
-    usart_setup();
+    LEDT_off(0);
+    LEDT_off(1);
     USB_setup();
     i2c_setup(LOW_SPEED);
     spi_setup();
@@ -179,7 +171,7 @@ int main(void){
                 LED_off(LED1);
                 if(++uptime > UPTIME - 3){
                     ssd1306_Fill(0);
-                    ssd1306_WriteString("Power off!", Font_16x26, 1);
+                    ssd1306_WriteString("Power\n off!", Font_16x26, 1);
                     ssd1306_UpdateScreen();
                 }
                 if(uptime > UPTIME) POWEROFF();
@@ -194,18 +186,15 @@ int main(void){
                         uint32_t t;
                         if(read_i2c(Taddr[i], &t, 3) && t){
                             if(!calc_t(t, i)){
-                                //USEND("!calc ");
                                 write_i2c(Taddr[i], TSYS01_RESET);
                             }else{
                                 err = 0;
                                 tgot[i] = Tms;
+                                if(i) LEDT_on(1);
+                                else LEDT_on(0);
                             }
                             started[i] = 0;
-                        }else{
-                            //USEND("can't read ");
                         }
-                    }else{
-                        //USEND("can't write ");
                     }
                 }else{
                     err = 0;
@@ -216,7 +205,6 @@ int main(void){
                         started[i] = Tms ? Tms : 1;
                         err = 0;
                     }else{
-                        //USEND("can't start conv\n");
                         started[i] = 0;
                     }
                 }
@@ -231,6 +219,8 @@ int main(void){
                         Tbuf[i][1] = 0;
                         coefficients[i][0] = 0;
                         refreshdisplay = 1;
+                        if(i) LEDT_off(1);
+                        else LEDT_off(0);
                     }
                 }
             }else errcnt[i] = 0;
@@ -240,13 +230,7 @@ int main(void){
         char inbuf[256];
         if((r = USB_receive(inbuf, 255))){
             inbuf[r] = 0;
-            cmd_parser(inbuf, 1);
-        }
-        if(usartrx()){ // usart1 received data, store in in buffer
-            char *txt = NULL;
-            r = usart_getline(&txt);
-            txt[r] = 0;
-            cmd_parser(txt, 0);
+            cmd_parser(inbuf);
         }
     }
     return 0;

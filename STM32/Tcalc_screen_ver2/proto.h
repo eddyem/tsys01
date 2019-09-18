@@ -26,6 +26,8 @@
 
 #include "stm32f0.h"
 
+#define UARTBUFSZ  (64)
+
 // macro for static strings
 #define SEND(str) do{addtobuf(str);}while(0)
 
@@ -38,7 +40,7 @@
 #define newline() do{bufputchar('\n');}while(0)
 
 extern uint8_t noLED;
-void cmd_parser(char *buf, uint8_t isUSB);
+void cmd_parser(char *buf);
 void addtobuf(const char *txt);
 void bufputchar(char ch);
 void printu(uint32_t val);

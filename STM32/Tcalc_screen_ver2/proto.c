@@ -25,14 +25,12 @@
 #include "i2c.h"
 #include "proto.h"
 #include "ssd1306.h"
-#include "usart.h"
+//#include "usart.h"
 #include "usb.h"
 #include <string.h> // strlen, strcpy(
 
-extern volatile uint8_t canerror;
-
 static char buff[UARTBUFSZ+1], *bptr = buff;
-static uint8_t blen = 0, USBcmd = 0;
+static uint8_t blen = 0;
 // LEDs are OFF by default
 uint8_t noLED = 1;
 
@@ -40,8 +38,7 @@ void sendbuf(){
     IWDG->KR = IWDG_REFRESH;
     if(blen == 0) return;
     *bptr = 0;
-    if(USBcmd) USB_send(buff);
-    else while(LINE_BUSY == usart_send(buff, blen)){IWDG->KR = IWDG_REFRESH;}
+    USB_send(buff);
     bptr = buff;
     blen = 0;
 }
@@ -51,8 +48,7 @@ void addtobuf(const char *txt){
     int l = strlen(txt);
     if(l > UARTBUFSZ){
         sendbuf();
-        if(USBcmd) USB_send(txt);
-        else while(LINE_BUSY == usart_send_blocking(txt, l)){IWDG->KR = IWDG_REFRESH;}
+        USB_send(txt);
     }else{
         if(blen+l > UARTBUFSZ){
             sendbuf();
@@ -75,13 +71,17 @@ void bufputchar(char ch){
 /**
  * @brief cmd_parser - command parsing
  * @param txt   - buffer with commands & data
- * @param isUSB - == 1 if data got from USB
  */
-void cmd_parser(char *txt, uint8_t isUSB){
-    USBcmd = isUSB;
+void cmd_parser(char *txt){
     char _1st = txt[0];
     sendbuf();
     switch(_1st){
+        case '0':
+            LEDT_blink(0);
+        break;
+        case '1':
+            LEDT_blink(1);
+        break;
         case 'b':
             ssd1306_Fill(0);
             ssd1306_UpdateScreen();
@@ -119,7 +119,8 @@ void cmd_parser(char *txt, uint8_t isUSB){
         break;
         default: // help
             SEND(
-            "ALL little letters - without CAN messaging\n"
+            "Commands:\n"
+            "0/1 - invert LEDT0/1\n"
             "b - clear screen\n"
             "c - fill screen white\n"
             "D - discovery sensors\n"

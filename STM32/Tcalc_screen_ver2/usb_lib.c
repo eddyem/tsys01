@@ -24,7 +24,6 @@
 #include <stdint.h>
 #include "usb_lib.h"
 #include <string.h> // memcpy
-#include "usart.h"
 
 ep_t endpoints[ENDPOINTS_NUM];
 

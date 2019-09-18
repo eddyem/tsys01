@@ -1,6 +1,6 @@
 BINARY		= tcalc_screen
 BOOTPORT	?= /dev/ttyUSB0
-BOOTSPEED	?= 9600
+BOOTSPEED	?= 115200
 # MCU FAMILY
 FAMILY		= F0
 # MCU code

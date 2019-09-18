@@ -26,9 +26,11 @@
 static I2C_SPEED curI2Cspeed = LOW_SPEED;
 
 void gpio_setup(void){
+    // PA9, PA10 - LEDs T0/T1
     RCC->AHBENR |= RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOAEN;
     // Set LEDS (PA14/15)
-    GPIOA->MODER = GPIO_MODER_MODER14_O | GPIO_MODER_MODER15_O;
+    GPIOA->MODER = GPIO_MODER_MODER9_O | GPIO_MODER_MODER10_O |
+                   GPIO_MODER_MODER14_O | GPIO_MODER_MODER15_O;
     // PC13 - digital output - poweron
     GPIOC->OTYPER = 1 << 13; // opendrain
     GPIOC->MODER = GPIO_MODER_MODER13_O;

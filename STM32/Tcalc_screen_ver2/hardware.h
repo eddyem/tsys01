@@ -36,6 +36,12 @@
 #define LED1_port   GPIOA
 #define LED1_pin    (1<<15)
 
+// LEDs for T0/T1 (PA9/PA10)
+#define LEDT0_port   GPIOA
+#define LEDT0_pin    (1<<9)
+#define LEDT1_port   GPIOA
+#define LEDT1_pin    (1<<10)
+
 #define CONCAT(a,b)     a ## b
 #define STR_HELPER(s)   #s
 #define STR(s) STR_HELPER(s)
@@ -46,6 +52,9 @@
 #define LED_blink(x) pin_toggle(x ## _port, x ## _pin)
 #define LED_on(x) pin_clear(x ## _port, x ## _pin)
 #define LED_off(x) pin_set(x ## _port, x ## _pin)
+#define LEDT_on(x) pin_set(LEDT ## x ## _port, LEDT ## x ## _pin)
+#define LEDT_off(x) pin_clear(LEDT ## x ## _port, LEDT ## x ## _pin)
+#define LEDT_blink(x) pin_toggle(LEDT ## x ## _port, LEDT ## x ## _pin)
 
 // PA1 - USB On (in)
 #define USBisOn()  (GPIOA->IDR & 1<<1)

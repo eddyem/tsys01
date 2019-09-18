@@ -22,7 +22,7 @@
  */
 
 #include "spi.h"
-#include "usart.h"
+//#include "usart.h"
 
 extern volatile uint32_t Tms;
 static uint32_t tstart;

@@ -23,7 +23,6 @@
 
 #include "usb.h"
 #include "usb_lib.h"
-#include "usart.h"
 #include <string.h> // memcpy, memmove
 
 // incoming buffer size
@@ -112,6 +111,7 @@ void usb_proc(){
 }
 
 void USB_send(const char *buf){
+    if(!USB_configured()) return;
     uint16_t l = 0, ctr = 0;
     const char *p = buf;
     while(*p++) ++l;
