@@ -26,8 +26,6 @@
 
 #define BUFLEN 1024
 
-// == 1 if given controller (except 0) presents on CAN bus
-int8_t ctrlr_present[8] = {1,0,0};
 // UNIX time of temperatures measurement: [Ngroup][Nsensor][Ncontroller]
 time_t tmeasured[2][8][8];
 // last temperatures read: [Ngroup][Nsensor][Ncontroller]
@@ -172,12 +170,14 @@ static int send_cmd(int N, char cmd){
 /**
  * Poll sensor for new dataportion
  * @param N - number of controller (1..7)
- * @return: 0 if no data received or controller is absent, 1 if valid data received
+ * @return: 0 if no data received or controller is absent, number of data points if valid data received
  */
 int poll_sensors(int N){
-    if(!ctrlr_present[N]) return 0;
     char *ans;
-    if(send_cmd(N, CMD_MEASURE_T)){ // start polling
+    DBG("Poll controller #%d", N);
+    char cmd = CMD_MEASURE_LOCAL;
+    if(N) cmd = CMD_MEASURE_T;
+    if(send_cmd(N, cmd)){ // start polling
         WARNX(_("can't request temperature"));
         return 0;
     }
@@ -194,6 +194,8 @@ int poll_sensors(int N){
     }
     return 1;
 }
+
+
 
 /**
  * check whether connected device is main Thermal controller
@@ -215,7 +217,6 @@ int check_sensors(){
                     //DBG("PONG from %d", ans[sizeof(ANS_PONG)-1] - '0');
                     if(i == ans[sizeof(ANS_PONG)-1] - '0'){
                         ++found;
-                        ctrlr_present[i] = 1;
                         green(_("Found controller #%d\n"), i);
                         putlog("Found controller #%d", i);
                         break;

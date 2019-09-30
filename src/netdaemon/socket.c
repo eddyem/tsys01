@@ -31,7 +31,7 @@
 #include <unistd.h> // daemon
 #include <sys/syscall.h> // syscall
 
-#include "datapoints.xy" // sensors coordinates
+#include "sens_place.h"  // sensors coordinates
 #include "gnuplot.h"     // plot graphs
 #include "cmdlnopts.h"   // glob_pars
 
@@ -39,7 +39,7 @@
 // Max amount of connections
 #define BACKLOG   (30)
 
-// temperatures: T0, T1, N2
+// temperatures: T0 (mirror surface), T1 (mirror bottom), T2 (inside NES)
 static char strT[3][BUFLEN];
 // mean temperature
 static double meanT;
@@ -359,14 +359,14 @@ static void daemon_(int sock){
         if(dtime() - tgot < T_INTERVAL) continue;
         // get data
         int i;
-        char bufs[3][BUFLEN]; // temporary buffers: T0, T1, TN2
+        char bufs[3][BUFLEN]; // temporary buffers: T0, T1, T2
         char *ptrs[3] = {bufs[0], bufs[1], bufs[2]};
         size_t lens[3] = {BUFLEN, BUFLEN, BUFLEN}; // free space
         tgot = dtime();
         process_T(); // get new temperatures & throw out bad results
-        for(i = 0; i < 8; ++i){ // scan over controllers
+        for(i = 0; i <= NCTRLR_MAX; ++i){ // scan over controllers
             int N, p;
-            for(p = 0; p < 2; ++p) for(N = 0; N < 8; ++ N){
+            for(N = 0; N <= NCHANNEL_MAX; ++N) for(p = 0; p < 2; ++p){
                 double T = t_last[p][N][i];
                 char **buf;
                 size_t *len;
@@ -379,10 +379,12 @@ static void daemon_(int sock){
                         l = snprintf(*buf, *len, "%d\t%d\t%.2f\t%ld\n", N, p, T,
                                         tmeasured[p][N][i]);
                     }else{
-                        buf = &ptrs[p]; len = &lens[p];
-                        // x y T time
-                        l = snprintf(*buf, *len, "%d\t%d\t%.2f\t%ld\n", SensCoords[N][i][0],
-                                        SensCoords[N][i][1], T, tmeasured[p][N][i]);
+                        const sensor_data *sdata = get_sensor_location(i, N, p);
+                        if(!sdata) continue; // wrong sensor number???
+                        buf = &ptrs[sdata->Z]; len = &lens[sdata->Z];
+                        // iNp x y T(corrected) time
+                        l = snprintf(*buf, *len, "%d%d%d\t%d\t%d\t%.2f\t%ld\n", i, N, p,
+                                     sdata->X, sdata->Y, T - sdata->dt, tmeasured[p][N][i]);
                     }
                     *len -= l;
                     *buf += l;

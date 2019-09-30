@@ -69,8 +69,11 @@ int main(int argc, char **argv){
     DBG("dev: %s", G->device);
     try_connect(G->device);
     if(check_sensors()){
-        putlog("no sensors detected");
-        if(!G->terminal) signals(15); // there's not main controller connected to given terminal
+        putlog("No CAN-controllers detected");
+        if(!poll_sensors(0)){ // there's not main controller connected to given terminal
+            putlog("Opened device is not main controller");
+            if(!G->terminal) signals(15);
+        }
     }
     if(G->terminal) run_terminal();
     else daemonize(G->port);

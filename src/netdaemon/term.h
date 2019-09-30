@@ -37,11 +37,12 @@
 
 // Protocol
 #define CMD_SENSORS_OFF         'F'
-#define CMD_MEASURE_T           'T'
+#define CMD_VOLTAGE             'K'
 #define CMD_PING                'P'
+#define CMD_MEASURE_T           'T'
+#define CMD_MEASURE_LOCAL       't'
 #define ANS_PONG                "PONG"
 
-extern int8_t ctrlr_present[8];
 extern time_t tmeasured[2][8][8];
 extern double t_last[2][8][8];
 

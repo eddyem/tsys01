@@ -3,7 +3,7 @@ PROGRAM := netdaemon
 LDFLAGS := -fdata-sections -ffunction-sections -Wl,--gc-sections -Wl,--discard-all -pthread
 SRCS := $(wildcard *.c)
 DEFINES := $(DEF) -D_GNU_SOURCE -D_XOPEN_SOURCE=1111
-DEFINES += -DEBUG
+#DEFINES += -DEBUG
 # baudrate for USB<->UART converter
 DEFINES += -DBAUD_RATE=B115200
 OBJDIR := mk
