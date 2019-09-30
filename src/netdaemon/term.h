@@ -22,6 +22,8 @@
 #ifndef __TERM_H__
 #define __TERM_H__
 
+#include "sens_place.h" // NCTRLR
+
 #define FRAME_MAX_LENGTH        (300)
 #define MAX_MEMORY_DUMP_SIZE    (0x800 * 4)
 // Terminal timeout (seconds)
@@ -43,8 +45,8 @@
 #define CMD_MEASURE_LOCAL       't'
 #define ANS_PONG                "PONG"
 
-extern time_t tmeasured[2][8][8];
-extern double t_last[2][8][8];
+extern time_t tmeasured[2][NCHANNEL_MAX+1][NCTRLR_MAX+1];
+extern double t_last[2][NCHANNEL_MAX+1][NCTRLR_MAX+1];
 
 // communication errors
 typedef enum{

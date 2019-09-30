@@ -24,6 +24,8 @@
 #ifndef __GNUPLOT_H__
 #define __GNUPLOT_H__
 
-void plot(double data[2][8][8], char *savepath);
+#include "sens_place.h"
+
+void plot(double data[2][NCHANNEL_MAX+1][NCTRLR_MAX+1], char *savepath);
 
 #endif // __GNUPLOT_H__

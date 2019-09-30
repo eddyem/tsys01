@@ -27,9 +27,9 @@
 #define BUFLEN 1024
 
 // UNIX time of temperatures measurement: [Ngroup][Nsensor][Ncontroller]
-time_t tmeasured[2][8][8];
+time_t tmeasured[2][NCHANNEL_MAX+1][NCTRLR_MAX+1];
 // last temperatures read: [Ngroup][Nsensor][Ncontroller]
-double t_last[2][8][8];
+double t_last[2][NCHANNEL_MAX+1][NCTRLR_MAX+1];
 
 /**
  * read strings from terminal (ending with '\n') with timeout
@@ -131,10 +131,11 @@ static int parse_answer(char *buf, int N){
     //DBG("buf: %s", buf);
     int v = getint(buf);
     //DBG("sensor #%d", v);
-    if(v < 0 || v > 81) return 0;
+    //if(v < 0 || v > 81) return 0;
     i = v/10; v -= i*10;
+    if(i < 0 || i > NCTRLR_MAX) return 0;
     //DBG("i=%d, v=%d", i,v);
-    if((v & 1) != v) return 0;
+    if((v & 1) != v) return 0; // should be only 0 or 1
     if(*buf != '=' ) return 0;
     ++buf;
     int T = getint(buf);
@@ -154,14 +155,26 @@ static int parse_answer(char *buf, int N){
  * @return 0 if all OK
  */
 static int send_cmd(int N, char cmd){
-    if(N < 0 || N > 7) return 1;
-    char buf[4] = {(char)N + '0', cmd, '\n', 0};
+    if(N < 0 || N > NCTRLR_MAX) return 1;
+    char buf[3] = {0};
+    int n = 3;
     char *rtn;
+    if(N){ // CAN-bus
+        buf[0] = (char)N + '0';
+        buf[1] = cmd;
+        buf[2] = '\n';
+    }else{ // local command
+        n = 2;
+        buf[0] = cmd;
+        buf[1] = '\n';
+    }
     // clear all incomint data
     while(read_string());
-    //DBG("send cmd %s", buf);
-    if(write_tty(buf, 3)) return 1;
+    DBG("send cmd %s", buf);
+    if(write_tty(buf, n)) return 1;
+    if(N == 0) return 0;
     if((rtn = read_string())){
+    DBG("read_string: %s", rtn);
         if(*rtn == cmd) return 0;
     }
     return 1;
@@ -186,7 +199,7 @@ int poll_sensors(int N){
     while(dtime() - t0 < T_POLLING_TMOUT && ngot < 16){ // timeout reached or got data from all
         if((ans = read_string())){ // parse new data
             //DBG("got %s", ans);
-            if(*ans == 'T'){ // data from sensor
+            if(*ans == CMD_MEASURE_T){ // data from sensor
                 //DBG("ptr: %s", ans);
                 ngot += parse_answer(ans, N);
             }
@@ -205,8 +218,8 @@ int check_sensors(){
     green(_("Check if there's a sensors...\n"));
     int i, v, N, found = 0;
     char *ans;
-    for(N=0;N<8;++N)for(i=0;i<8;++i)for(v=0;v<2;++v) t_last[v][i][N] = -300.; // clear data
-    for(i = 1; i < 8; ++i){
+    for(N=0;N<=NCTRLR_MAX;++N)for(i=0;i<=NCHANNEL_MAX;++i)for(v=0;v<2;++v) t_last[v][i][N] = -300.; // clear data
+    for(i = 1; i <= NCTRLR_MAX; ++i){
         //red("i = %d\n", i);
         double t0 = dtime();
         while(dtime() - t0 < POLLING_TMOUT){

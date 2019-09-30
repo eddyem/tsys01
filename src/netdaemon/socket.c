@@ -284,15 +284,15 @@ static void process_T(){
     time_t tmeasmax = 0;
     double arr[128];
     // mean temperatures over 15 scans
-    static double Tmean[2][8][8];
+    static double Tmean[2][NCHANNEL_MAX+1][NCTRLR_MAX+1];
     static int Nmean; // amount of measurements for Tmean
     // get statistics
     poll_sensors(0); // poll N2
     // scan over controllers on mirror & calculate median
-    for(i = 1; i < 8; ++i){
+    for(i = 1; i <= NCTRLR_MAX; ++i){
         if(poll_sensors(i)){
             int N, p;
-            for(p = 0; p < 2; ++p) for(N = 0; N < 8; ++ N){
+            for(p = 0; p < 2; ++p) for(N = 0; N <= NCHANNEL_MAX; ++ N){
                 double T = t_last[p][N][i];
                 time_t t = tmeasured[p][N][i];
                 if(T > -100. && T < 100.){
@@ -309,8 +309,8 @@ static void process_T(){
     // throw out all more than +-3degrC and calculate meanT
     Num = 0;
     double Tsum = 0.;
-    for(i = 1; i < 8; ++i){
-        for(p = 0; p < 2; ++p) for(N = 0; N < 8; ++ N){
+    for(i = 1; i <= NCTRLR_MAX; ++i){
+        for(p = 0; p < 2; ++p) for(N = 0; N <= NCHANNEL_MAX; ++N){
             double T = t_last[p][N][i];
             if(T > Ttop || T < Tbot || tmeasmax - tmeasured[p][N][i] > 1800){
                 t_last[p][N][i] = -300.;
@@ -324,11 +324,11 @@ static void process_T(){
     // make graphics
     if(G->savepath){
         if(++Nmean == GRAPHS_AMOUNT){
-            for(i = 1; i < 8; ++i)for(p = 0; p < 2; ++p)for(N = 0; N < 8; ++ N){
+            for(i = 1; i <= NCTRLR_MAX; ++i)for(p = 0; p < 2; ++p)for(N = 0; N <= NCHANNEL_MAX; ++ N){
                 Tmean[p][N][i] /= Nmean;
             }
             plot(Tmean, G->savepath);
-            memset(Tmean, 0, sizeof(double)*2*8*8);
+            memset(Tmean, 0, sizeof(double)*2*(NCTRLR_MAX+1)*(NCHANNEL_MAX+1));
             Nmean = 0;
         }
     }

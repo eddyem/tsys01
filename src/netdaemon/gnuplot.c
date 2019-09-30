@@ -25,7 +25,6 @@
 #include <linux/limits.h> // PATH_MAX
 #include "usefull_macros.h" // putlog
 #include "cmdlnopts.h"   // glob_pars
-#include "sens_place.h"
 
 extern glob_pars *G;
 
@@ -46,7 +45,7 @@ char *mkname(char *path, char *fname){
  * @param Z     (i) - 0 for upper and 1 for lower sensors (Z-coord)
  * @return 1 if all OK
  */
-static int formfile(char *fname, double data[2][8][8], int Z){
+static int formfile(char *fname, double data[2][NCHANNEL_MAX+1][NCTRLR_MAX+1], int Z){
     FILE *F = fopen(fname, "w");
     if(!F) return 0;
     for(int i = 1; i <= NCTRLR_MAX; ++i){
@@ -90,9 +89,9 @@ static void gnuplot(char *path, char *fname){
     }
 }
 
-void plot(double data[2][8][8], char *savepath){
+void plot(double data[2][NCHANNEL_MAX+1][NCTRLR_MAX+1], char *savepath){
     /*
-    double dY[8][8]; // vertical gradients (top - bottom)
+    double dY[NCH][NC]; // vertical gradients (top - bottom)
     // calculate gradients
     for(int i = 1; i < 8; ++i){
         for(int N = 0; N < 8; ++ N){
