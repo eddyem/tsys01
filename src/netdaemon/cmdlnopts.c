@@ -35,6 +35,7 @@ static glob_pars  G;
 // default values for Gdefault & help
 #define DEFAULT_COMDEV  "/dev/ttyUSB0"
 #define DEFAULT_PORT    "4444"
+#define DEFAULT_PIDFILE "/tmp/TSYS01daemon.pid"
 
 //            DEFAULTS
 // default global parameters
@@ -45,7 +46,9 @@ glob_pars const Gdefault = {
     .savepath = NULL,
     .makegraphs = 0,
     .rest_pars = NULL,
-    .rest_pars_num = 0
+    .rest_pars_num = 0,
+    .adjfilename = "tempadj.txt",
+    .pidfilename = DEFAULT_PIDFILE
 };
 
 /*
@@ -60,6 +63,9 @@ myoption cmdlnopts[] = {
     {"terminal",NO_ARGS,    NULL,   't',    arg_int,    APTR(&G.terminal),  _("run as terminal")},
     {"savepath",NEED_ARG,   NULL,   's',    arg_string, APTR(&G.savepath),  _("path where files would be saved (if none - don't save)")},
     {"graphplot",NO_ARGS,   NULL,   'g',    arg_int,    APTR(&G.makegraphs),_("make graphics with gnuplot")},
+    {"testadjfile",NO_ARGS, NULL,   'T',    arg_int,    APTR(&G.testadjfile),_("test format of file with T adjustements and force running proces to re-read it")},
+    {"adjname", NEED_ARG,   NULL,   'N',    arg_string, APTR(&G.adjfilename),_("name of adjustements file (default: tempadj.txt)")},
+    {"pidfile", NEED_ARG,   NULL,   'P',    arg_string, APTR(&G.pidfilename),_("name of PID file (default: " DEFAULT_PIDFILE ")")},
    end_option
 };
 

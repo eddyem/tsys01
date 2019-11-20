@@ -1,0 +1,6 @@
+#No dT  (Treal = T - dT)
+100 -0.02
+101  3.
+# some more comments
+ 560 -0.06 # another comment
+571 -0.01 #  test

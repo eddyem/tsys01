@@ -19,6 +19,7 @@
 #include "sens_place.h"
 #include "stdbool.h"
 #include "usefull_macros.h"
+#include "math.h" // fabs
 
 /**
    Sensor   place           Dt           X          Y          Z
@@ -104,97 +105,96 @@
       571    18            0.02         13          3          0
  */
 
-static const sensor_data sensors[] = {
+static sensor_data sensors[NSENSORS] = {
 //  {Dt,X,Y,Z},
-    {-0.07, 19, 7, 0}, // 0
-    {0.03, 20, 0, 0}, // 1
-    {0.03, 19, -7, 0}, // 2
-    {-0.05, 17, -10, 1}, // 3
-    {0.02, 17, -22, 0}, // 4
-    {-0.03, 15, -13, 0}, // 5
-    {0.02, 22, -17, 0}, // 6
-    {-0.09, 24, -14, 1}, // 7
-    {0.03, 25, -10, 0}, // 8
-    {0.02, 27, -4, 0}, // 9
-    {-0.01, 27, 4, 0}, // 10
-    {-0.09, 25, 10, 0}, // 11
-    {0.07, 22, 17, 0}, // 12
-    {0, 24, 14, 1}, // 13
-    {0.02, 10, 25, 0}, // 14
-    {0.08, 17, 22, 0}, // 15
-    {-0.01, 4, 27, 0}, // 16
-    {-0.03, 0, 27, 1}, // 17
-    {0.04, -4, 27, 0}, // 18
-    {-0.01, -10, 25, 0}, // 19
-    {-0.02, -17, 22, 0}, // 20
-    {-0.04, -22, 17, 0}, // 21
-    {0.03, -25, 10, 0}, // 22
-    {-0.03, -24, 14, 1}, // 23
-    {-0.03, -27, -4, 0}, // 24
-    {0.03, -27, 4, 0}, // 25
-    {-0.05, -25, -10, 0}, // 26
-    {0, -24, -14, 1}, // 27
-    {0.03, -22, -17, 0}, // 28
-    {-0.05, -17, -22, 0}, // 29
-    {-0.02, -10, -25, 0}, // 30
-    {0.04, -4, -27, 0}, // 31
-    {0.12, -3, -20, 0}, // 32
-    {0, -10, -17, 0}, // 33
-    {-0.08, -15, -13, 0}, // 34
-    {-0.08, -17, -10, 1}, // 35
-    {-0.1, -19, -7, 0}, // 36
-    {-0.04, -20, 0, 0}, // 37
-    {-0.08, -19, 7, 0}, // 38
-    {0.03, -17, 10, 1}, // 39
-    {0.11, -15, 13, 0}, // 40
-    {0.07, -10, 17, 0}, // 41
-    {0.09, -3, 20, 0}, // 42
-    {-0.09, 0, 20, 1}, // 43
-    {-0.1, 3, 20, 0}, // 44
-    {0.04, 10, 17, 0}, // 45
-    {0.05, 15, 13, 0}, // 46
-    {-0.04, 17, 10, 1}, // 47
-    {0.01, 9, 9, 0}, // 48
-    {-0.04, 11, 7, 1}, // 49
-    {0.01, 3, 13, 0}, // 50
-    {-0.04, 0, 13, 1}, // 51
-    {0.14, -9, 9, 0}, // 52
-    {0, -3, 13, 0}, // 53
-    {0.07, -13, 3, 0}, // 54
-    {-0.02, -11, 7, 1}, // 55
-    {0.04, -13, -3, 0}, // 56
-    {-0.06, -11, -7, 1}, // 57
-    {0.01, -9, -9, 0}, // 58
-    {0.08, -3, -13, 0}, // 59
-    {-0.09, 3, -13, 0}, // 60
-    {-0.04, 0, -13, 1}, // 61
-    {0.06, 3, -20, 0}, // 62
-    {-0.05, 0, -20, 1}, // 63
-    {0.05, 4, -27, 0}, // 64
-    {-0.08, 0, -27, 1}, // 65
-    {0.1, 10, -17, 0}, // 66
-    {-0.05, 10, -25, 0}, // 67
-    {0, 9, -9, 0}, // 68
-    {0.01, 11, -7, 1}, // 69
-    {0, 3, -5, 0}, // 70
-    {-0.02, 0, -6, 1}, // 71
-    {0.05, -3, -5, 0}, // 72
-    {-0.03, -6, 0, 0}, // 73
-    {0.03, -3, 5, 0}, // 74
-    {0.06, 0, 6, 1}, // 75
-    {0, 3, 5, 0}, // 76
-    {-0.06, 6, 0, 0}, // 77
-    {-0.07, 13, -3, 0}, // 78
-    {0.02, 13, 3, 0}, // 79
+    {-0.07, 19, 7, 0, 0}, // 0
+    {0.03, 20, 0, 0, 0}, // 1
+    {0.03, 19, -7, 0, 0}, // 2
+    {-0.05, 17, -10, 1, 0}, // 3
+    {0.02, 17, -22, 0, 0}, // 4
+    {-0.03, 15, -13, 0, 0}, // 5
+    {0.02, 22, -17, 0, 0}, // 6
+    {-0.09, 24, -14, 1, 0}, // 7
+    {0.03, 25, -10, 0, 0}, // 8
+    {0.02, 27, -4, 0, 0}, // 9
+    {-0.01, 27, 4, 0, 0}, // 10
+    {-0.09, 25, 10, 0, 0}, // 11
+    {0.07, 22, 17, 0, 0}, // 12
+    {0, 24, 14, 1, 0}, // 13
+    {0.02, 10, 25, 0, 0}, // 14
+    {0.08, 17, 22, 0, 0}, // 15
+    {-0.01, 4, 27, 0, 0}, // 16
+    {-0.03, 0, 27, 1, 0}, // 17
+    {0.04, -4, 27, 0, 0}, // 18
+    {-0.01, -10, 25, 0, 0}, // 19
+    {-0.02, -17, 22, 0, 0}, // 20
+    {-0.04, -22, 17, 0, 0}, // 21
+    {0.03, -25, 10, 0, 0}, // 22
+    {-0.03, -24, 14, 1, 0}, // 23
+    {-0.03, -27, -4, 0, 0}, // 24
+    {0.03, -27, 4, 0, 0}, // 25
+    {-0.05, -25, -10, 0, 0}, // 26
+    {0, -24, -14, 1, 0}, // 27
+    {0.03, -22, -17, 0, 0}, // 28
+    {-0.05, -17, -22, 0, 0}, // 29
+    {-0.02, -10, -25, 0, 0}, // 30
+    {0.04, -4, -27, 0, 0}, // 31
+    {0.12, -3, -20, 0, 0}, // 32
+    {0, -10, -17, 0, 0}, // 33
+    {-0.08, -15, -13, 0, 0}, // 34
+    {-0.08, -17, -10, 1, 0}, // 35
+    {-0.1, -19, -7, 0, 0}, // 36
+    {-0.04, -20, 0, 0, 0}, // 37
+    {-0.08, -19, 7, 0, 0}, // 38
+    {0.03, -17, 10, 1, 0}, // 39
+    {0.11, -15, 13, 0, 0}, // 40
+    {0.07, -10, 17, 0, 0}, // 41
+    {0.09, -3, 20, 0, 0}, // 42
+    {-0.09, 0, 20, 1, 0}, // 43
+    {-0.1, 3, 20, 0, 0}, // 44
+    {0.04, 10, 17, 0, 0}, // 45
+    {0.05, 15, 13, 0, 0}, // 46
+    {-0.04, 17, 10, 1, 0}, // 47
+    {0.01, 9, 9, 0, 0}, // 48
+    {-0.04, 11, 7, 1, 0}, // 49
+    {0.01, 3, 13, 0, 0}, // 50
+    {-0.04, 0, 13, 1, 0}, // 51
+    {0.14, -9, 9, 0, 0}, // 52
+    {0, -3, 13, 0, 0}, // 53
+    {0.07, -13, 3, 0, 0}, // 54
+    {-0.02, -11, 7, 1, 0}, // 55
+    {0.04, -13, -3, 0, 0}, // 56
+    {-0.06, -11, -7, 1, 0}, // 57
+    {0.01, -9, -9, 0, 0}, // 58
+    {0.08, -3, -13, 0, 0}, // 59
+    {-0.09, 3, -13, 0, 0}, // 60
+    {-0.04, 0, -13, 1, 0}, // 61
+    {0.06, 3, -20, 0, 0}, // 62
+    {-0.05, 0, -20, 1, 0}, // 63
+    {0.05, 4, -27, 0, 0}, // 64
+    {-0.08, 0, -27, 1, 0}, // 65
+    {0.1, 10, -17, 0, 0}, // 66
+    {-0.05, 10, -25, 0, 0}, // 67
+    {0, 9, -9, 0, 0}, // 68
+    {0.01, 11, -7, 1, 0}, // 69
+    {0, 3, -5, 0, 0}, // 70
+    {-0.02, 0, -6, 1, 0}, // 71
+    {0.05, -3, -5, 0, 0}, // 72
+    {-0.03, -6, 0, 0, 0}, // 73
+    {0.03, -3, 5, 0, 0}, // 74
+    {0.06, 0, 6, 1, 0}, // 75
+    {0, 3, 5, 0, 0}, // 76
+    {-0.06, 6, 0, 0, 0}, // 77
+    {-0.07, 13, -3, 0, 0}, // 78
+    {0.02, 13, 3, 0, 0}, // 79
 };
 
-
 /**
- * @brief get_sensor_location - return pointer to sensor_data for given sensor
+ * @brief get_sensor_location - search given sensor in `sensors` table
  * @param Nct - controller number
  * @param Nch - channel number
  * @param Ns  - sensor number
- * @return
+ * @return pointer to sensor_data for given sensor
  */
 const sensor_data *get_sensor_location(int Nct, int Nch, int Ns){
     if(Nct < 1 || Nct > NCTRLR_MAX || Nch > NCHANNEL_MAX || Ns > 1){
@@ -204,6 +204,106 @@ const sensor_data *get_sensor_location(int Nct, int Nch, int Ns){
     int idx = 2*(NCHANNEL_MAX+1)*(Nct - 1) + 2*Nch + Ns;
     DBG("Sensor code %d%d%d (idx=%d):\n", Nct, Nch, Ns, idx);
     const sensor_data *s = sensors + idx;
-    DBG("\tdT=%g; coords=(%d, %d, %d)\n", s->dt, s->X, s->Y, s->Z);
+    DBG("\tdT=%g (adj:%g); coords=(%d, %d, %d)\n", s->dt, s->Tadj, s->X, s->Y, s->Z);
     return s;
+}
+
+// return next non-space character in line until first  '\n' or NULL if met '#' or '\n'
+static char *omitspaces(char *str){
+    char ch;
+    do{
+        ch = *str;
+        if(!ch) return NULL; // EOL
+        if(ch == ' ' || ch == '\t'){
+            ++str;
+            continue;
+        }
+        if(ch == '#' || ch == '\n'){
+            return NULL; // comment
+        }
+        return str;
+    }while(1);
+    return NULL;
+}
+
+/**
+ * @brief read_adj_file - try to read file with thermal adjustments
+ * @param fname - filename
+ * @return 0 if all OK
+ * thermal adjustments file should have simple structure:
+ * No of sensor (like in output format, e.g. 561) and Tcorr value (Treal = T - Tcorr)
+ * all data after # ignored
+ */
+int read_adj_file(char *fname){
+    double Tadj[NSENSORS] = {0,};
+    if(!fname){
+        WARNX("read_adj_file(): filename missing");
+        return 1;
+    }
+    mmapbuf *buf = My_mmap(fname);
+    if(!buf) return 1;
+    char *adjf = buf->data, *eof = adjf + buf->len;
+    DBG("buf: %s", adjf);
+    int strnum = 1; // start string number from 1
+    while(adjf < eof){
+        char *eol = strchr(adjf, '\n');
+        char *nextchar = omitspaces(adjf);
+        if(!nextchar){
+            goto cont;
+        }
+        DBG("First char: %c", *nextchar);
+        char *endptr = NULL;
+        long num = strtol(nextchar, &endptr, 10);
+        if(endptr == nextchar || !endptr){
+            WARNX("Wrong integer number!");
+            goto reperr;
+        }
+        DBG("first num: %ld", num);
+        int Nctrl = num / 100;
+        int Nch = (num - Nctrl*100) / 10;
+        int Nsen = num%10;
+        DBG("Nc=%d, Nch=%d, NS=%d", Nctrl, Nch, Nsen);
+        if(num < 0 || (Nsen != 0 && Nsen != 1) || (Nch < 0 || Nch > NCHANNEL_MAX) || (Nctrl < 1 || Nctrl > NCTRLR_MAX)){
+            WARNX("Wrong sensor number: %ld", num);
+            goto reperr;
+        }
+        int idx = 2*(NCHANNEL_MAX+1)*(Nctrl - 1) + 2*Nch + Nsen;
+        DBG("index: %d", idx);
+        if(idx < 0 || idx > NSENSORS-1){
+            WARNX("Sensor index (%d) over range 0..%d", idx, NSENSORS-1);
+        }
+        nextchar = omitspaces(endptr);
+        if(!nextchar){
+            WARNX("There's no temperature data after sensor's number");
+            goto reperr;
+        }
+        double t = strtod(nextchar, &endptr);
+        if(endptr == nextchar || !endptr){
+            WARNX("Wrong double number!");
+            goto reperr;
+        }
+        DBG("double num: %g", t);
+        Tadj[idx] = t;
+        if(omitspaces(endptr)){
+            WARNX("Wrong file format: each string should include two numbers (and maybe comment after #)");
+            goto reperr;
+        }
+cont:
+        if(!eol) break;
+        adjf = eol + 1;
+        ++strnum;
+    }
+    My_munmap(buf);
+    for(int i = 0; i < NSENSORS; ++i){
+        if(fabs(Tadj[i]) > DBL_EPSILON){
+            printf("Tadj[%d] = %g\n", i, Tadj[i]);
+        }
+        sensors[i].Tadj = Tadj[i];
+    }
+    return 0;
+reperr:
+    red("Error in string %d:\n", strnum);
+    printf("%s\n", adjf);
+    putlog("Erroneous log file %s in line %d", fname, strnum);
+    return 1;
 }

@@ -37,6 +37,9 @@ typedef struct{
     int makegraphs;         // ==1 to make graphics with gnuplot
     int rest_pars_num;      // number of rest parameters
     char** rest_pars;       // the rest parameters: array of char* (path to logfile and thrash)
+    int testadjfile;        // test format of file with adjustments
+    char *adjfilename;      // name of adjustements file
+    char *pidfilename;      // name of PID file
 } glob_pars;
 
 

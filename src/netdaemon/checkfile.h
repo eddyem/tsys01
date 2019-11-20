@@ -1,5 +1,5 @@
 /*
- * This file is part of the TSYS01_netdaemon project.
+ * This file is part of the Zphocus project.
  * Copyright 2019 Edward V. Emelianov <edward.emelianoff@gmail.com>.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,27 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #pragma once
-#ifndef SENS_PLACE_H__
-#define SENS_PLACE_H__
+#ifndef CHECKFILE_H__
+#define CHECKFILE_H__
 
-// max number of controller
-#define NCTRLR_MAX      (5)
-// max number of channel
-#define NCHANNEL_MAX    (7)
-// total amount of sensors @ the mirror
-#define NSENSORS    (NCTRLR_MAX*2*(NCHANNEL_MAX+1))
+#include <unistd.h>     // getpid, unlink
 
-typedef struct{
-    float dt;
-    int X;
-    int Y;
-    int Z;
-    float Tadj;
-} sensor_data;
+#ifndef PROC_BASE
+#define PROC_BASE "/proc"
+#endif
+#ifndef WEAK
+#define WEAK        __attribute__ ((weak))
+#endif
 
-const sensor_data *get_sensor_location(int Nct, int Nch, int Ns);
+// check that our process is exclusive
+pid_t check4running(char *pidfilename);
+// read name of process by its PID
+char *readPSname(pid_t pid);
+void unlink_pidfile();
 
-int read_adj_file(char *fname);
 
-#endif // SENS_PLACE_H__
+#endif // CHECKFILE_H__

@@ -133,7 +133,7 @@ static int parse_answer(char *buf, int N){
     //DBG("sensor #%d", v);
     //if(v < 0 || v > 81) return 0;
     i = v/10; v -= i*10;
-    if(i < 0 || i > NCTRLR_MAX) return 0;
+    if(i < 0 || i > NCHANNEL_MAX) return 0;
     //DBG("i=%d, v=%d", i,v);
     if((v & 1) != v) return 0; // should be only 0 or 1
     if(*buf != '=' ) return 0;
@@ -144,6 +144,7 @@ static int parse_answer(char *buf, int N){
         return 0;
     }
     t_last[v][i][N] = ((double)T) / 100.;
+    DBG("T(%d_%d%d)=%g", N, i, v, T/100.);
     tmeasured[v][i][N] = time(NULL);
     return 1;
 }
@@ -196,7 +197,7 @@ int poll_sensors(int N){
     }
     int ngot = 0;
     double t0 = dtime();
-    while(dtime() - t0 < T_POLLING_TMOUT && ngot < 16){ // timeout reached or got data from all
+    while(dtime() - t0 < T_POLLING_TMOUT && ngot < 2*(NCHANNEL_MAX+1)){ // timeout reached or got data from all
         if((ans = read_string())){ // parse new data
             //DBG("got %s", ans);
             if(*ans == CMD_MEASURE_T){ // data from sensor

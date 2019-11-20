@@ -204,7 +204,7 @@ mmapbuf *My_mmap(char *filename){
 void My_munmap(mmapbuf *b){
     if(munmap(b->data, b->len)){
     /// "Не могу munmap"
-        ERR(_("Can't munmap"));
+        WARN(_("Can't munmap"));
     }
     FREE(b);
 }
@@ -290,12 +290,12 @@ void restore_tty(){
 #endif
 // init:
 void tty_init(char *comdev){
-    DBG("\nOpen port %s ...\n", comdev);
+    DBG("\nOpen port %s ...", comdev);
     do{
         comfd = open(comdev,O_RDWR|O_NOCTTY|O_NONBLOCK);
     }while (comfd == -1 && errno == EINTR);
     if(comfd < 0){
-        WARN("Can't use port %s\n",comdev);
+        WARN("Can't use port %s",comdev);
         signals(-1); // quit?
     }
     // make exclusive open
@@ -321,7 +321,7 @@ void tty_init(char *comdev){
         WARN(_("Can't set settings"));
         signals(-1);
     }
-    DBG(" OK\n");
+    DBG(" OK");
 }
 
 /**

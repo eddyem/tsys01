@@ -282,10 +282,10 @@ Item quick_select(Item *idata, int n){
 static void process_T(){
     int i, N, p, Num = 0;
     time_t tmeasmax = 0;
-    double arr[128];
+    double arr[NSENSORS];
     // mean temperatures over 15 scans
     static double Tmean[2][NCHANNEL_MAX+1][NCTRLR_MAX+1];
-    static int Nmean; // amount of measurements for Tmean
+    static int Nmean[2][NCHANNEL_MAX+1][NCTRLR_MAX+1], Nmeanmax; // amount of measurements for Tmean
     // get statistics
     poll_sensors(0); // poll N2
     // scan over controllers on mirror & calculate median
@@ -304,32 +304,35 @@ static void process_T(){
     }
     // calculate mean
     double Tmed = quick_select(arr, Num);
-    double Tbot = Tmed - 3., Ttop = Tmed + 3.;
+    double Tbot = Tmed - 10., Ttop = Tmed + 10.;
     DBG("Got %d values, Tmed=%g", Num, Tmed);
-    // throw out all more than +-3degrC and calculate meanT
+    // throw out all more than +-10degrC and calculate meanT
     Num = 0;
     double Tsum = 0.;
     for(i = 1; i <= NCTRLR_MAX; ++i){
         for(p = 0; p < 2; ++p) for(N = 0; N <= NCHANNEL_MAX; ++N){
             double T = t_last[p][N][i];
-            if(T > Ttop || T < Tbot || tmeasmax - tmeasured[p][N][i] > 1800){
+            if(T > Ttop || T < Tbot || tmeasmax - tmeasured[p][N][i] > 1800){ // not longer than 3 minutes ago!
                 t_last[p][N][i] = -300.;
-                Tmean[p][N][i] = -3e9;
             }else{
                 ++Num; Tsum += T;
                 Tmean[p][N][i] += T;
+                ++Nmean[p][N][i];
             }
         }
     }
     // make graphics
     if(G->savepath){
-        if(++Nmean == GRAPHS_AMOUNT){
-            for(i = 1; i <= NCTRLR_MAX; ++i)for(p = 0; p < 2; ++p)for(N = 0; N <= NCHANNEL_MAX; ++ N){
-                Tmean[p][N][i] /= Nmean;
+        if(++Nmeanmax == GRAPHS_AMOUNT){
+            for(i = 1; i <= NCTRLR_MAX; ++i)for(N = 0; N <= NCHANNEL_MAX; ++ N)for(p = 0; p < 2; ++p){
+                if(Nmean[p][N][i]){
+                    Tmean[p][N][i] /= Nmean[p][N][i];
+                    Nmean[p][N][i] = 0;
+                }else Tmean[p][N][i] = -300.; // no data
             }
             plot(Tmean, G->savepath);
             memset(Tmean, 0, sizeof(double)*2*(NCTRLR_MAX+1)*(NCHANNEL_MAX+1));
-            Nmean = 0;
+            Nmeanmax = 0;
         }
     }
     meanT = Tsum / Num;
@@ -384,7 +387,7 @@ static void daemon_(int sock){
                         buf = &ptrs[sdata->Z]; len = &lens[sdata->Z];
                         // iNp x y T(corrected) time
                         l = snprintf(*buf, *len, "%d%d%d\t%d\t%d\t%.2f\t%ld\n", i, N, p,
-                                     sdata->X, sdata->Y, T - sdata->dt, tmeasured[p][N][i]);
+                                     sdata->X, sdata->Y, T - sdata->dt - sdata->Tadj, tmeasured[p][N][i]);
                     }
                     *len -= l;
                     *buf += l;

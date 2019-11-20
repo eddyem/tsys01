@@ -55,7 +55,7 @@ static int formfile(char *fname, double data[2][NCHANNEL_MAX+1][NCTRLR_MAX+1], i
                 const sensor_data *sdata = get_sensor_location(i, N, p);
                 if(!sdata) continue;
                 if(Z != sdata->Z) continue;
-                fprintf(F, "%d\t%d\t%.2f\n", sdata->X, sdata->Y, T - sdata->dt);
+                fprintf(F, "%d\t%d\t%.2f\n", sdata->X, sdata->Y, T - sdata->dt - sdata->Tadj);
             }
         }
     }
