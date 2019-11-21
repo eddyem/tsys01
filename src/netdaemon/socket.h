@@ -28,5 +28,7 @@
 #define SOCKET_TIMEOUT  (5.0)
 
 void daemonize(char *port);
+const char *gotstr(int N);
+void TurnOFF();
 
 #endif // __SOCKET_H__

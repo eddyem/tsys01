@@ -40,6 +40,7 @@ typedef struct{
     int testadjfile;        // test format of file with adjustments
     char *adjfilename;      // name of adjustements file
     char *pidfilename;      // name of PID file
+    int dumpoff;            // dump sensors data & turn all OFF until next request
 } glob_pars;
 
 

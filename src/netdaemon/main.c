@@ -24,6 +24,7 @@
 #include "checkfile.h"
 #include "cmdlnopts.h"
 #include "socket.h"
+#include "term.h"
 #include "usefull_macros.h"
 
 glob_pars *G; // non-static: some another files should know about it!
@@ -33,12 +34,22 @@ static pid_t childpid = 0; // PID of child - to kill it if need
 void signals(int signo){
     restore_console();
     restore_tty();
-    putlog("exit with status %d", signo);
+    if(childpid){
+        const char *s = signum_to_signame(signo);
+        if(s) putlog("exit with status %d (or by signal %s)", signo, s);
+        else putlog("exit with status %d", signo);
+    }
     exit(signo);
 }
 
+// report about some ignored signals
+static void repsig(int signo){
+    const char *s = signum_to_signame(signo);
+    WARNX("PID: %d, received signal %d, %s (%s)", getpid(), signo, s ? s : "", strsignal(signo));
+}
+
 // SIGUSR1 handler - re-read Tadj file
-void refreshAdj(_U_ int signo){
+static void refreshAdj(_U_ int signo){
     DBG("refresh adj");
     if(childpid){ // I am a master
         putlog("Force child %d to re-read adj-file", childpid);
@@ -49,6 +60,15 @@ void refreshAdj(_U_ int signo){
     }
 }
 
+static void logT(_U_ int signo){
+    for(int i = 0; i < 3; ++i){
+        const char *s = gotstr(i);
+        if(s && *s) putlog("Sensors group #%d:\n%s", i, s);
+    }
+    putlog("Turn sensors off");
+    TurnOFF();
+}
+
 int main(int argc, char **argv){
     initial_setup();
     G = parse_args(argc, argv);
@@ -57,9 +77,13 @@ int main(int argc, char **argv){
     if(G->makegraphs && !G->savepath){
         ERRX(_("Point the path to graphical files"));
     }
-    DBG("t=%d", G->testadjfile);
-    int raf = read_adj_file(G->adjfilename);
     pid_t runningproc = check4running(G->pidfilename);
+    if(G->dumpoff){
+        if(runningproc) kill(runningproc, SIGUSR2);
+        else ERRX("There's no running daemon");
+        return 0;
+    }
+    int raf = read_adj_file(G->adjfilename);
     if(G->testadjfile){
         if(raf == 0){
             green("Format of file %s is right\n", G->adjfilename);
@@ -71,12 +95,16 @@ int main(int argc, char **argv){
         return 1;
     }
     if(runningproc) ERRX("Found running process, pid=%d.", runningproc);
+    // ignore almost all possible signals
+    for(int sig = 0; sig < 256; ++sig) signal(sig, repsig);
     signal(SIGTERM, signals); // kill (-15) - quit
     signal(SIGHUP, SIG_IGN);  // hup - ignore
+    signal(SIGCHLD, SIG_DFL); // chld - default
     signal(SIGINT, signals);  // ctrl+C - quit
     signal(SIGQUIT, signals); // ctrl+\ - quit
     signal(SIGTSTP, SIG_IGN); // ignore ctrl+Z
     signal(SIGUSR1, refreshAdj); // refresh adjustements
+    signal(SIGUSR2, logT);    // print all current temperatures into logfile and turn off sensors
     #ifndef EBUG
     if(!G->terminal){
         if(daemon(1, 0)){
@@ -87,10 +115,9 @@ int main(int argc, char **argv){
             if(childpid){
                 putlog("create child with PID %d\n", childpid);
                 DBG("Created child with PID %d\n", childpid);
-                wait(NULL);
-                putlog("child %d died\n", childpid);
+                while(childpid != waitpid(childpid, NULL, 0));
                 WARNX("Child %d died\n", childpid);
-                sleep(1);
+                sleep(10);
             }else{
                 prctl(PR_SET_PDEATHSIG, SIGTERM); // send SIGTERM to child when parent dies
                 break; // go out to normal functional

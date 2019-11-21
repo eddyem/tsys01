@@ -209,7 +209,13 @@ int poll_sensors(int N){
     return 1;
 }
 
-
+/**
+ * @brief turn_all_off - turn all sensors OFF
+ */
+void turn_all_off(){
+    send_cmd(0, CMD_SENSORS_OFF_LOCAL);
+    for(int i = 1; i <= NCTRLR_MAX; ++i) send_cmd(i, CMD_SENSORS_OFF);
+}
 
 /**
  * check whether connected device is main Thermal controller

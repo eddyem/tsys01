@@ -76,20 +76,19 @@
  */
 extern int globErr;
 extern void signals(int sig);
-#define ERR(...) do{globErr=errno; _WARN(__VA_ARGS__); signals(9);}while(0)
-#define ERRX(...) do{globErr=0; _WARN(__VA_ARGS__); signals(9);}while(0)
-#define WARN(...) do{globErr=errno; _WARN(__VA_ARGS__);}while(0)
-#define WARNX(...) do{globErr=0; _WARN(__VA_ARGS__);}while(0)
+#define ERR(...) do{globErr=errno; putlog(__VA_ARGS__); _WARN(__VA_ARGS__); signals(9);}while(0)
+#define ERRX(...) do{globErr=0; putlog(__VA_ARGS__); _WARN(__VA_ARGS__); signals(9);}while(0)
+#define WARN(...) do{globErr=errno; putlog(__VA_ARGS__); _WARN(__VA_ARGS__);}while(0)
+#define WARNX(...) do{globErr=0; putlog(__VA_ARGS__); _WARN(__VA_ARGS__);}while(0)
 
 /*
  * print function name, debug messages
  * debug mode, -DEBUG
  */
 #ifdef EBUG
-    #define FNAME() fprintf(stderr, "\n%s (%s, line %d)\n", __func__, __FILE__, __LINE__)
-    #define DBG(...) do{fprintf(stderr, "%s (%s, line %d): ", __func__, __FILE__, __LINE__); \
-                    fprintf(stderr, __VA_ARGS__);           \
-                    fprintf(stderr, "\n");} while(0)
+    #define FNAME() printf("\n%s (%s, line %d)\n", __func__, __FILE__, __LINE__)
+    #define DBG(...) do{printf("%s (%s, line %d): ", __func__, __FILE__, __LINE__); \
+                    printf(__VA_ARGS__); printf("\n");} while(0)
 #else
     #define FNAME()  do{}while(0)
     #define DBG(...) do{}while(0)
@@ -137,4 +136,8 @@ int str2double(double *num, const char *str);
 
 void openlogfile(char *name);
 int putlog(const char *fmt, ...);
+
+
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+const char *signum_to_signame(int signum);
 #endif // __USEFULL_MACROS_H__

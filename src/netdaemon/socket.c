@@ -46,6 +46,16 @@ static double meanT;
 
 extern glob_pars *G;
 
+// turn off sensors after measurements request or right now
+static bool TurnOff = FALSE;
+void TurnOFF(){TurnOff = TRUE;}
+
+// return pointer to strT[N]
+const char *gotstr(int N){
+    if(N < 0 || N > 2) return NULL;
+    return strT[N];
+}
+
 /**************** COMMON FUNCTIONS ****************/
 /**
  * wait for answer from socket
@@ -121,6 +131,7 @@ static int send_data(int sock, int webquery, int Nsens){
 
 // search a first word after needle without spaces
 static char* stringscan(char *str, char *needle){
+    if(!str || !needle) return NULL;
     char *a, *e;
     char *end = str + strlen(str);
     a = strstr(str, needle);
@@ -134,8 +145,8 @@ static char* stringscan(char *str, char *needle){
 }
 
 static void *handle_socket(void *asock){
-    //putlog("handle_socket(): getpid: %d, pthread_self: %lu, tid: %lu",getpid(), pthread_self(), syscall(SYS_gettid));
     FNAME();
+    if(!asock) return NULL;
     int sock = *((int*)asock);
     int webquery = 0; // whether query is web or regular
     char buff[BUFLEN];
@@ -147,13 +158,10 @@ static void *handle_socket(void *asock){
             continue;
         }
         if(!(rd = read(sock, buff, BUFLEN-1))){
-            //putlog("socket closed. Exit");
             break;
         }
-        //putlog("client send %zd bytes", rd);
         DBG("Got %zd bytes", rd);
         if(rd < 0){ // error
-            //putlog("some error occured");
             DBG("Nothing to read from fd %d (ret: %zd)", sock, rd);
             break;
         }
@@ -181,24 +189,21 @@ static void *handle_socket(void *asock){
             char tbuf[10];
             ssize_t L = snprintf(tbuf, 10, "%.2f", meanT);
             if(L != write(sock, tbuf, L)) WARN("write()");
-            //DBG("Ask Tmean = %g", meanT);
         } // here can be more parsers
         break;
     }
     close(sock);
-    //DBG("closed");
-    //putlog("socket closed, exit");
     pthread_exit(NULL);
     return NULL;
 }
 
 // main socket server
 static void *server(void *asock){
-    putlog("server(): getpid: %d, pthread_self: %lu, tid: %lu",getpid(), pthread_self(), syscall(SYS_gettid));
+    if(!asock) return NULL;
+    //putlog("server(): getpid: %d, pthread_self: %lu, tid: %lu",getpid(), pthread_self(), syscall(SYS_gettid));
     int sock = *((int*)asock);
     if(listen(sock, BACKLOG) == -1){
-        putlog("listen() failed");
-        WARN("listen");
+        WARN("listen()");
         return NULL;
     }
     while(1){
@@ -208,7 +213,6 @@ static void *server(void *asock){
         if(!waittoread(sock)) continue;
         newsock = accept(sock, (struct sockaddr*)&their_addr, &size);
         if(newsock <= 0){
-            putlog("accept() failed");
             WARN("accept()");
             continue;
         }
@@ -220,7 +224,6 @@ static void *server(void *asock){
         red("Got connection from %s\n", str);
         pthread_t handler_thread;
         if(pthread_create(&handler_thread, NULL, handle_socket, (void*) &newsock)){
-            putlog("server(): pthread_create() failed");
             WARN("pthread_create()");
         }else{
             DBG("Thread created, detouch");
@@ -323,6 +326,7 @@ static void process_T(){
     }
     // make graphics
     if(G->savepath){
+        DBG("GOT %dTH MEAN DATA", Nmeanmax+1);
         if(++Nmeanmax == GRAPHS_AMOUNT){
             for(i = 1; i <= NCTRLR_MAX; ++i)for(N = 0; N <= NCHANNEL_MAX; ++ N)for(p = 0; p < 2; ++p){
                 if(Nmean[p][N][i]){
@@ -331,7 +335,9 @@ static void process_T(){
                 }else Tmean[p][N][i] = -300.; // no data
             }
             plot(Tmean, G->savepath);
+            DBG("memset start");
             memset(Tmean, 0, sizeof(double)*2*(NCTRLR_MAX+1)*(NCHANNEL_MAX+1));
+            DBG("memset end");
             Nmeanmax = 0;
         }
     }
@@ -344,21 +350,27 @@ static void daemon_(int sock){
     if(sock < 0) return;
     pthread_t sock_thread;
     if(pthread_create(&sock_thread, NULL, server, (void*) &sock)){
-        putlog("daemon_(): pthread_create() failed");
         ERR("pthread_create()");
     }
-    double tgot = 0.;
+    double tgot = 0., tlastoff = dtime();
     do{
         if(pthread_kill(sock_thread, 0) == ESRCH){ // died
             WARNX("Sockets thread died");
-            putlog("Sockets thread died");
             pthread_join(sock_thread, NULL);
             if(pthread_create(&sock_thread, NULL, server, (void*) &sock)){
-                putlog("daemon_(): new pthread_create() failed");
                 ERR("pthread_create()");
             }
         }
         usleep(1000); // sleep a little or thread's won't be able to lock mutex
+        if(TurnOff){
+            TurnOff = FALSE;
+            turn_all_off();
+            tlastoff = dtime();
+        }
+        if(dtime() - tlastoff > T_OFF_INTERVAL){
+            turn_all_off();
+            tlastoff = dtime();
+        }
         if(dtime() - tgot < T_INTERVAL) continue;
         // get data
         int i;
@@ -407,6 +419,7 @@ static void daemon_(int sock){
  * Run daemon service
  */
 void daemonize(char *port){
+    if(!port) return;
     FNAME();
     int sock = -1;
     struct addrinfo hints, *res, *p;
@@ -439,14 +452,13 @@ void daemonize(char *port){
         break; // if we get here, we have a successfull connection
     }
     if(p == NULL){
-        putlog("failed to bind socket, exit");
         // looped off the end of the list with no successful bind
         ERRX("failed to bind socket");
     }
     freeaddrinfo(res);
     daemon_(sock);
     close(sock);
-    putlog("socket closed, exit");
+    putlog("daemonize(): UNREACHABLE CODE REACHED!");
     signals(0);
 }
 

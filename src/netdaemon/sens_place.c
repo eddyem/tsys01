@@ -202,14 +202,15 @@ const sensor_data *get_sensor_location(int Nct, int Nch, int Ns){
         return NULL;
     }
     int idx = 2*(NCHANNEL_MAX+1)*(Nct - 1) + 2*Nch + Ns;
-    DBG("Sensor code %d%d%d (idx=%d):\n", Nct, Nch, Ns, idx);
+    //DBG("Sensor code %d%d%d (idx=%d):\n", Nct, Nch, Ns, idx);
     const sensor_data *s = sensors + idx;
-    DBG("\tdT=%g (adj:%g); coords=(%d, %d, %d)\n", s->dt, s->Tadj, s->X, s->Y, s->Z);
+    //DBG("\tdT=%g (adj:%g); coords=(%d, %d, %d)\n", s->dt, s->Tadj, s->X, s->Y, s->Z);
     return s;
 }
 
 // return next non-space character in line until first  '\n' or NULL if met '#' or '\n'
 static char *omitspaces(char *str){
+    if(!str) return NULL;
     char ch;
     do{
         ch = *str;
@@ -243,7 +244,6 @@ int read_adj_file(char *fname){
     mmapbuf *buf = My_mmap(fname);
     if(!buf) return 1;
     char *adjf = buf->data, *eof = adjf + buf->len;
-    DBG("buf: %s", adjf);
     int strnum = 1; // start string number from 1
     while(adjf < eof){
         char *eol = strchr(adjf, '\n');
@@ -251,24 +251,20 @@ int read_adj_file(char *fname){
         if(!nextchar){
             goto cont;
         }
-        DBG("First char: %c", *nextchar);
         char *endptr = NULL;
         long num = strtol(nextchar, &endptr, 10);
         if(endptr == nextchar || !endptr){
             WARNX("Wrong integer number!");
             goto reperr;
         }
-        DBG("first num: %ld", num);
         int Nctrl = num / 100;
         int Nch = (num - Nctrl*100) / 10;
         int Nsen = num%10;
-        DBG("Nc=%d, Nch=%d, NS=%d", Nctrl, Nch, Nsen);
         if(num < 0 || (Nsen != 0 && Nsen != 1) || (Nch < 0 || Nch > NCHANNEL_MAX) || (Nctrl < 1 || Nctrl > NCTRLR_MAX)){
             WARNX("Wrong sensor number: %ld", num);
             goto reperr;
         }
         int idx = 2*(NCHANNEL_MAX+1)*(Nctrl - 1) + 2*Nch + Nsen;
-        DBG("index: %d", idx);
         if(idx < 0 || idx > NSENSORS-1){
             WARNX("Sensor index (%d) over range 0..%d", idx, NSENSORS-1);
         }
@@ -282,7 +278,6 @@ int read_adj_file(char *fname){
             WARNX("Wrong double number!");
             goto reperr;
         }
-        DBG("double num: %g", t);
         Tadj[idx] = t;
         if(omitspaces(endptr)){
             WARNX("Wrong file format: each string should include two numbers (and maybe comment after #)");
@@ -294,10 +289,12 @@ cont:
         ++strnum;
     }
     My_munmap(buf);
+    printf("Non-zero components:\n");
     for(int i = 0; i < NSENSORS; ++i){
         if(fabs(Tadj[i]) > DBL_EPSILON){
-            printf("Tadj[%d] = %g\n", i, Tadj[i]);
+            printf("\tTadj[%02d] = %g\n", i, Tadj[i]);
         }
+        if(fabs(sensors[i].Tadj - Tadj[i]) > 0.001) putlog("Tadj[%d] = %g", i, Tadj[i]);
         sensors[i].Tadj = Tadj[i];
     }
     return 0;

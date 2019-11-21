@@ -24,21 +24,22 @@
 
 #include "sens_place.h" // NCTRLR
 
-#define FRAME_MAX_LENGTH        (300)
-#define MAX_MEMORY_DUMP_SIZE    (0x800 * 4)
 // Terminal timeout (seconds)
 #define     WAIT_TMOUT          (0.5)
 // Main controller polling timeout - 1 second
 #define     POLLING_TMOUT       (1.0)
 // Thermal polling timeout: 5 seconds
 #define     T_POLLING_TMOUT     (5.0)
-// T measurement time interval - 1 minute
-#define     T_INTERVAL          (60.0)
+// T measurement time interval - 30 seconds
+#define     T_INTERVAL          (30.0)
+// Interval of turning sensors off - 3 days
+#define     T_OFF_INTERVAL      (259200.)
 // amount of measurement to plot mean graphs
 #define     GRAPHS_AMOUNT       (15)
 
 // Protocol
 #define CMD_SENSORS_OFF         'F'
+#define CMD_SENSORS_OFF_LOCAL   'f'
 #define CMD_VOLTAGE             'K'
 #define CMD_PING                'P'
 #define CMD_MEASURE_T           'T'
@@ -59,5 +60,6 @@ void run_terminal();
 void try_connect(char *device);
 int poll_sensors(int N);
 int check_sensors();
+void turn_all_off();
 
 #endif // __TERM_H__

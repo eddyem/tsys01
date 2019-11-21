@@ -21,9 +21,10 @@
  *
  */
 #include <stdio.h>   // file operations
+#include <time.h>
 #include <unistd.h>  // access() to check file exists
 #include <linux/limits.h> // PATH_MAX
-#include "usefull_macros.h" // putlog
+#include "usefull_macros.h"
 #include "cmdlnopts.h"   // glob_pars
 
 extern glob_pars *G;
@@ -32,6 +33,7 @@ static char fullpath[PATH_MAX];
 
 // create full name from path and file
 char *mkname(char *path, char *fname){
+    if(!path) return fname;
     if(path[strlen(path)-1] == '/') snprintf(fullpath, PATH_MAX, "%s%s", path, fname);
     else snprintf(fullpath, PATH_MAX, "%s/%s", path, fname);
     DBG("fullpath: %s", fullpath);
@@ -48,6 +50,7 @@ char *mkname(char *path, char *fname){
 static int formfile(char *fname, double data[2][NCHANNEL_MAX+1][NCTRLR_MAX+1], int Z){
     FILE *F = fopen(fname, "w");
     if(!F) return 0;
+    int nonzero_values = 0;
     for(int i = 1; i <= NCTRLR_MAX; ++i){
         for(int N = 0; N <= NCHANNEL_MAX; ++ N) for(int p = 0; p < 2; ++p){
             double T = data[p][N][i];
@@ -56,10 +59,12 @@ static int formfile(char *fname, double data[2][NCHANNEL_MAX+1][NCTRLR_MAX+1], i
                 if(!sdata) continue;
                 if(Z != sdata->Z) continue;
                 fprintf(F, "%d\t%d\t%.2f\n", sdata->X, sdata->Y, T - sdata->dt - sdata->Tadj);
+                ++nonzero_values;
             }
         }
     }
     fclose(F);
+    if(!nonzero_values) return 0;
     DBG("File %s ready", fname);
     return 1;
 }
@@ -71,42 +76,30 @@ static int formfile(char *fname, double data[2][NCHANNEL_MAX+1][NCTRLR_MAX+1], i
  */
 static void gnuplot(char *path, char *fname){
     char *ctmp = mkname(path, "plot");
-    char buf[PATH_MAX*2];
+    char buf[PATH_MAX*2], *ptr = buf;
     size_t L = PATH_MAX*2;
     if(access(ctmp, F_OK)){
         WARNX(_("Don't find %s to plot graphics"), ctmp);
-        putlog("Don't find %s to plot graphics", ctmp);
         return;
     }
-    ssize_t l = snprintf(buf, L, "%s ", ctmp);
+    ssize_t l = snprintf(ptr, L, "%s ", ctmp);
     if(l < 1) return;
+    L -= l; ptr += l;
     ctmp = mkname(path, fname);
-    snprintf(buf+l, L, "%s", ctmp);
+    time_t t = time(NULL);
+    struct tm *timeptr = localtime(&t);
+    l = snprintf(ptr, L, "%s ", ctmp);
+    L -= l; ptr += l;
+    strftime(ptr, L, "\"%d/%m/%y %H:%M:%S\"", timeptr);
     DBG("Run %s", buf);
     if(system(buf)){
         WARNX(_("Can't run `%s`"), buf);
-        putlog("Can't run `%s`", buf);
-    }
+    }else putlog("created chart %s", fname);
 }
 
 void plot(double data[2][NCHANNEL_MAX+1][NCTRLR_MAX+1], char *savepath){
-    /*
-    double dY[NCH][NC]; // vertical gradients (top - bottom)
-    // calculate gradients
-    for(int i = 1; i < 8; ++i){
-        for(int N = 0; N < 8; ++ N){
-            double Ttop = data[0][N][i], Tbot = data[1][N][i];
-            if(Ttop > -100. && Ttop < 100. && Tbot > -100. && Tbot < 100.){
-                double dT = Ttop - Tbot;
-                if(dT > -2. && dT < 2.) dY[N][i] = dT;
-                else dY[N][i] = -300.;
-            }else dY[N][i] = -300.;
-        }
-    }*/
     char *ctmp = mkname(savepath, "T0");
     if(formfile(ctmp, data, 0)) if(G->makegraphs) gnuplot(savepath, "T0");
     ctmp = mkname(savepath, "T1");
     if(formfile(ctmp, data, 1)) if(G->makegraphs) gnuplot(savepath, "T1");
-    //ctmp = mkname(savepath, "Tgrad");
-    //if(formfile(ctmp, dY)) if(G->makegraphs) gnuplot(savepath, "Tgrad");
 }
