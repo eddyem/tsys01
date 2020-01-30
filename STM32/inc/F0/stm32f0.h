@@ -105,34 +105,33 @@ TRUE_INLINE void sysreset(void){
     /* Wait till PLL is used as system clock source */
     while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL){}
 }
-
+/* wrong
 TRUE_INLINE void StartHSE(){
     // disable PLL
     RCC->CR &= ~RCC_CR_PLLON;
     RCC->CR |= RCC_CR_HSEON;
-    while ((RCC->CIR & RCC_CIR_HSERDYF) != 0);
+    while ((RCC->CIR & RCC_CIR_HSERDYF) == 0);
     RCC->CIR |= RCC_CIR_HSERDYC; // clear rdy flag
-    /* PLL configuration = (HSE) * 12 = ~48 MHz */
+    // PLL configuration = (HSE) * 12 = ~48 MHz
     RCC->CFGR &= ~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLMUL);
     RCC->CFGR |= RCC_CFGR_PLLSRC_HSE_PREDIV | RCC_CFGR_PLLMUL12;
     RCC->CR |= RCC_CR_PLLON;
     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)RCC_CFGR_SWS_PLL){}
-}
+}       */
 
-#if !defined (STM32F030x4) && !defined (STM32F030x6) && !defined (STM32F030x8) && !defined (STM32F031x6) && !defined (STM32F038xx) && !defined (STM32F030xC)
+#if defined (STM32F042x6) || defined (STM32F072xb)
 TRUE_INLINE void StartHSI48(){
-    // disable PLL
-    RCC->CR &= ~RCC_CR_PLLON;
-    RCC->CR2 &= RCC_CR2_HSI48ON; // turn on HSI48
-    while((RCC->CR2 & RCC_CR2_HSI48RDY) == 0);
-    RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLMUL));
-    // HSI48/2 * 2 = HSI48
-    RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_HSI48_PREDIV | RCC_CFGR_PLLMUL2);
-    RCC->CR |= RCC_CR_PLLON;
-    // select HSI48 as system clock source
-    RCC->CFGR &= ~RCC_CFGR_SW;
-    RCC->CFGR |= RCC_CFGR_SW_HSI48;
-    while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)RCC_CFGR_SWS_HSI48){}
+    RCC->APB1ENR |= RCC_APB1ENR_CRSEN | RCC_APB1ENR_USBEN; // enable CRS (hsi48 sync) & USB
+    RCC->CFGR3 &= ~RCC_CFGR3_USBSW; // reset USB
+    RCC->CR2 |= RCC_CR2_HSI48ON; // turn ON HSI48
+    uint32_t tmout = 16000000;
+    while(!(RCC->CR2 & RCC_CR2_HSI48RDY)){if(--tmout == 0) break;}
+    FLASH->ACR = FLASH_ACR_PRFTBE | FLASH_ACR_LATENCY;
+    CRS->CFGR &= ~CRS_CFGR_SYNCSRC;
+    CRS->CFGR |= CRS_CFGR_SYNCSRC_1; // USB SOF selected as sync source
+    CRS->CR |= CRS_CR_AUTOTRIMEN; // enable auto trim
+    CRS->CR |= CRS_CR_CEN; // enable freq counter & block CRS->CFGR as read-only
+    RCC->CFGR |= RCC_CFGR_SW;
 }
 #endif
 
@@ -200,20 +199,27 @@ TRUE_INLINE void StartHSI48(){
 
 /************************* ADC *************************/
 /* inner termometer calibration values
- *         Temp = (Vsense - V30)/Avg_Slope + 30
- *         Avg_Slope = (V110 - V30) / (110 - 30)
+ *         Temp = (V30 - Vsense)/Avg_Slope + 30
+ *         Avg_Slope = (V30 - V110) / (110 - 30)
  */
 #define TEMP110_CAL_ADDR ((uint16_t*) ((uint32_t) 0x1FFFF7C2))
 #define TEMP30_CAL_ADDR ((uint16_t*) ((uint32_t) 0x1FFFF7B8))
 // VDDA_Actual = 3.3V * VREFINT_CAL / average vref value
 #define VREFINT_CAL_ADDR ((uint16_t*) ((uint32_t) 0x1FFFF7BA))
-
+#define VDD_CALIB ((uint16_t) (330))
+#define VDD_APPLI ((uint16_t) (300))
 
 /************************* USART *************************/
 
 #define USART_CR2_ADD_SHIFT     24
 // set address/character match value
 #define USART_CR2_ADD_VAL(x)        ((x) << USART_CR2_ADD_SHIFT)
+
+/************************* IWDG *************************/
+#define IWDG_REFRESH      (uint32_t)(0x0000AAAA)
+#define IWDG_WRITE_ACCESS (uint32_t)(0x00005555)
+#define IWDG_START        (uint32_t)(0x0000CCCC)
+
 
 //#define  do{}while(0)
 

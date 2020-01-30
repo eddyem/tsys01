@@ -35,7 +35,13 @@ extern volatile uint8_t canerror;
 static char buff[UARTBUFSZ+1], *bptr = buff;
 static uint8_t blen = 0, USBcmd = 0;
 // LEDs are OFF by default
-uint8_t noLED = 1;
+uint8_t noLED =
+#ifdef EBUG
+        0
+#else
+        1
+#endif
+;
 
 void sendbuf(){
     IWDG->KR = IWDG_REFRESH;

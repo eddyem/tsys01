@@ -72,8 +72,6 @@ static void logT(_U_ int signo){
 int main(int argc, char **argv){
     initial_setup();
     G = parse_args(argc, argv);
-    if(G->rest_pars_num)
-        openlogfile(G->rest_pars[0]);
     if(G->makegraphs && !G->savepath){
         ERRX(_("Point the path to graphical files"));
     }
@@ -95,6 +93,8 @@ int main(int argc, char **argv){
         return 1;
     }
     if(runningproc) ERRX("Found running process, pid=%d.", runningproc);
+    if(G->rest_pars_num)
+        openlogfile(G->rest_pars[0]);
     // ignore almost all possible signals
     for(int sig = 0; sig < 256; ++sig) signal(sig, repsig);
     signal(SIGTERM, signals); // kill (-15) - quit

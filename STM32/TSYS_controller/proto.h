@@ -25,6 +25,7 @@
 #define __PROTO_H__
 
 #include "stm32f0.h"
+#include "hardware.h"
 
 // macro for static strings
 #define SEND(str) do{addtobuf(str);}while(0)
