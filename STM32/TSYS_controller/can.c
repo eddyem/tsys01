@@ -217,7 +217,7 @@ static void can_process_fifo(uint8_t fifo_num){
         /* TODO: check filter match index if more than one ID can receive */
         CAN_message msg;
         uint8_t *dat = msg.data;
-        uint8_t len = box->RDTR & 0x7;
+        uint8_t len = box->RDTR & 0x0f;
         msg.length = len;
         if(len){ // message can be without data
             uint32_t hb = box->RDHR, lb = box->RDLR;
