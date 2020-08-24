@@ -19,8 +19,10 @@
  * MA 02110-1301, USA.
  */
 #include <signal.h>
-#include <sys/wait.h> // wait
 #include <sys/prctl.h> //prctl
+#include <sys/types.h>
+#include <sys/wait.h> // wait
+
 #include "checkfile.h"
 #include "cmdlnopts.h"
 #include "socket.h"
@@ -36,8 +38,8 @@ void signals(int signo){
     restore_tty();
     if(childpid){
         const char *s = signum_to_signame(signo);
-        if(s) putlog("exit with status %d (or by signal %s)", signo, s);
-        else putlog("exit with status %d", signo);
+        if(s) LOG("exit with status %d (or by signal %s)", signo, s);
+        else LOG("exit with status %d", signo);
     }
     exit(signo);
 }
@@ -52,10 +54,10 @@ static void repsig(int signo){
 static void refreshAdj(_U_ int signo){
     DBG("refresh adj");
     if(childpid){ // I am a master
-        putlog("Force child %d to re-read adj-file", childpid);
+        LOG("Force child %d to re-read adj-file", childpid);
         kill(childpid, SIGUSR1);
     }else{ // I am a child
-        putlog("Re-read adj-file");
+        LOG("Re-read adj-file");
         read_adj_file(G->adjfilename);
     }
 }
@@ -63,9 +65,9 @@ static void refreshAdj(_U_ int signo){
 static void logT(_U_ int signo){
     for(int i = 0; i < 3; ++i){
         const char *s = gotstr(i);
-        if(s && *s) putlog("Sensors group #%d:\n%s", i, s);
+        if(s && *s) LOG("Sensors group #%d:\n%s", i, s);
     }
-    putlog("Turn sensors off");
+    LOG("Turn sensors off");
     TurnOFF();
 }
 
@@ -94,7 +96,7 @@ int main(int argc, char **argv){
     }
     if(runningproc) ERRX("Found running process, pid=%d.", runningproc);
     if(G->rest_pars_num)
-        openlogfile(G->rest_pars[0]);
+         Cl_createlog(G->rest_pars[0]);
     // ignore almost all possible signals
     for(int sig = 0; sig < 256; ++sig) signal(sig, repsig);
     signal(SIGTERM, signals); // kill (-15) - quit
@@ -113,7 +115,7 @@ int main(int argc, char **argv){
         while(1){ // guard for dead processes
             childpid = fork();
             if(childpid){
-                putlog("create child with PID %d\n", childpid);
+                LOG("create child with PID %d\n", childpid);
                 DBG("Created child with PID %d\n", childpid);
                 while(childpid != waitpid(childpid, NULL, 0));
                 WARNX("Child %d died\n", childpid);
@@ -128,9 +130,9 @@ int main(int argc, char **argv){
     DBG("dev: %s", G->device);
     try_connect(G->device);
     if(check_sensors()){
-        putlog("No CAN-controllers detected");
+        LOG("No CAN-controllers detected");
         if(!poll_sensors(0)){ // there's not main controller connected to given terminal
-            putlog("Opened device is not main controller");
+            LOG("Opened device is not main controller");
             if(!G->terminal) signals(15);
         }
     }

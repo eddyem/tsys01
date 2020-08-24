@@ -78,7 +78,7 @@ void try_connect(char *device){
     fflush(stdout);
     tty_init(device);
     read_tty(tmpbuf, 4096); // clear rbuf
-    putlog("Connected to %s", device);
+    LOG("Connected to %s", device);
 }
 
 /**
@@ -238,7 +238,7 @@ int check_sensors(){
                     if(i == ans[sizeof(ANS_PONG)-1] - '0'){
                         ++found;
                         green(_("Found controller #%d\n"), i);
-                        putlog("Found controller #%d", i);
+                        LOG("Found controller #%d", i);
                         break;
                     }
                 }

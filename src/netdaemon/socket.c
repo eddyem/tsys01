@@ -143,15 +143,21 @@ static char* stringscan(char *str, char *needle){
     if(e) *e = 0;
     return a;
 }
+typedef struct{
+    int sockn;
+    char *host;
+} conn;
 
 static void *handle_socket(void *asock){
     FNAME();
     if(!asock) return NULL;
-    int sock = *((int*)asock);
+    conn C = *((conn*)asock);
+    int sock = C.sockn; //*((int*)asock);
     int webquery = 0; // whether query is web or regular
     char buff[BUFLEN];
+    char tbuf[128];
     int Nsens = -1;
-    ssize_t rd;
+    ssize_t rd, L;
     double t0 = dtime();
     while(dtime() - t0 < SOCKET_TIMEOUT){
         if(!waittoread(sock)){ // no data incoming
@@ -176,23 +182,31 @@ static void *handle_socket(void *asock){
             // web query have format GET /some.resource
         }
         // here we can process user data
-        printf("user send: %s\nfound=%s", buff,found);
-        if(strlen(found) == 2 && found[0] == 'T'){
+        //printf("user send: %s\nfound=%s", buff,found);
+        if(strlen(found) < 5 && found[0] == 'T'){
             Nsens = found[1] - '0';
-            if(Nsens < 0 || Nsens > 2) break; // wrong query
+            if(Nsens < 0 || Nsens > 2){
+                L = write(sock, "Only T0, T1 and T2 available\n", 29);
+                break; // wrong query
+            }
             pthread_mutex_lock(&mutex);
             if(!send_data(sock, webquery, Nsens)){
-                putlog("can't send data, some error occured");
+                LOG("can't send data, some error occured");
             }
             pthread_mutex_unlock(&mutex);
         }else if(strncmp("Tmean", found, 5) == 0){ // send user meanT
-            char tbuf[10];
-            ssize_t L = snprintf(tbuf, 10, "%.2f", meanT);
+            L = snprintf(tbuf, 128, "%.2f\n", meanT);
             if(L != write(sock, tbuf, L)) WARN("write()");
-        } // here can be more parsers
+        }else if(strncmp("ReBoOt", found, 6) == 0){
+            LOG("Reboot command from %s", C.host);
+            L = write(sock, "Reboot system\n", 14);
+            if(0 != system("sudo reboot")) WARN("Can't reboot");
+        // here can be more parsers
+        }else L = write(sock, "Unrecognized command\n", 21);
         break;
     }
     close(sock);
+    FREE(C.host);
     pthread_exit(NULL);
     return NULL;
 }
@@ -200,7 +214,7 @@ static void *handle_socket(void *asock){
 // main socket server
 static void *server(void *asock){
     if(!asock) return NULL;
-    //putlog("server(): getpid: %d, pthread_self: %lu, tid: %lu",getpid(), pthread_self(), syscall(SYS_gettid));
+    //LOG("server(): getpid: %d, pthread_self: %lu, tid: %lu",getpid(), pthread_self(), syscall(SYS_gettid));
     int sock = *((int*)asock);
     if(listen(sock, BACKLOG) == -1){
         WARN("listen()");
@@ -220,17 +234,19 @@ static void *server(void *asock){
         struct in_addr ipAddr = pV4Addr->sin_addr;
         char str[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &ipAddr, str, INET_ADDRSTRLEN);
-        //putlog("get connection from %s", str);
+        //LOG("get connection from %s", str);
         red("Got connection from %s\n", str);
         pthread_t handler_thread;
-        if(pthread_create(&handler_thread, NULL, handle_socket, (void*) &newsock)){
+        conn C = {.sockn = newsock};
+        C.host = strdup(str);
+        if(pthread_create(&handler_thread, NULL, handle_socket, (void*)&C)){
             WARN("pthread_create()");
         }else{
             DBG("Thread created, detouch");
             pthread_detach(handler_thread); // don't care about thread state
         }
     }
-    putlog("server(): UNREACHABLE CODE REACHED!");
+    LOG("server(): UNREACHABLE CODE REACHED!");
 }
 
 typedef double Item;
@@ -412,7 +428,7 @@ static void daemon_(int sock){
         memcpy(strT, bufs, sizeof(strT));
         pthread_mutex_unlock(&mutex);
     }while(1);
-    putlog("daemon_(): UNREACHABLE CODE REACHED!");
+    LOG("daemon_(): UNREACHABLE CODE REACHED!");
 }
 
 /**
@@ -458,7 +474,7 @@ void daemonize(char *port){
     freeaddrinfo(res);
     daemon_(sock);
     close(sock);
-    putlog("daemonize(): UNREACHABLE CODE REACHED!");
+    LOG("daemonize(): UNREACHABLE CODE REACHED!");
     signals(0);
 }
 

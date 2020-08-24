@@ -388,52 +388,64 @@ int str2double(double *num, const char *str){
     return TRUE;
 }
 
-FILE *Flog = NULL; // log file descriptor
-char *logname = NULL;
-time_t log_open_time = 0;
+//////////// logging
+
+static Cl_log log = {0};
 /**
- * Try to open log file
- * if failed show warning message
+ * @brief Cl_createlog - create log file: init mutex, test file open ability
+ * @param log - log structure
+ * @return 0 if all OK
  */
-void openlogfile(char *name){
-    if(!name){
-        WARNX(_("Need filename"));
-        return;
+int Cl_createlog(char *logname){
+    if(log.logpath){
+        FREE(log.logpath);
+        pthread_mutex_destroy(&log.mutex);
     }
-    green(_("Try to open log file %s in append mode\n"), name);
-    if(!(Flog = fopen(name, "a"))){
-        WARN(_("Can't open log file"));
-        return;
+    FILE *logfd = fopen(logname, "a");
+    if(!logfd){
+        WARN("Can't open log file");
+        return 2;
     }
-    log_open_time = time(NULL);
-    logname = name;
+    log.logpath = strdup(logname);
+    fclose(logfd);
+    if(pthread_mutex_init(&log.mutex, NULL)){
+        WARN("Can't init log mutes");
+        return 3;
+    }
+    return 0;
 }
 
 /**
- * Save message to log file, rotate logs every 24 hours
+ * @brief Cl_putlog - put message to log file with/without timestamp
+ * @param timest - ==1 to put timestamp
+ * @param log - pointer to log structure
+ * @param lvl - message loglevel (if lvl > loglevel, message won't be printed)
+ * @param fmt - format and the rest part of message
+ * @return amount of symbols saved in file
  */
-int putlog(const char *fmt, ...){
-    if(!Flog) return 0;
-    time_t t_now = time(NULL);
-    if(t_now - log_open_time > 86400){ // rotate log
-        fprintf(Flog, "\n\t\t%sRotate log\n", ctime(&t_now));
-        fclose(Flog);
-        char newname[PATH_MAX];
-        snprintf(newname, PATH_MAX, "%s.old", logname);
-        if(rename(logname, newname)) WARN("rename()");
-        openlogfile(logname);
-        if(!Flog) return 0;
+int Cl_putlogt(const char *fmt, ...){
+    if(pthread_mutex_lock(&log.mutex)){
+        WARN("Can't lock log mutex");
+        return 0;
     }
-    int i = fprintf(Flog, "\n\t\t%s", ctime(&t_now));
+    int i = 0;
+    FILE *logfd = fopen(log.logpath, "a");
+    if(!logfd) goto rtn;
+    char strtm[128];
+    time_t t = time(NULL);
+    struct tm *curtm = localtime(&t);
+    strftime(strtm, 128, "%Y/%m/%d-%H:%M:%S", curtm);
+    i = fprintf(logfd, "%s\t", strtm);
     va_list ar;
     va_start(ar, fmt);
-    i = vfprintf(Flog, fmt, ar);
+    i += vfprintf(logfd, fmt, ar);
     va_end(ar);
-    fprintf(Flog, "\n");
-    fflush(Flog);
+    i += fprintf(logfd, "\n");
+    fclose(logfd);
+rtn:
+    pthread_mutex_unlock(&log.mutex);
     return i;
 }
-
 
 
 /*

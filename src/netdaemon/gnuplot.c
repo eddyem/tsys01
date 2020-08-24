@@ -94,7 +94,7 @@ static void gnuplot(char *path, char *fname){
     DBG("Run %s", buf);
     if(system(buf)){
         WARNX(_("Can't run `%s`"), buf);
-    }else putlog("created chart %s", fname);
+    }else LOG("created chart %s", fname);
 }
 
 void plot(double data[2][NCHANNEL_MAX+1][NCTRLR_MAX+1], char *savepath){

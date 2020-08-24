@@ -294,13 +294,13 @@ cont:
         if(fabs(Tadj[i]) > DBL_EPSILON){
             printf("\tTadj[%02d] = %g\n", i, Tadj[i]);
         }
-        if(fabs(sensors[i].Tadj - Tadj[i]) > 0.001) putlog("Tadj[%d] = %g", i, Tadj[i]);
+        if(fabs(sensors[i].Tadj - Tadj[i]) > 0.001) LOG("Tadj[%d] = %g", i, Tadj[i]);
         sensors[i].Tadj = Tadj[i];
     }
     return 0;
 reperr:
     red("Error in string %d:\n", strnum);
     printf("%s\n", adjf);
-    putlog("Erroneous log file %s in line %d", fname, strnum);
+    LOG("Erroneous adjustment file %s in line %d", fname, strnum);
     return 1;
 }
