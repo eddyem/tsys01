@@ -22,6 +22,8 @@
 #ifndef __TERM_H__
 #define __TERM_H__
 
+#include <time.h>
+
 #include "sens_place.h" // NCTRLR
 
 // Terminal timeout (seconds)
@@ -56,8 +58,7 @@ typedef enum{
     TRANS_TIMEOUT       // no data in WAIT_TMOUT
 } trans_status;
 
-void run_terminal();
-void try_connect(char *device);
+int try_connect(char *path);
 int poll_sensors(int N);
 int check_sensors();
 void turn_all_off();

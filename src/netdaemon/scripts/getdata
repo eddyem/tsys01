@@ -1,0 +1,15 @@
+#!/bin/bash
+# receive data from mirtemp & store it
+
+export http_proxy=""
+
+# don't call curl if there's no connection to server
+curl --http0.9  http://mirtemp.sao.ru:4444/Tmean || exit 1
+
+cd $1
+DIR="$(date +%y.%m.%d)"
+mkdir $DIR 2>/dev/null
+FNAME="${DIR}/$(date +%H:%M)"
+for Tdat in T0 T1 T2; do
+	curl --http0.9 http://mirtemp.sao.ru:4444/${Tdat} -o ${FNAME}_${Tdat}.dat > /dev/null 2>/dev/null
+done

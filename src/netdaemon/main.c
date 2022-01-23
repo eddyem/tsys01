@@ -19,15 +19,17 @@
  * MA 02110-1301, USA.
  */
 #include <signal.h>
+#include <stdio.h>
+#include <string.h>
 #include <sys/prctl.h> //prctl
 #include <sys/types.h>
 #include <sys/wait.h> // wait
+#include <usefull_macros.h>
 
-#include "checkfile.h"
+//#include "checkfile.h"
 #include "cmdlnopts.h"
 #include "socket.h"
 #include "term.h"
-#include "usefull_macros.h"
 
 glob_pars *G; // non-static: some another files should know about it!
 static pid_t childpid = 0; // PID of child - to kill it if need
@@ -35,29 +37,25 @@ static pid_t childpid = 0; // PID of child - to kill it if need
 // default signals handler
 void signals(int signo){
     restore_console();
-    restore_tty();
     if(childpid){
-        const char *s = signum_to_signame(signo);
-        if(s) LOG("exit with status %d (or by signal %s)", signo, s);
-        else LOG("exit with status %d", signo);
+        LOGERR("Exit with status %d", signo);
     }
     exit(signo);
 }
 
 // report about some ignored signals
 static void repsig(int signo){
-    const char *s = signum_to_signame(signo);
-    WARNX("PID: %d, received signal %d, %s (%s)", getpid(), signo, s ? s : "", strsignal(signo));
+    WARNX("PID: %d, received signal %d (%s)", getpid(), signo, strsignal(signo));
 }
 
 // SIGUSR1 handler - re-read Tadj file
 static void refreshAdj(_U_ int signo){
     DBG("refresh adj");
     if(childpid){ // I am a master
-        LOG("Force child %d to re-read adj-file", childpid);
+        LOGMSG("Force child %d to re-read adj-file", childpid);
         kill(childpid, SIGUSR1);
     }else{ // I am a child
-        LOG("Re-read adj-file");
+        LOGMSG("Re-read adj-file");
         read_adj_file(G->adjfilename);
     }
 }
@@ -65,38 +63,38 @@ static void refreshAdj(_U_ int signo){
 static void logT(_U_ int signo){
     for(int i = 0; i < 3; ++i){
         const char *s = gotstr(i);
-        if(s && *s) LOG("Sensors group #%d:\n%s", i, s);
+        if(s && *s) LOGMSG("Sensors group #%d:\n%s", i, s);
     }
-    LOG("Turn sensors off");
+    LOGMSG("Turn sensors off");
     TurnOFF();
 }
 
 int main(int argc, char **argv){
     initial_setup();
+    char *self = strdup(argv[0]);
     G = parse_args(argc, argv);
     if(G->makegraphs && !G->savepath){
         ERRX(_("Point the path to graphical files"));
     }
-    pid_t runningproc = check4running(G->pidfilename);
-    if(G->dumpoff){
+    check4running(self, G->pidfilename);
+    /*if(G->dumpoff){
         if(runningproc) kill(runningproc, SIGUSR2);
         else ERRX("There's no running daemon");
         return 0;
-    }
+    }*/
     int raf = read_adj_file(G->adjfilename);
     if(G->testadjfile){
         if(raf == 0){
             green("Format of file %s is right\n", G->adjfilename);
-            if(runningproc){ // fore running process to re-read it
+            /*if(runningproc){ // fore running process to re-read it
                 kill(runningproc, SIGUSR1);
-            }
+            }*/
             return 0;
         }
         return 1;
     }
-    if(runningproc) ERRX("Found running process, pid=%d.", runningproc);
     if(G->rest_pars_num)
-         Cl_createlog(G->rest_pars[0]);
+        OPENLOG(G->rest_pars[0], LOGLEVEL_DBG, 1);
     // ignore almost all possible signals
     for(int sig = 0; sig < 256; ++sig) signal(sig, repsig);
     signal(SIGTERM, signals); // kill (-15) - quit
@@ -108,35 +106,34 @@ int main(int argc, char **argv){
     signal(SIGUSR1, refreshAdj); // refresh adjustements
     signal(SIGUSR2, logT);    // print all current temperatures into logfile and turn off sensors
     #ifndef EBUG
-    if(!G->terminal){
-        if(daemon(1, 0)){
-            ERR("daemon()");
-        }
-        while(1){ // guard for dead processes
-            childpid = fork();
-            if(childpid){
-                LOG("create child with PID %d\n", childpid);
-                DBG("Created child with PID %d\n", childpid);
-                while(childpid != waitpid(childpid, NULL, 0));
-                WARNX("Child %d died\n", childpid);
-                sleep(10);
-            }else{
-                prctl(PR_SET_PDEATHSIG, SIGTERM); // send SIGTERM to child when parent dies
-                break; // go out to normal functional
-            }
+    if(daemon(1, 0)){
+        ERR("daemon()");
+    }
+    while(1){ // guard for dead processes
+        childpid = fork();
+        if(childpid){
+            LOGMSG("create child with PID %d\n", childpid);
+            DBG("Created child with PID %d\n", childpid);
+            while(childpid != waitpid(childpid, NULL, 0));
+            WARNX("Child %d died\n", childpid);
+            sleep(10);
+        }else{
+            prctl(PR_SET_PDEATHSIG, SIGTERM); // send SIGTERM to child when parent dies
+            break; // go out to normal functional
         }
     }
     #endif
-    DBG("dev: %s", G->device);
-    try_connect(G->device);
+    DBG("sockname: %s", G->sockname);
+    if(!try_connect(G->sockname)) ERR("Can't connect to UNIX socket");
     if(check_sensors()){
-        LOG("No CAN-controllers detected");
+        LOGWARN("No CAN-controllers detected");
         if(!poll_sensors(0)){ // there's not main controller connected to given terminal
-            LOG("Opened device is not main controller");
-            if(!G->terminal) signals(15);
+            LOGERR("Opened device is not main controller");
+            ERRX("Opened device is not main controller");
         }
     }
-    if(G->terminal) run_terminal();
-    else daemonize(G->port);
+    //if(G->terminal) run_terminal();
+    //else
+    daemonize(G->port);
     return 0;
 }

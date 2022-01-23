@@ -23,16 +23,13 @@
 #ifndef __CMDLNOPTS_H__
 #define __CMDLNOPTS_H__
 
-#include "parseargs.h"
-#include "term.h"
-
 /*
  * here are some typedef's for global data
  */
 typedef struct{
-    char *device;           // serial device name
+    char *sockname;         // server's UNIX socket name
     char *port;             // port to connect
-    int terminal;           // run as terminal
+    //int terminal;           // run as terminal
     char *savepath;         // path where data & graphical files would be saved
     int makegraphs;         // ==1 to make graphics with gnuplot
     int rest_pars_num;      // number of rest parameters
@@ -40,7 +37,7 @@ typedef struct{
     int testadjfile;        // test format of file with adjustments
     char *adjfilename;      // name of adjustements file
     char *pidfilename;      // name of PID file
-    int dumpoff;            // dump sensors data & turn all OFF until next request
+    //int dumpoff;            // dump sensors data & turn all OFF until next request
 } glob_pars;
 
 

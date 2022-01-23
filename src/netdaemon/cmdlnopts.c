@@ -22,9 +22,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
-#include <math.h>
+#include <usefull_macros.h>
+
 #include "cmdlnopts.h"
-#include "usefull_macros.h"
+#include "term.h"
 
 /*
  * here are global parameters initialisation
@@ -33,20 +34,15 @@ int help;
 static glob_pars  G;
 
 // default values for Gdefault & help
-#define DEFAULT_COMDEV  "/dev/ttyUSB0"
-#define DEFAULT_PORT    "4444"
-#define DEFAULT_PIDFILE "/tmp/TSYS01daemon.pid"
+#define DEFAULT_SOCKPATH    "\0canbus"
+#define DEFAULT_PORT        "4444"
+#define DEFAULT_PIDFILE     "/tmp/TSYS01daemon.pid"
 
 //            DEFAULTS
 // default global parameters
 glob_pars const Gdefault = {
-    .device = DEFAULT_COMDEV,
+    .sockname = DEFAULT_SOCKPATH,
     .port = DEFAULT_PORT,
-    .terminal = 0,
-    .savepath = NULL,
-    .makegraphs = 0,
-    .rest_pars = NULL,
-    .rest_pars_num = 0,
     .adjfilename = "tempadj.txt",
     .pidfilename = DEFAULT_PIDFILE
 };
@@ -55,18 +51,18 @@ glob_pars const Gdefault = {
  * Define command line options by filling structure:
  *  name        has_arg     flag    val     type        argptr              help
 */
-myoption cmdlnopts[] = {
+static myoption cmdlnopts[] = {
 // common options
     {"help",    NO_ARGS,    NULL,   'h',    arg_int,    APTR(&help),        _("show this help")},
-    {"device",  NEED_ARG,   NULL,   'i',    arg_string, APTR(&G.device),    _("serial device name (default: " DEFAULT_COMDEV ")")},
+    {"name",    NEED_ARG,   NULL,   'n',    arg_string, APTR(&G.sockname),  _("server's UNIX socket name (default: \\0canbus)")},
     {"port",    NEED_ARG,   NULL,   'p',    arg_string, APTR(&G.port),      _("network port to connect (default: " DEFAULT_PORT ")")},
-    {"terminal",NO_ARGS,    NULL,   't',    arg_int,    APTR(&G.terminal),  _("run as terminal")},
+    //{"terminal",NO_ARGS,    NULL,   't',    arg_int,    APTR(&G.terminal),  _("run as terminal")},
     {"savepath",NEED_ARG,   NULL,   's',    arg_string, APTR(&G.savepath),  _("path where files would be saved (if none - don't save)")},
     {"graphplot",NO_ARGS,   NULL,   'g',    arg_int,    APTR(&G.makegraphs),_("make graphics with gnuplot")},
-    {"testadjfile",NO_ARGS, NULL,   'T',    arg_int,    APTR(&G.testadjfile),_("test format of file with T adjustements and force running proces to re-read it")},
+    {"testadjfile",NO_ARGS, NULL,   'T',    arg_int,    APTR(&G.testadjfile),_("test format of file with T adjustements")},
     {"adjname", NEED_ARG,   NULL,   'N',    arg_string, APTR(&G.adjfilename),_("name of adjustements file (default: tempadj.txt)")},
     {"pidfile", NEED_ARG,   NULL,   'P',    arg_string, APTR(&G.pidfilename),_("name of PID file (default: " DEFAULT_PIDFILE ")")},
-    {"dumpoff", NO_ARGS,    NULL,   'd',    arg_string, APTR(&G.dumpoff),   _("dump sensors data & turn all OFF until next request")},
+    //{"dumpoff", NO_ARGS,    NULL,   'd',    arg_string, APTR(&G.dumpoff),   _("dump sensors data & turn all OFF until next request")},
    end_option
 };
 

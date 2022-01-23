@@ -1,0 +1,26 @@
+### Serial interface commands (ends with '\n'), small letter for only
+local processing:
+- **0...7**  send message to Nth controller, not broadcast (after numb
+er should be CAN command)
+- **a** get raw ADC values
+- **B** send dummy CAN messages to broadcast address
+- **c** show coefficients for all thermosensors
+- **D** send dummy CAN messages to master (0) address
+- **Ee** end temperature scan
+- **Ff** turn sensors off
+- **g** get last CAN address
+- **Hh** switch I2C to high speed (100kHz)
+- **i** reinit CAN with new address (if changed)
+- **Jj** get MCU temperature
+- **Kk** get values of U and I
+- **Ll** switch I2C to low speed (default, 10kHz)
+- **Mm** change master id to 0 (**m**) / broadcast (**M**)
+- **Oo** turn onboard diagnostic LEDs **O**n or **o**ff (both commands
+ are local!)
+- **P** ping everyone over CAN
+- **Rr** reinit I2C
+- **Ss** start temperature scan
+- **Tt** start single temperature measurement
+- **u** check CAN bus status for errors
+- **Vv** very low speed
+- **Z** get sensors state over CAN

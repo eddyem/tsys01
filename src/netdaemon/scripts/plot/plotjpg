@@ -1,7 +1,16 @@
 #!/bin/bash
+#
+# run it like
+#   ./plot 19.12.25/11\:20_T0.dat
+#
 OUT=tmpfile.txt
-cat $1 > $OUT
-VAL=$(head -n1 $1 | awk '{print $3}')
+awk '{print $2 "\t" $3 "\t" $4}' $1 > $OUT
+DATE=$(echo $1 | sed -e 's|/| |' -e 's|_.*||')
+TX=$(echo $1 | sed 's|.*_\(.*\).dat|\1|')
+if [ $TX = "T0" ]; then Tname="TOP side"
+else Tname="BOTTOM side"
+fi
+VAL=$(head -n1 $1 | awk '{print $4}')
 echo -e "30\t30\t$VAL\n-30\t-30\t$VAL" >> $OUT
 cat << EOF > gnutplt
 #!/usr/bin/gnuplot
@@ -25,14 +34,14 @@ set table "dgrid.txt"
 splot '$OUT' u 1:2:3
 unset table
 reset
-set terminal canvas enhanced mousing size 1024,768 jsdir 'js'
-set output "$1.html"
+set terminal jpeg enhanced size 1024,768
+set output "$TX.jpg"
 set size square
 set xrange [-30:30]
 set yrange [-30:30]
 set xlabel "X, dm"
 set ylabel "Y, dm"
-set title "Mirror temperature  $2"
+set title "Mirror temperature $TX for $DATE ($Tname)"
 set pm3d map
 unset key
 circle(x,y,z) = x**2+y**2 > 900 ? NaN : z
@@ -41,3 +50,4 @@ EOF
 
 chmod 755 gnutplt
 ./gnutplt
+rm -f gnutplt $OUT contour.txt dgrid.txt

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ $# != 1 ]; then
+	echo "USAGE: $0 file.dat"
+	echo -e "\t to print extremal delta T"
+	exit 1
+fi
+
+MIN=$(cat $1 | awk '{print $4}' |sort -n | head -1)
+MAX=$(cat $1 | awk '{print $4}' |sort -n | tail -1)
+
+echo "$1: $(echo $MAX - $MIN | bc -l)"
+

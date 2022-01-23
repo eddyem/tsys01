@@ -16,10 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <math.h> // fabs
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <usefull_macros.h>
+
 #include "sens_place.h"
-#include "stdbool.h"
-#include "usefull_macros.h"
-#include "math.h" // fabs
 
 /**
    Sensor   place           Dt           X          Y          Z
@@ -294,13 +297,13 @@ cont:
         if(fabs(Tadj[i]) > DBL_EPSILON){
             printf("\tTadj[%02d] = %g\n", i, Tadj[i]);
         }
-        if(fabs(sensors[i].Tadj - Tadj[i]) > 0.001) LOG("Tadj[%d] = %g", i, Tadj[i]);
+        if(fabs(sensors[i].Tadj - Tadj[i]) > 0.001) LOGMSG("Tadj[%d] = %g", i, Tadj[i]);
         sensors[i].Tadj = Tadj[i];
     }
     return 0;
 reperr:
     red("Error in string %d:\n", strnum);
     printf("%s\n", adjf);
-    LOG("Erroneous adjustment file %s in line %d", fname, strnum);
+    LOGWARN("Erroneous adjustment file %s in line %d", fname, strnum);
     return 1;
 }

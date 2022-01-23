@@ -1,0 +1,9 @@
+#!/bin/bash
+if [ $# != 1 ]; then
+    echo "USAGE: $0 # (# is 0 or 1)"
+    echo -e "\t to print all extrems for given sensors group"
+    exit 1
+fi
+
+
+find . -name "*T${1}.dat" -exec ./findextrems {} \;

@@ -20,20 +20,22 @@
  * MA 02110-1301, USA.
  *
  */
-#include "usefull_macros.h"
+#include <arpa/inet.h>  // inet_ntop
+#include <limits.h>     // INT_xxx
+#include <netdb.h>      // addrinfo
+#include <pthread.h>
+#include <signal.h> // pthread_kill
+#include <stdio.h>
+#include <string.h>
+#include <sys/syscall.h> // syscall
+#include <unistd.h> // daemon
+#include <usefull_macros.h>
+
+#include "cmdlnopts.h"   // glob_pars
+#include "gnuplot.h"     // plot graphs
+#include "sens_place.h"  // sensors coordinates
 #include "socket.h"
 #include "term.h"
-#include <netdb.h>      // addrinfo
-#include <arpa/inet.h>  // inet_ntop
-#include <pthread.h>
-#include <limits.h>     // INT_xxx
-#include <signal.h> // pthread_kill
-#include <unistd.h> // daemon
-#include <sys/syscall.h> // syscall
-
-#include "sens_place.h"  // sensors coordinates
-#include "gnuplot.h"     // plot graphs
-#include "cmdlnopts.h"   // glob_pars
 
 #define BUFLEN    (10240)
 // Max amount of connections
@@ -191,14 +193,14 @@ static void *handle_socket(void *asock){
             }
             pthread_mutex_lock(&mutex);
             if(!send_data(sock, webquery, Nsens)){
-                LOG("can't send data, some error occured");
+                LOGWARN("can't send data, some error occured");
             }
             pthread_mutex_unlock(&mutex);
         }else if(strncmp("Tmean", found, 5) == 0){ // send user meanT
             L = snprintf(tbuf, 128, "%.2f\n", meanT);
             if(L != write(sock, tbuf, L)) WARN("write()");
         }else if(strncmp("ReBoOt", found, 6) == 0){
-            LOG("Reboot command from %s", C.host);
+            LOGWARN("Reboot command from %s", C.host);
             L = write(sock, "Reboot system\n", 14);
             if(0 != system("sudo reboot")) WARN("Can't reboot");
         // here can be more parsers
@@ -234,7 +236,7 @@ static void *server(void *asock){
         struct in_addr ipAddr = pV4Addr->sin_addr;
         char str[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &ipAddr, str, INET_ADDRSTRLEN);
-        //LOG("get connection from %s", str);
+        LOGMSG("get connection from %s", str);
         red("Got connection from %s\n", str);
         pthread_t handler_thread;
         conn C = {.sockn = newsock};
@@ -246,7 +248,7 @@ static void *server(void *asock){
             pthread_detach(handler_thread); // don't care about thread state
         }
     }
-    LOG("server(): UNREACHABLE CODE REACHED!");
+    LOGERR("server(): UNREACHABLE CODE REACHED!");
 }
 
 typedef double Item;
@@ -368,7 +370,7 @@ static void daemon_(int sock){
     if(pthread_create(&sock_thread, NULL, server, (void*) &sock)){
         ERR("pthread_create()");
     }
-    double tgot = 0., tlastoff = dtime();
+    double tgot = 0.;//, tlastoff = dtime();
     do{
         if(pthread_kill(sock_thread, 0) == ESRCH){ // died
             WARNX("Sockets thread died");
@@ -381,12 +383,12 @@ static void daemon_(int sock){
         if(TurnOff){
             TurnOff = FALSE;
             turn_all_off();
-            tlastoff = dtime();
-        }
+            //tlastoff = dtime();
+        }/*
         if(dtime() - tlastoff > T_OFF_INTERVAL){
             turn_all_off();
             tlastoff = dtime();
-        }
+        }*/
         if(dtime() - tgot < T_INTERVAL) continue;
         // get data
         int i;
@@ -428,7 +430,7 @@ static void daemon_(int sock){
         memcpy(strT, bufs, sizeof(strT));
         pthread_mutex_unlock(&mutex);
     }while(1);
-    LOG("daemon_(): UNREACHABLE CODE REACHED!");
+    LOGERR("daemon_(): UNREACHABLE CODE REACHED!");
 }
 
 /**
@@ -474,7 +476,7 @@ void daemonize(char *port){
     freeaddrinfo(res);
     daemon_(sock);
     close(sock);
-    LOG("daemonize(): UNREACHABLE CODE REACHED!");
+    LOGERR("daemonize(): UNREACHABLE CODE REACHED!");
     signals(0);
 }
 

@@ -20,12 +20,15 @@
  * MA 02110-1301, USA.
  *
  */
+#include <linux/limits.h> // PATH_MAX
 #include <stdio.h>   // file operations
+#include <string.h>
 #include <time.h>
 #include <unistd.h>  // access() to check file exists
-#include <linux/limits.h> // PATH_MAX
-#include "usefull_macros.h"
+#include <usefull_macros.h>
+
 #include "cmdlnopts.h"   // glob_pars
+#include "sens_place.h"
 
 extern glob_pars *G;
 
@@ -94,7 +97,7 @@ static void gnuplot(char *path, char *fname){
     DBG("Run %s", buf);
     if(system(buf)){
         WARNX(_("Can't run `%s`"), buf);
-    }else LOG("created chart %s", fname);
+    }else LOGMSG("created chart %s", fname);
 }
 
 void plot(double data[2][NCHANNEL_MAX+1][NCTRLR_MAX+1], char *savepath){

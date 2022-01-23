@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+# ./Archive_one_month <prefix>, like:
+#
+# ./Archive_one_month 21.03
+
+if [ $# -ne 1 ]; then
+	echo -e "Usage: $0 <prefix>, like\n\t$0 21.03"
+	exit 1
+fi
+
+for x in $(seq 1 31); do D=$(printf "$1.%02d" $x); echo "tar $D"; tar -zcf ${D}.tgz $D; done

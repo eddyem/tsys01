@@ -20,3 +20,9 @@ images storing directory, copy there script 'plot' and run service as
 
 Every 15 minutes it will calculate average values of thermal data and plot three graphs:
 T0.html with top temperatures, T1.html with bottom and Tgrad.html with their differences (T0-T1).
+
+** Signals 
+
+SIGUSR1 - reread temperatures adjustment file
+
+SIGUSR2 - dump to logfile all current temperature values and turn sensors off until next reading

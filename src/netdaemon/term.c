@@ -18,11 +18,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-#include "usefull_macros.h"
-#include "term.h"
-#include <strings.h> // strncasecmp
-#include <time.h>    // time(NULL)
+#include <arpa/inet.h>
 #include <limits.h>  // INT_MAX, INT_MIN
+#include <netdb.h>
+#include <poll.h>
+#include <signal.h>
+#include <stdio.h>
+#include <string.h>
+#include <strings.h> // strncasecmp
+#include <sys/ioctl.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/un.h>  // unix socket
+#include <time.h>    // time(NULL)
+#include <usefull_macros.h>
+
+#include "term.h"
 
 #define BUFLEN 1024
 
@@ -30,76 +42,79 @@
 time_t tmeasured[2][NCHANNEL_MAX+1][NCTRLR_MAX+1];
 // last temperatures read: [Ngroup][Nsensor][Ncontroller]
 double t_last[2][NCHANNEL_MAX+1][NCTRLR_MAX+1];
+static int sock = -1; // server UNIX-socket fd
 
 /**
- * read strings from terminal (ending with '\n') with timeout
- * @param L       - its length
+ * wait for answer from socket
+ * @param sock - socket fd
+ * @return 0 in case of error or timeout, 1 in case of socket ready
+ */
+static int waittoread(int sock){
+    fd_set fds;
+    struct timeval timeout;
+    int rc;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 100;
+    FD_ZERO(&fds);
+    FD_SET(sock, &fds);
+    do{
+        rc = select(sock+1, &fds, NULL, NULL, &timeout);
+        if(rc < 0){
+            if(errno != EINTR){
+                WARN("select()");
+                return 0;
+            }
+            continue;
+        }
+        break;
+    }while(1);
+    if(FD_ISSET(sock, &fds)){
+        //DBG("FD_ISSET");
+        return 1;
+    }
+    return 0;
+}
+
+/**
+ * read string from server, remove trailing '\n'
  * @return NULL if nothing was read or pointer to static buffer
  */
 static char *read_string(){
-    size_t r = 0, l;
     static char buf[BUFLEN];
-    int LL = BUFLEN - 1;
-    char *ptr = NULL;
-    static char *optr = NULL;
-    if(optr && *optr){
-        ptr = optr;
-        optr = strchr(optr, '\n');
-        if(optr) ++optr;
-        //DBG("got data, roll to next; ptr=%s\noptr=%s",ptr,optr);
-        return ptr;
+    if(!waittoread(sock)) return NULL;
+    int n = read(sock, buf, BUFLEN-1);
+    if(n == 0){
+        LOGERR("UNIX-socket server disconnected");
+        ERRX("Server disconnected");
     }
-    ptr = buf;
-    double d0 = dtime();
-    do{
-        if((l = read_tty(ptr, LL))){
-            r += l; LL -= l; ptr += l;
-            if(ptr[-1] == '\n') break;
-            d0 = dtime();
-        }
-    }while(dtime() - d0 < WAIT_TMOUT && LL);
-    if(r){
-        buf[r] = 0;
-        //DBG("r=%zd, got string: %s", r, buf);
-        optr = strchr(buf, '\n');
-        if(optr) ++optr;
-        return buf;
-    }
-    return NULL;
+    buf[n] = 0;
+    if(buf[n-1] == '\n') buf[n-1] = 0;
+    LOGDBG("SERIAL: %s", buf);
+    DBG("SERIAL: %s", buf);
+    return buf;
 }
 
 /**
- * Try to connect to `device` at BAUD_RATE speed
- * @return connection speed if success or 0
+ * Try to connect to UNIX socket `path`
+ * @return FALSE if failed
  */
-void try_connect(char *device){
-    if(!device) return;
-    char tmpbuf[4096];
-    fflush(stdout);
-    tty_init(device);
-    read_tty(tmpbuf, 4096); // clear rbuf
-    LOG("Connected to %s", device);
-}
-
-/**
- * run terminal emulation: send user's commands and show answers
- */
-void run_terminal(){
-    green(_("Work in terminal mode without echo\n"));
-    int rb;
-    char buf[BUFLEN];
-    size_t l;
-    setup_con();
-    while(1){
-        if((l = read_tty(buf, BUFLEN - 1))){
-            buf[l] = 0;
-            printf("%s", buf);
-        }
-        if((rb = read_console())){
-            buf[0] = (char) rb;
-            write_tty(buf, 1);
-        }
+int try_connect(char *path){
+    if(!path) return FALSE;
+    struct sockaddr_un saddr = {0};
+    saddr.sun_family = AF_UNIX;
+    strncpy(saddr.sun_path, path, 106); // if sun_path[0] == 0 we don't create a file
+    if((sock = socket(AF_UNIX, SOCK_SEQPACKET, 0)) < 0){ // or SOCK_STREAM?
+        WARN("socket()");
+        LOGERR("socket()");
+        return FALSE;
     }
+    if(connect(sock, &saddr, sizeof(saddr)) == -1){
+        WARN("connect()");
+        LOGERR("connect()");
+        return FALSE;
+    }
+    LOGMSG("Connected to server");
+    return TRUE;
 }
 
 /**
@@ -172,18 +187,22 @@ static int send_cmd(int N, char cmd){
     // clear all incomint data
     while(read_string());
     DBG("send cmd %s", buf);
-    if(write_tty(buf, n)) return 1;
+    if(n != send(sock, buf, n, 0)) return 1;
     if(N == 0) return 0;
-    if((rtn = read_string())){
-    DBG("read_string: %s", rtn);
-        if(*rtn == cmd) return 0;
+    double t0 = dtime();
+    while(dtime() - t0 < T_POLLING_TMOUT){
+        if((rtn = read_string())){
+            DBG("read_string: %s", rtn);
+            if(*rtn == cmd) return 0;
+        }
     }
+    DBG("No answer");
     return 1;
 }
 
 /**
  * Poll sensor for new dataportion
- * @param N - number of controller (1..7)
+ * @param N - number of controller (0..7)
  * @return: 0 if no data received or controller is absent, number of data points if valid data received
  */
 int poll_sensors(int N){
@@ -229,8 +248,12 @@ int check_sensors(){
     for(i = 1; i <= NCTRLR_MAX; ++i){
         //red("i = %d\n", i);
         double t0 = dtime();
+        if(send_cmd(i, CMD_PING)){
+            usleep(100000);
+            --i;
+            continue;
+        }
         while(dtime() - t0 < POLLING_TMOUT){
-            if(send_cmd(i, CMD_PING)) continue;
             if((ans = read_string())){
                 //DBG("got: %s", ans);
                 if(0 == strncmp(ans, ANS_PONG, sizeof(ANS_PONG)-1)){
@@ -238,7 +261,7 @@ int check_sensors(){
                     if(i == ans[sizeof(ANS_PONG)-1] - '0'){
                         ++found;
                         green(_("Found controller #%d\n"), i);
-                        LOG("Found controller #%d", i);
+                        LOGMSG("Found controller #%d", i);
                         break;
                     }
                 }
