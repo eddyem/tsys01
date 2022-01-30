@@ -45,5 +45,6 @@ void bufputchar(char ch);
 void printu(uint32_t val);
 void printuhex(uint32_t val);
 void sendbuf();
+char *getnum(char *txt, int32_t *N);
 
 #endif // __PROTO_H__

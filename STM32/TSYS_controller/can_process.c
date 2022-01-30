@@ -86,8 +86,21 @@ void can_messages_proc(){
     }
     newline();
 #endif
-    uint8_t *data = can_mesg->data, b[2];
+    uint8_t *data = can_mesg->data, b[6];
     b[0] = data[1];
+    // show received message in sniffer mode
+    if(cansniffer){
+        printu(Tms);
+        SEND(" #");
+        printuhex(can_mesg->ID);
+        for(int ctr = 0; ctr < len; ++ctr){
+            SEND(" ");
+            printuhex(can_mesg->data[ctr]);
+        }
+        newline(); sendbuf();
+    }
+    // don't process alien messages
+    if(can_mesg->ID != CANID || can_mesg->ID != BCAST_ID) return;
     int16_t t;
     if(data[0] == COMMAND_MARK){   // process commands
         if(len < 2) return;
@@ -102,8 +115,12 @@ void can_messages_proc(){
                 can_send_data(b, 1);
             break;
             case CMD_SENSORS_STATE:
-                b[1] = sensors_get_state();
-                can_send_data(b, 2);
+                b[1] = Sstate;
+                b[2] = sens_present[0];
+                b[3] = sens_present[1];
+                b[4] = Nsens_present;
+                b[5] = Ntemp_measured;
+                can_send_data(b, 6);
             break;
             case CMD_START_MEASUREMENT:
                 sensors_start();
@@ -143,22 +160,35 @@ void can_messages_proc(){
             break;
         }
     }else if(data[0] == DATA_MARK){ // process received data
+        char Ns = '0' + data[1];
         if(len < 3) return;
         switch(data[2]){
             case CMD_PING:
                 SEND("PONG");
-                bufputchar('0' + data[1]);
+                bufputchar(Ns);
             break;
             case CMD_SENSORS_STATE:
                 SEND("SSTATE");
-                bufputchar('0' + data[1]);
+                bufputchar(Ns);
                 bufputchar('=');
-                printu(data[3]);
+                SEND(sensors_get_statename(data[3]));
+                SEND("\nNSENS");
+                bufputchar(Ns);
+                bufputchar('=');
+                printu(data[6]);
+                SEND("\nSENSPRESENT");
+                bufputchar(Ns);
+                bufputchar('=');
+                printu(data[4] | (data[5]<<8));
+                SEND("\nNTEMP");
+                bufputchar(Ns);
+                bufputchar('=');
+                printu(data[7]);
             break;
             case CMD_START_MEASUREMENT: // temperature
                 if(len != 6) return;
                 bufputchar('T');
-                bufputchar('0' + data[1]);
+                bufputchar(Ns);
                 bufputchar('_');
                 printu(data[3]);
                 bufputchar('=');
@@ -171,7 +201,7 @@ void can_messages_proc(){
             break;
             case CMD_GETMCUTEMP:
                 addtobuf("TMCU");
-                bufputchar('0' + data[1]);
+                bufputchar(Ns);
                 bufputchar('=');
                 t = data[3]<<8 | data[4];
                 if(t < 0){

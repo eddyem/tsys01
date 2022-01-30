@@ -34,8 +34,11 @@ extern volatile uint32_t Tms;
 static CAN_message messages[CAN_INMESSAGE_SIZE];
 static uint8_t first_free_idx = 0;    // index of first empty cell
 static int8_t first_nonfree_idx = -1; // index of first data cell
+int8_t cansniffer = 0; // ==1 to listen all CAN ID's
 
-static uint16_t CANID = 0xFFFF;
+uint16_t curcanspeed = CAN_SPEED_DEFAULT; // speed of last init
+
+uint16_t CANID = 0xFFFF;
 uint8_t Controller_address = 0;
 static CAN_status can_status = CAN_STOP;
 
@@ -78,20 +81,15 @@ void readCANID(){
     CANID = (CAN_ID_PREFIX & CAN_ID_MASK) | Controller_address;
 }
 
-uint16_t getCANID(){
-    return CANID;
-}
-
-void CAN_reinit(){
+void CAN_setup(uint16_t speed){
+    if(speed == 0) speed = curcanspeed;
+    else if(speed < CAN_SPEED_MIN) speed = CAN_SPEED_MIN;
+    else if(speed > CAN_SPEED_MAX) speed = CAN_SPEED_MAX;
+    curcanspeed = speed;
     readCANID();
     CAN->TSR |= CAN_TSR_ABRQ0 | CAN_TSR_ABRQ1 | CAN_TSR_ABRQ2;
     RCC->APB1RSTR |= RCC_APB1RSTR_CANRST;
     RCC->APB1RSTR &= ~RCC_APB1RSTR_CANRST;
-    CAN_setup();
-}
-
-void CAN_setup(){
-    if(CANID == 0xFFFF) readCANID();
     // Configure GPIO: PB8 - CAN_Rx, PB9 - CAN_Tx
     /* (1) Select AF mode (10) on PB8 and PB9 */
     /* (2) AF4 for CAN signals */
@@ -105,34 +103,40 @@ void CAN_setup(){
     /* (1) Enter CAN init mode to write the configuration */
     /* (2) Wait the init mode entering */
     /* (3) Exit sleep mode */
-    /* (4) Loopback mode, set timing to 100kb/s: BS1 = 4, BS2 = 3, prescaler = 60 */
+    /* (4) Normal mode, set timing to 100kb/s: BS1 = 4, BS2 = 3, prescaler = 6000/speed */
     /* (5) Leave init mode */
     /* (6) Wait the init mode leaving */
     /* (7) Enter filter init mode, (16-bit + mask, filter 0 for FIFO 0) */
-    /* (8) Acivate filter 0 */
-    /* (9) Identifier list mode */
+    /* (8) Acivate filter 0 (1,2) */
+    /* (9) Identifier mode for bank#0, mask mode for #1 and #2 */
     /* (10) Set the Id list */
+    /* (11) Set the mask list */
     /* (12) Leave filter init */
     /* (13) Set error interrupts enable */
     CAN->MCR |= CAN_MCR_INRQ; /* (1) */
-    while((CAN->MSR & CAN_MSR_INAK)!=CAN_MSR_INAK) /* (2) */
-    {
-    /* add time out here for a robust application */
+    uint32_t tmout = 16000000;
+    while((CAN->MSR & CAN_MSR_INAK)!=CAN_MSR_INAK){ /* (2) */
+        if(--tmout == 0) break;
     }
     CAN->MCR &=~ CAN_MCR_SLEEP; /* (3) */
     CAN->MCR |= CAN_MCR_ABOM;
 
-    CAN->BTR |=  2 << 20 | 3 << 16 | 59 << 0; /* (4) */
+    CAN->BTR |=  2 << 20 | 3 << 16 | (6000/speed - 1); /* (4) */
     CAN->MCR &=~ CAN_MCR_INRQ; /* (5) */
-    while((CAN->MSR & CAN_MSR_INAK)==CAN_MSR_INAK) /* (6) */
-    {
-    /* add time out here for a robust application */
+    tmout = 16000000;
+    while((CAN->MSR & CAN_MSR_INAK)==CAN_MSR_INAK){ /* (6) */
+        if(--tmout == 0) break;
     }
     CAN->FMR = CAN_FMR_FINIT; /* (7) */
     CAN->FA1R = CAN_FA1R_FACT0; /* (8) */
     CAN->FM1R = CAN_FM1R_FBM0; /* (9) */
     CAN->sFilterRegister[0].FR1 = CANID << 5 | ((BCAST_ID << 5) << 16); /* (10) */
-
+    if(cansniffer){ /* (11) */
+        CAN->FA1R |= CAN_FA1R_FACT1 | CAN_FA1R_FACT2; // activate 1 & 2
+        CAN->sFilterRegister[1].FR1 = (1<<21)|(1<<5); // all odd IDs
+        CAN->sFilterRegister[2].FR1 = (1<<21); // all even IDs
+        CAN->FFA1R = 2; // filter 1 for FIFO1, filters 0&2 - for FIFO0
+    }
     CAN->FMR &=~ CAN_FMR_FINIT; /* (12) */
     CAN->IER |= CAN_IER_ERRIE | CAN_IER_FOVIE0 | CAN_IER_FOVIE1; /* (13) */
 
@@ -143,6 +147,18 @@ void CAN_setup(){
     NVIC_EnableIRQ(CEC_CAN_IRQn); /* (15) */
     can_status = CAN_READY;
 }
+
+// add filters for ALL ID's
+void CAN_listenall(){
+    cansniffer = 1;
+    CAN_setup(0);
+}
+// listen only packets to self & broadcast - delete filters 1&2
+void CAN_listenone(){
+    cansniffer = 0;
+    CAN_setup(0);
+}
+
 
 void can_proc(){
     // check for messages in FIFO0 & FIFO1
@@ -217,8 +233,13 @@ static void can_process_fifo(uint8_t fifo_num){
         /* TODO: check filter match index if more than one ID can receive */
         CAN_message msg;
         uint8_t *dat = msg.data;
-        uint8_t len = box->RDTR & 0x0f;
+        { // set all data to 0
+            uint32_t *dptr = (uint32_t*)msg.data;
+            dptr[0] = dptr[1] = 0;
+        }
+        uint8_t len = box->RDTR & 0x7;
         msg.length = len;
+        msg.ID = box->RIR >> 21;
         if(len){ // message can be without data
             uint32_t hb = box->RDHR, lb = box->RDLR;
             switch(len){

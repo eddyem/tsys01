@@ -117,6 +117,84 @@ static inline void showUIvals(){
     newline();
 }
 
+static char *omit_spaces(char *buf){
+    while(*buf){
+        if(*buf > ' ') break;
+        ++buf;
+    }
+    return buf;
+}
+
+static inline void setCANbrate(char *str){
+    if(!str || !*str) return;
+    int32_t spd = 0;
+    str = omit_spaces(str);
+    char *e = getnum(str, &spd);
+    if(e == str){
+        SEND("BAUDRATE=");
+        printu(curcanspeed);
+        newline();
+        return;
+    }
+    if(spd < CAN_SPEED_MIN || spd > CAN_SPEED_MAX){
+        SEND("Wrong speed\n");
+        return;
+    }
+    CAN_setup(spd);
+    SEND("OK\n");
+}
+
+// parse `txt` to CAN_message
+static CAN_message *parseCANmsg(char *txt){
+    static CAN_message canmsg;
+    int32_t N;
+    char *n;
+    int ctr = -1;
+    canmsg.ID = 0xffff;
+    do{
+        txt = omit_spaces(txt);
+        n = getnum(txt, &N);
+        if(txt == n) break;
+        txt = n;
+        if(ctr == -1){
+            if(N > 0x7ff){
+                SEND("ID should be 11-bit number!\n");
+                return NULL;
+            }
+            canmsg.ID = (uint16_t)(N&0x7ff);
+            ctr = 0;
+            continue;
+        }
+        if(ctr > 7){
+            SEND("ONLY 8 data bytes allowed!\n");
+            return NULL;
+        }
+        if(N > 0xff){
+            SEND("Every data portion is a byte!\n");
+            return NULL;
+        }
+        canmsg.data[ctr++] = (uint8_t)(N&0xff);
+    }while(1);
+    if(canmsg.ID == 0xffff){
+        SEND("NO ID given, send nothing!\n");
+        return NULL;
+    }
+    SEND("Message parsed OK\n");
+    sendbuf();
+    canmsg.length = (uint8_t) ctr;
+    return &canmsg;
+}
+
+// send command, format: ID (hex/bin/dec) data bytes (up to 8 bytes, space-delimeted)
+static void sendCANcommand(char *txt){
+    CAN_message *msg = parseCANmsg(txt);
+    if(!msg) return;
+    uint32_t N = 1000;
+    while(CAN_BUSY == can_send(msg->data, msg->length, msg->ID)){
+        if(--N == 0) break;
+    }
+}
+
 /**
  * @brief cmd_parser - command parsing
  * @param txt   - buffer with commands & data
@@ -129,19 +207,12 @@ void cmd_parser(char *txt, uint8_t isUSB){
     sendbuf();
     if(_1st >= '0' && _1st < '8'){ // send command to Nth controller, not broadcast
         if(L == 3){ // with '\n' at end!
-            /*if(_1st == '0'){
-                bufputchar(txt[1]);
-                _1st = txt[1] + 'a' - 'A'; // change network command to local
-                bufputchar('\n');
-            }else */
-            {
-                ID = (CAN_ID_PREFIX & CAN_ID_MASK) | (_1st - '0');
-                _1st = txt[1];
-            }
+            ID = (CAN_ID_PREFIX & CAN_ID_MASK) | (_1st - '0');
+            _1st = txt[1];
         }else{
             _1st = '?'; // show help
         }
-    }else if(L != 2) _1st = '?';
+    }
     switch(_1st){
         case 'a':
             showADCvals();
@@ -149,11 +220,19 @@ void cmd_parser(char *txt, uint8_t isUSB){
         case 'B':
             CANsend(ID, CMD_DUMMY0, _1st);
         break;
+        case 'b':
+            setCANbrate(txt + 1);
+        break;
         case 'c':
             showcoeffs();
         break;
         case 'D':
             CANsend(MASTER_ID, CMD_DUMMY1, _1st);
+        break;
+        case 'd':
+            SEND("Can address: ");
+            printuhex(CANID);
+            newline();
         break;
         case 'E':
             CANsend(ID, CMD_STOP_SCAN, _1st);
@@ -168,21 +247,14 @@ void cmd_parser(char *txt, uint8_t isUSB){
             sensors_off();
         break;
         case 'g':
-            SEND("Can address: ");
-            printuhex(getCANID());
-            newline();
+            SEND("Group ID (sniffer) CAN mode\n");
+            CAN_listenall();
         break;
         case 'H':
             CANsend(ID, CMD_HIGH_SPEED, _1st);
         break;
         case 'h':
             i2c_setup(HIGH_SPEED);
-        break;
-        case 'i':
-            CAN_reinit();
-            SEND("Can address: ");
-            printuhex(getCANID());
-            newline();
         break;
         case 'J':
             CANsend(ID, CMD_GETMCUTEMP, _1st);
@@ -227,11 +299,8 @@ void cmd_parser(char *txt, uint8_t isUSB){
         case 'r':
             i2c_setup(CURRENT_SPEED);
         break;
-        case 'S':
-            CANsend(ID, CMD_START_SCAN, _1st);
-        break;
         case 's':
-            sensors_scan_mode = 1;
+            sendCANcommand(txt+1);
         break;
         case 'T':
             CANsend(ID, CMD_START_MEASUREMENT, _1st);
@@ -239,14 +308,9 @@ void cmd_parser(char *txt, uint8_t isUSB){
         case 't':
             if(!sensors_scan_mode) sensors_start();
         break;
-        break;
         case 'u':
-            SEND("CANERROR=");
-            if(canerror){
-                canerror = 0;
-                bufputchar('1');
-            }else bufputchar('0');
-            newline();
+            SEND("Unique ID CAN mode\n");
+            CAN_listenone();
         break;
         case 'V':
             CANsend(ID, CMD_LOWEST_SPEED, _1st);
@@ -254,12 +318,32 @@ void cmd_parser(char *txt, uint8_t isUSB){
         case 'v':
             i2c_setup(VERYLOW_SPEED);
         break;
-        case 'Z':
+        case 'X':
+            CANsend(ID, CMD_START_SCAN, _1st);
+        break;
+        case 'x':
+            sensors_scan_mode = 1;
+        break;
+        case 'Y':
             CANsend(ID, CMD_SENSORS_STATE, _1st);
         break;
-        case 'z':
+        case 'y':
             SEND("SSTATE0=");
-            printu(sensors_get_state());
+            SEND(sensors_get_statename(Sstate));
+            SEND("\nNSENS0=");
+            printu(Nsens_present);
+            SEND("\nSENSPRESENT0=");
+            printu(sens_present[0] | (sens_present[1]<<8));
+            SEND("\nNTEMP0=");
+            printu(Ntemp_measured);
+            newline();
+        break;
+        case 'z':
+            SEND("CANERROR=");
+            if(canerror){
+                canerror = 0;
+                bufputchar('1');
+            }else bufputchar('0');
             newline();
         break;
         default: // help
@@ -268,13 +352,14 @@ void cmd_parser(char *txt, uint8_t isUSB){
             "0..7 - send command to given controller (0 - this) instead of broadcast\n"
             "a - get raw ADC values\n"
             "B - send broadcast CAN dummy message\n"
+            "b - get/set CAN bus baudrate\n"
             "c - show coefficients (current)\n"
+            "d - get last CAN address\n"
             "D - send CAN dummy message to master\n"
             "Ee- end themperature scan\n"
             "Ff- turn oFf sensors\n"
-            "g - get last CAN address\n"
+            "g - group (sniffer) CAN mode\n"
             "Hh- high I2C speed\n"
-            "i - reinit CAN (with new address)\n"
             "Jj- get MCU temperature\n"
             "Kk- get U/I values\n"
             "Ll- low I2C speed\n"
@@ -282,11 +367,13 @@ void cmd_parser(char *txt, uint8_t isUSB){
             "Oo- turn onboard diagnostic LEDs *O*n or *o*ff (both commands are local)\n"
             "P - ping everyone over CAN\n"
             "Rr- reinit I2C\n"
-            "Ss- Start themperature scan\n"
+            "s - send CAN message\n"
             "Tt- start temperature measurement\n"
-            "u - check CAN status for errors\n"
+            "u - unique ID (default) CAN mode\n"
             "Vv- very low I2C speed\n"
-            "Z - get sensors state over CAN\n"
+            "Xx- Start themperature scan\n"
+            "Yy- get sensors state over CAN\n"
+            "z - check CAN status for errors\n"
             );
         break;
     }
@@ -320,4 +407,79 @@ void printuhex(uint32_t val){
             else bufputchar(half - 10 + 'a');
         }
     }
+}
+
+// THERE'S NO OVERFLOW PROTECTION IN NUMBER READ PROCEDURES!
+// read decimal number
+static char *getdec(const char *buf, int32_t *N){
+    int32_t num = 0;
+    int positive = TRUE;
+    if(*buf == '-'){
+        positive = FALSE;
+        ++buf;
+    }
+    while(*buf){
+        char c = *buf;
+        if(c < '0' || c > '9'){
+            break;
+        }
+        num *= 10;
+        num += c - '0';
+        ++buf;
+    }
+    *N = (positive) ? num : -num;
+    return (char *)buf;
+}
+// read hexadecimal number (without 0x prefix!)
+static char *gethex(const char *buf, int32_t *N){
+    uint32_t num = 0;
+    while(*buf){
+        char c = *buf;
+        uint8_t M = 0;
+        if(c >= '0' && c <= '9'){
+            M = '0';
+        }else if(c >= 'A' && c <= 'F'){
+            M = 'A' - 10;
+        }else if(c >= 'a' && c <= 'f'){
+            M = 'a' - 10;
+        }
+        if(M){
+            num <<= 4;
+            num += c - M;
+        }else{
+            break;
+        }
+        ++buf;
+    }
+    *N = (int32_t)num;
+    return (char *)buf;
+}
+// read binary number (without 0b prefix!)
+static char *getbin(const char *buf, int32_t *N){
+    uint32_t num = 0;
+    while(*buf){
+        char c = *buf;
+        if(c < '0' || c > '1'){
+            break;
+        }
+        num <<= 1;
+        if(c == '1') num |= 1;
+        ++buf;
+    }
+    *N = (int32_t)num;
+    return (char *)buf;
+}
+
+/**
+ * @brief getnum - read uint32_t from string (dec, hex or bin: 127, 0x7f, 0b1111111)
+ * @param buf - buffer with number and so on
+ * @param N   - the number read
+ * @return pointer to first non-number symbol in buf (if it is == buf, there's no number)
+ */
+char *getnum(char *txt, int32_t *N){
+    if(*txt == '0'){
+        if(txt[1] == 'x' || txt[1] == 'X') return gethex(txt+2, N);
+        if(txt[1] == 'b' || txt[1] == 'B') return getbin(txt+2, N);
+    }
+    return getdec(txt, N);
 }

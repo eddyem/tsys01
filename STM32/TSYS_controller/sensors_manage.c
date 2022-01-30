@@ -28,12 +28,12 @@
 extern volatile uint32_t Tms;
 uint8_t sensors_scan_mode = 0; // infinite scan mode
 static uint32_t lastSensT = 0;
-static SensorsState Sstate = SENS_OFF; // turn on sensors only by request
+SensorsState Sstate = SENS_OFF; // turn on sensors only by request
 static uint8_t curr_mul_addr = 0;  // current sensors pair address @ multiplexer
 static uint8_t overcurnt_ctr = 0;  // if this counter > 32 go to OFF state
 uint8_t sens_present[2] = {0,0};   // bit flag: Nth bit == 1 if sensor[s] on given channel found
-static uint8_t Nsens_present = 0;  // total amount of sensors found
-static uint8_t Ntemp_measured = 0; // total amount of themperatures measured
+uint8_t Nsens_present = 0;  // total amount of sensors found
+uint8_t Ntemp_measured = 0; // total amount of themperatures measured
 
 // 8 - amount of pairs, 2 - amount in pair, 5 - amount of Coef.
 static uint16_t coefficients[MUL_MAX_ADDRESS+1][2][5]; // Coefficients for given sensors
@@ -43,7 +43,23 @@ int16_t Temperatures[MUL_MAX_ADDRESS+1][2];
 // pair addresses
 static const uint8_t Taddr[2] = {TSYS01_ADDR0, TSYS01_ADDR1};
 
-SensorsState sensors_get_state(){return Sstate;}
+static const char *statenames[] = {
+    [SENS_INITING]       = "init"
+   ,[SENS_RESETING]      = "reset"
+   ,[SENS_GET_COEFFS]    = "getcoeff"
+   ,[SENS_SLEEPING]      = "sleep"
+   ,[SENS_START_MSRMNT]  = "startmeasure"
+   ,[SENS_WAITING]       = "waitresults"
+   ,[SENS_GATHERING]     = "collectdata"
+   ,[SENS_OFF]           = "off"
+   ,[SENS_OVERCURNT]     = "overcurrent"
+   ,[SENS_OVERCURNT_OFF] = "offbyovercurrent"
+};
+
+const char *sensors_get_statename(SensorsState x){
+    if(x >= SENS_STATE_CNT) return "wrongstate";
+    return statenames[x];
+}
 
 /**
  * Get temperature & calculate it by polinome
@@ -110,6 +126,7 @@ void sensors_start(){
             Sstate = SENS_START_MSRMNT;
         break;
         case SENS_OFF:
+            overcurnt_ctr = 0;
             sensors_on();
         break;
         default:
@@ -162,7 +179,6 @@ static uint8_t getcoefsproc(){
             }else break;
         }
         if(err){ // restart all procedures if we can't get coeffs of present sensor
-            sensors_on();
             return 1;
         }
     }
@@ -173,7 +189,13 @@ static uint8_t getcoefsproc(){
 static uint8_t msrtempproc(){
     uint8_t i, j;
     for(i = 0; i < 2; ++i){
-        if(!(sens_present[i] & (1<<curr_mul_addr))) continue; // no sensors @ given line
+        if(!(sens_present[i] & (1<<curr_mul_addr))){ // no sensors @ given line - try to find it
+            resetproc();
+            if(sens_present[i] & (1<<curr_mul_addr)){ // found!
+                if(getcoefsproc()) continue; // error
+                else count_sensors(); // refresh Nsens_present
+            }else continue; // not found - continue
+        }
         for(j = 0; j < 5; ++j){
             if(write_i2c(Taddr[i], TSYS01_START_CONV)) break;
             if(!write_i2c(Taddr[i], TSYS01_RESET)) i2c_setup(CURRENT_SPEED); // maybe I2C restart will solve the problem?

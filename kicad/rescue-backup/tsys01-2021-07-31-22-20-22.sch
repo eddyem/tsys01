@@ -1,0 +1,243 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:tsys01
+LIBS:elements
+LIBS:tsys01-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L TSYS01 U1
+U 1 1 58B8439D
+P 5150 2800
+F 0 "U1" H 5150 3050 60  0000 C CNN
+F 1 "TSYS01" H 5150 3150 60  0000 C CNN
+F 2 "QFN-16-1EP_4x4mm_Pitch0.65mm" H 5150 2800 60  0001 C CNN
+F 3 "" H 5150 2800 60  0000 C CNN
+	1    5150 2800
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C1
+U 1 1 58B85507
+P 4300 2500
+F 0 "C1" H 4325 2600 50  0000 L CNN
+F 1 "100n" H 4325 2400 50  0000 L CNN
+F 2 "Capacitors_SMD.pretty:C_0603" H 4338 2350 50  0001 C CNN
+F 3 "" H 4300 2500 50  0000 C CNN
+	1    4300 2500
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	4550 3100 4450 3100
+$Comp
+L GND #PWR01
+U 1 1 58B85692
+P 4050 2500
+F 0 "#PWR01" H 4050 2250 50  0001 C CNN
+F 1 "GND" H 4050 2350 50  0000 C CNN
+F 2 "" H 4050 2500 50  0000 C CNN
+F 3 "" H 4050 2500 50  0000 C CNN
+	1    4050 2500
+	1    0    0    -1  
+$EndComp
+$Comp
+L VDD #PWR02
+U 1 1 58B856EC
+P 4550 2400
+F 0 "#PWR02" H 4550 2250 50  0001 C CNN
+F 1 "VDD" H 4550 2550 50  0000 C CNN
+F 2 "" H 4550 2400 50  0000 C CNN
+F 3 "" H 4550 2400 50  0000 C CNN
+	1    4550 2400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4550 2400 4550 2700
+Connection ~ 4550 2500
+Wire Wire Line
+	4050 2500 4150 2500
+Wire Wire Line
+	4450 2500 4550 2500
+Wire Wire Line
+	4550 2800 4550 2900
+$Comp
+L GND #PWR03
+U 1 1 58B85877
+P 4450 3100
+F 0 "#PWR03" H 4450 2850 50  0001 C CNN
+F 1 "GND" H 4450 2950 50  0000 C CNN
+F 2 "" H 4450 3100 50  0000 C CNN
+F 3 "" H 4450 3100 50  0000 C CNN
+	1    4450 3100
+	1    0    0    -1  
+$EndComp
+NoConn ~ 5750 2900
+$Comp
+L R R1
+U 1 1 58B85A14
+P 5750 2300
+F 0 "R1" V 5830 2300 50  0000 C CNN
+F 1 "4k7" V 5750 2300 50  0000 C CNN
+F 2 "Resistors_SMD.pretty:R_0603" V 5680 2300 50  0001 C CNN
+F 3 "" H 5750 2300 50  0000 C CNN
+	1    5750 2300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5750 2450 5750 2600
+$Comp
+L R R2
+U 1 1 58B85BA0
+P 5950 2300
+F 0 "R2" V 6030 2300 50  0000 C CNN
+F 1 "4k7" V 5950 2300 50  0000 C CNN
+F 2 "Resistors_SMD.pretty:R_0603" V 5880 2300 50  0001 C CNN
+F 3 "" H 5950 2300 50  0000 C CNN
+	1    5950 2300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5750 2600 5950 2600
+Wire Wire Line
+	5950 2600 5950 2450
+$Comp
+L VDD #PWR04
+U 1 1 58B85C27
+P 5750 2100
+F 0 "#PWR04" H 5750 1950 50  0001 C CNN
+F 1 "VDD" H 5750 2250 50  0000 C CNN
+F 2 "" H 5750 2100 50  0000 C CNN
+F 3 "" H 5750 2100 50  0000 C CNN
+	1    5750 2100
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR05
+U 1 1 58B85C3E
+P 5950 2100
+F 0 "#PWR05" H 5950 1850 50  0001 C CNN
+F 1 "GND" H 5950 1950 50  0000 C CNN
+F 2 "" H 5950 2100 50  0000 C CNN
+F 3 "" H 5950 2100 50  0000 C CNN
+	1    5950 2100
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	5750 2100 5750 2150
+Wire Wire Line
+	5950 2100 5950 2150
+Text Notes 5400 2150 0    60   ~ 0
+ADDR0
+Text Notes 6050 2150 0    60   ~ 0
+ADDR1
+$Comp
+L CONN_01X04 P1
+U 1 1 58B85ED6
+P 6750 2750
+F 0 "P1" H 6750 3000 50  0000 C CNN
+F 1 "CONN_01X04" V 6850 2750 50  0000 C CNN
+F 2 "my_footprints:SMD_conn_4x2.5mm" H 6750 2750 50  0001 C CNN
+F 3 "" H 6750 2750 50  0000 C CNN
+	1    6750 2750
+	1    0    0    -1  
+$EndComp
+$Comp
+L VDD #PWR06
+U 1 1 58B861AA
+P 6500 3050
+F 0 "#PWR06" H 6500 2900 50  0001 C CNN
+F 1 "VDD" H 6500 3200 50  0000 C CNN
+F 2 "" H 6500 3050 50  0000 C CNN
+F 3 "" H 6500 3050 50  0000 C CNN
+	1    6500 3050
+	-1   0    0    1   
+$EndComp
+$Comp
+L GND #PWR07
+U 1 1 58B861C4
+P 6500 2500
+F 0 "#PWR07" H 6500 2250 50  0001 C CNN
+F 1 "GND" H 6500 2350 50  0000 C CNN
+F 2 "" H 6500 2500 50  0000 C CNN
+F 3 "" H 6500 2500 50  0000 C CNN
+	1    6500 2500
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	5750 2700 6550 2700
+Wire Wire Line
+	5750 2800 6550 2800
+Wire Wire Line
+	6500 2500 6500 2600
+Wire Wire Line
+	6500 2600 6550 2600
+Wire Wire Line
+	6550 2900 6500 2900
+Wire Wire Line
+	6500 2900 6500 3050
+NoConn ~ 5150 3400
+Text Notes 4850 1750 0    118  ~ 0
+Solder only R1 or R2\ndue to desired address
+$Comp
+L CONN_01X01 Hole1
+U 1 1 592E54A8
+P 1450 6250
+F 0 "Hole1" H 1450 6350 50  0000 C CNN
+F 1 "Hole 3mm" V 1550 6250 50  0000 C CNN
+F 2 "my_footprints:Hole_3mm" H 1450 6250 50  0001 C CNN
+F 3 "" H 1450 6250 50  0001 C CNN
+	1    1450 6250
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_01X01 Hole2
+U 1 1 592E5682
+P 1450 6750
+F 0 "Hole2" H 1450 6850 50  0000 C CNN
+F 1 "Hole 3mm" V 1550 6750 50  0000 C CNN
+F 2 "my_footprints:Hole_3mm" H 1450 6750 50  0001 C CNN
+F 3 "" H 1450 6750 50  0001 C CNN
+	1    1450 6750
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC

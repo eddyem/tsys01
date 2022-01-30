@@ -1,0 +1,5 @@
+(sym_lib_table
+  (lib (name tsys01-rescue)(type Legacy)(uri ${KIPRJMOD}/tsys01-rescue.lib)(options "")(descr ""))
+  (lib (name tsys01)(type Legacy)(uri ${KIPRJMOD}/tsys01.lib)(options "")(descr ""))
+  (lib (name elements)(type Legacy)(uri ${KIPRJMOD}/stm32/elements.lib)(options "")(descr ""))
+)

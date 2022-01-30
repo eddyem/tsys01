@@ -32,8 +32,8 @@
 // 8-bit commands sent by master
 typedef enum{
     CMD_PING,               // request for PONG cmd
-    CMD_START_MEASUREMENT,  // start thermal measurement
-    CMD_SENSORS_STATE,      // reply data with sensors state
+    CMD_START_MEASUREMENT,  // start thermal measurement (and turn ON sensors if was OFF)
+    CMD_SENSORS_STATE,      // reply data with sensors state (data: 0 - SState, 1,2 - sens_present0, 3 - Nsens_presend, 4 - Ntemp_measured)
     CMD_START_SCAN,         // run scan mode @ all controllers
     CMD_STOP_SCAN,          // stop scan mode
     CMD_SENSORS_OFF,        // turn off power of sensors

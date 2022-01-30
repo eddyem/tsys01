@@ -26,6 +26,10 @@
 
 #include "stm32f0.h"
 
+#define CAN_SPEED_DEFAULT       (250)
+#define CAN_SPEED_MIN           (12)
+#define CAN_SPEED_MAX           (1000)
+
 // LED0
 #define LED0_port   GPIOB
 #define LED0_pin    (1<<10)

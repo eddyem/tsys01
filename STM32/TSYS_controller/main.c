@@ -75,10 +75,10 @@ int main(void){
     adc_setup();
     usart_setup();
     i2c_setup(LOW_SPEED);
-    CAN_setup();
-
+    CAN_setup(0); // setup with default 250kbaud
+/*
     SEND("Greetings! My address is ");
-    printuhex(getCANID());
+    printuhex(CANID);
     newline();
 
     if(RCC->CSR & RCC_CSR_IWDGRSTF){ // watchdog reset occured
@@ -87,8 +87,11 @@ int main(void){
     if(RCC->CSR & RCC_CSR_SFTRSTF){ // software reset occured
         SEND("SOFTRESET=1\n");
     }
+    */
     RCC->CSR |= RCC_CSR_RMVF; // remove reset flags
     USB_setup();
+    readCANID();
+    if(CANID == MASTER_ID) cansniffer = 1; // MASTER in sniffer mode by default
     iwdg_setup();
 
     while (1){
@@ -97,7 +100,7 @@ int main(void){
             if(!noLED) LED_blink(LED0);
             lastT = Tms;
             // send dummy command to noone to test CAN bus
-            can_send_cmd(NOONE_ID, CMD_DUMMY0);
+            //can_send_cmd(NOONE_ID, CMD_DUMMY0);
         }
         if(lastS > Tms || Tms - lastS > 5){ // run sensors proc. once per 5ms
             sensors_process();
@@ -109,11 +112,11 @@ int main(void){
             SEND("CAN bus fifo overrun occured!\n");
         }else if(stat == CAN_ERROR){
             if(!noLED) LED_off(LED1);
-            CAN_setup();
+            CAN_setup(0);
             canerror = 1;
         }
         can_messages_proc();
-        if(SENS_SLEEPING == sensors_get_state()){ // show temperature @ each sleeping occurence
+        if(SENS_SLEEPING == Sstate){ // show temperature @ each sleeping occurence
             if(!gotmeasurement){
                 gotmeasurement = 1;
                 showtemperature();
@@ -137,4 +140,3 @@ int main(void){
     }
     return 0;
 }
-

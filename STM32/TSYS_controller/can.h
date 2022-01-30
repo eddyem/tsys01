@@ -37,13 +37,18 @@
 // send dummy message to this ID for testing CAN bus status
 #define NOONE_ID        ((uint16_t)0x7FF)
 
+extern uint16_t curcanspeed;
+extern uint16_t CANID;
+extern int8_t cansniffer;
+
 typedef struct{
     uint8_t data[8];
     uint8_t length;
+    uint16_t ID;        // ID of receiver
 } CAN_message;
 
 typedef enum{
-    CAN_NOTMASTER,      // can't send command - not a mastar
+    CAN_NOTMASTER,      // can't send command - not a master
     CAN_STOP,           // CAN stopped
     CAN_READY,          // ready to send
     CAN_BUSY,           // bus is busy
@@ -55,10 +60,10 @@ typedef enum{
 CAN_status CAN_get_status();
 
 void readCANID();
-uint16_t getCANID();
 
-void CAN_reinit();
-void CAN_setup();
+void CAN_setup(uint16_t speed);
+void CAN_listenall();
+void CAN_listenone();
 
 void can_proc();
 CAN_status can_send(uint8_t *msg, uint8_t len, uint16_t target_id);

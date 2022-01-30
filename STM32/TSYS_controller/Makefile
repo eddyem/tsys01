@@ -11,7 +11,7 @@ DEFS		:= -DUSARTNUM=1 -DI2CPINS=67
 #DEFS		+= -DEBUG
 # change this linking script depending on particular MCU model,
 # for example, if you have STM32F103VBT6, you should write:
-LDSCRIPT	= ld/stm32f042k.ld
+LDSCRIPT	= stm32f042x6.ld
 
 INDEPENDENT_HEADERS=
 
@@ -107,9 +107,6 @@ $(OBJDIR)/%.o: %.c
 	@echo "  CC      $<"
 	$(CC) $(CFLAGS) -MD $(DEFS) $(INCLUDE) $(ARCH_FLAGS) -o $@ -c $<
 
-#$(OBJDIR)/%.d: %.c $(OBJDIR)
-#	$(CC) -MM -MG $< | sed -e 's,^\([^:]*\)\.o[ ]*:,$(@D)/\1.o $(@D)/\1.d:,' >$@
-
 $(BIN): $(ELF)
 	@echo "  OBJCOPY $(BIN)"
 	$(OBJCOPY) -Obinary $(ELF) $(BIN)
@@ -125,6 +122,7 @@ $(LIST): $(ELF)
 $(ELF): $(OBJDIR) $(OBJS)
 	@echo "  LD      $(ELF)"
 	$(LD) $(LDFLAGS) $(ARCH_FLAGS) $(OBJS) $(LDLIBS) -o $(ELF)
+	@size $(ELF)
 
 clean:
 	@echo "  CLEAN"

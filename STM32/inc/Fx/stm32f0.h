@@ -22,18 +22,10 @@
 #ifndef __STM32F0_H__
 #define __STM32F0_H__
 
+#include "vector.h"
 #include "stm32f0xx.h"
+#include "common_macros.h"
 
-#ifndef TRUE_INLINE
-#define TRUE_INLINE  __attribute__((always_inline)) static inline
-#endif
-
-#ifndef NULL
-#define NULL (0)
-#endif
-
-// some good things from CMSIS
-#define nop()   __NOP()
 
 /************************* RCC *************************/
 // reset clocking registers
@@ -105,33 +97,34 @@ TRUE_INLINE void sysreset(void){
     /* Wait till PLL is used as system clock source */
     while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL){}
 }
-/* wrong
+
 TRUE_INLINE void StartHSE(){
     // disable PLL
     RCC->CR &= ~RCC_CR_PLLON;
     RCC->CR |= RCC_CR_HSEON;
-    while ((RCC->CIR & RCC_CIR_HSERDYF) == 0);
+    while ((RCC->CIR & RCC_CIR_HSERDYF) != 0);
     RCC->CIR |= RCC_CIR_HSERDYC; // clear rdy flag
-    // PLL configuration = (HSE) * 12 = ~48 MHz
+    /* PLL configuration = (HSE) * 12 = ~48 MHz */
     RCC->CFGR &= ~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLMUL);
     RCC->CFGR |= RCC_CFGR_PLLSRC_HSE_PREDIV | RCC_CFGR_PLLMUL12;
     RCC->CR |= RCC_CR_PLLON;
     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)RCC_CFGR_SWS_PLL){}
-}       */
+}
 
 #if defined (STM32F042x6) || defined (STM32F072xb)
 TRUE_INLINE void StartHSI48(){
-    RCC->APB1ENR |= RCC_APB1ENR_CRSEN | RCC_APB1ENR_USBEN; // enable CRS (hsi48 sync) & USB
-    RCC->CFGR3 &= ~RCC_CFGR3_USBSW; // reset USB
-    RCC->CR2 |= RCC_CR2_HSI48ON; // turn ON HSI48
-    uint32_t tmout = 16000000;
-    while(!(RCC->CR2 & RCC_CR2_HSI48RDY)){if(--tmout == 0) break;}
-    FLASH->ACR = FLASH_ACR_PRFTBE | FLASH_ACR_LATENCY;
-    CRS->CFGR &= ~CRS_CFGR_SYNCSRC;
-    CRS->CFGR |= CRS_CFGR_SYNCSRC_1; // USB SOF selected as sync source
-    CRS->CR |= CRS_CR_AUTOTRIMEN; // enable auto trim
-    CRS->CR |= CRS_CR_CEN; // enable freq counter & block CRS->CFGR as read-only
-    RCC->CFGR |= RCC_CFGR_SW;
+    // disable PLL
+    RCC->CR &= ~RCC_CR_PLLON;
+    RCC->CR2 &= RCC_CR2_HSI48ON; // turn on HSI48
+    while((RCC->CR2 & RCC_CR2_HSI48RDY) == 0);
+    RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLMUL));
+    // HSI48/2 * 2 = HSI48
+    RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_HSI48_PREDIV | RCC_CFGR_PLLMUL2);
+    RCC->CR |= RCC_CR_PLLON;
+    // select HSI48 as system clock source
+    RCC->CFGR &= ~RCC_CFGR_SW;
+    RCC->CFGR |= RCC_CFGR_SW_HSI48;
+    while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)RCC_CFGR_SWS_HSI48){}
 }
 #endif
 
@@ -188,14 +181,86 @@ TRUE_INLINE void StartHSI48(){
 #define GPIO_MODER_MODER15_O        ((uint32_t)0x40000000)
 #define GPIO_MODER_MODER15_AF       ((uint32_t)0x80000000)
 
-#define pin_toggle(gpioport, gpios)  do{  \
-    register uint32_t __port = gpioport->ODR;  \
-    gpioport->BSRR = ((__port & gpios) << 16) | (~__port & gpios);}while(0)
+/*******************  Bit definition for GPIO_PUPDR register  *****************/
+// no/pullup/pulldown/reserved
+// for n in $(seq 0 15); do echo "#define GPIO_PUPDR${n}_PU              ((uint32_t)(1<<$((n*2))))";
+// echo "#define GPIO_PUPDR${n}_PD              ((uint32_t)(1<<$((n*2+1))))"; done
+// alt+select column -> delete
+#define GPIO_PUPDR0_PU              ((uint32_t)(1<<0))
+#define GPIO_PUPDR0_PD              ((uint32_t)(1<<1))
+#define GPIO_PUPDR1_PU              ((uint32_t)(1<<2))
+#define GPIO_PUPDR1_PD              ((uint32_t)(1<<3))
+#define GPIO_PUPDR2_PU              ((uint32_t)(1<<4))
+#define GPIO_PUPDR2_PD              ((uint32_t)(1<<5))
+#define GPIO_PUPDR3_PU              ((uint32_t)(1<<6))
+#define GPIO_PUPDR3_PD              ((uint32_t)(1<<7))
+#define GPIO_PUPDR4_PU              ((uint32_t)(1<<8))
+#define GPIO_PUPDR4_PD              ((uint32_t)(1<<9))
+#define GPIO_PUPDR5_PU              ((uint32_t)(1<<10))
+#define GPIO_PUPDR5_PD              ((uint32_t)(1<<11))
+#define GPIO_PUPDR6_PU              ((uint32_t)(1<<12))
+#define GPIO_PUPDR6_PD              ((uint32_t)(1<<13))
+#define GPIO_PUPDR7_PU              ((uint32_t)(1<<14))
+#define GPIO_PUPDR7_PD              ((uint32_t)(1<<15))
+#define GPIO_PUPDR8_PU              ((uint32_t)(1<<16))
+#define GPIO_PUPDR8_PD              ((uint32_t)(1<<17))
+#define GPIO_PUPDR9_PU              ((uint32_t)(1<<18))
+#define GPIO_PUPDR9_PD              ((uint32_t)(1<<19))
+#define GPIO_PUPDR10_PU             ((uint32_t)(1<<20))
+#define GPIO_PUPDR10_PD             ((uint32_t)(1<<21))
+#define GPIO_PUPDR11_PU             ((uint32_t)(1<<22))
+#define GPIO_PUPDR11_PD             ((uint32_t)(1<<23))
+#define GPIO_PUPDR12_PU             ((uint32_t)(1<<24))
+#define GPIO_PUPDR12_PD             ((uint32_t)(1<<25))
+#define GPIO_PUPDR13_PU             ((uint32_t)(1<<26))
+#define GPIO_PUPDR13_PD             ((uint32_t)(1<<27))
+#define GPIO_PUPDR14_PU             ((uint32_t)(1<<28))
+#define GPIO_PUPDR14_PD             ((uint32_t)(1<<29))
+#define GPIO_PUPDR15_PU             ((uint32_t)(1<<30))
+#define GPIO_PUPDR15_PD             ((uint32_t)(1<<31))
+// OSPEEDR
+// for n in $(seq 0 15); do echo "#define GPIO_OSPEEDR${n}_MED           ((uint32_t)(1<<$((n*2))))";
+// echo "#define GPIO_OSPEEDR${n}_HIGH          ((uint32_t)(3<<$((2*n))))"; done
+#define GPIO_OSPEEDR0_MED           ((uint32_t)(1<<0))
+#define GPIO_OSPEEDR0_HIGH          ((uint32_t)(3<<0))
+#define GPIO_OSPEEDR1_MED           ((uint32_t)(1<<2))
+#define GPIO_OSPEEDR1_HIGH          ((uint32_t)(3<<2))
+#define GPIO_OSPEEDR2_MED           ((uint32_t)(1<<4))
+#define GPIO_OSPEEDR2_HIGH          ((uint32_t)(3<<4))
+#define GPIO_OSPEEDR3_MED           ((uint32_t)(1<<6))
+#define GPIO_OSPEEDR3_HIGH          ((uint32_t)(3<<6))
+#define GPIO_OSPEEDR4_MED           ((uint32_t)(1<<8))
+#define GPIO_OSPEEDR4_HIGH          ((uint32_t)(3<<8))
+#define GPIO_OSPEEDR5_MED           ((uint32_t)(1<<10))
+#define GPIO_OSPEEDR5_HIGH          ((uint32_t)(3<<10))
+#define GPIO_OSPEEDR6_MED           ((uint32_t)(1<<12))
+#define GPIO_OSPEEDR6_HIGH          ((uint32_t)(3<<12))
+#define GPIO_OSPEEDR7_MED           ((uint32_t)(1<<14))
+#define GPIO_OSPEEDR7_HIGH          ((uint32_t)(3<<14))
+#define GPIO_OSPEEDR8_MED           ((uint32_t)(1<<16))
+#define GPIO_OSPEEDR8_HIGH          ((uint32_t)(3<<16))
+#define GPIO_OSPEEDR9_MED           ((uint32_t)(1<<18))
+#define GPIO_OSPEEDR9_HIGH          ((uint32_t)(3<<18))
+#define GPIO_OSPEEDR10_MED          ((uint32_t)(1<<20))
+#define GPIO_OSPEEDR10_HIGH         ((uint32_t)(3<<20))
+#define GPIO_OSPEEDR11_MED          ((uint32_t)(1<<22))
+#define GPIO_OSPEEDR11_HIGH         ((uint32_t)(3<<22))
+#define GPIO_OSPEEDR12_MED          ((uint32_t)(1<<24))
+#define GPIO_OSPEEDR12_HIGH         ((uint32_t)(3<<24))
+#define GPIO_OSPEEDR13_MED          ((uint32_t)(1<<26))
+#define GPIO_OSPEEDR13_HIGH         ((uint32_t)(3<<26))
+#define GPIO_OSPEEDR14_MED          ((uint32_t)(1<<28))
+#define GPIO_OSPEEDR14_HIGH         ((uint32_t)(3<<28))
+#define GPIO_OSPEEDR15_MED          ((uint32_t)(1<<30))
+#define GPIO_OSPEEDR15_HIGH         ((uint32_t)(3<<30))
 
-#define pin_set(gpioport, gpios)  do{gpioport->BSRR = gpios;}while(0)
-#define pin_clear(gpioport, gpios) do{gpioport->BSRR = (gpios << 16);}while(0)
-#define pin_read(gpioport, gpios) (gpioport->IDR & gpios ? 1 : 0)
-#define pin_write(gpioport, gpios)  do{gpioport->ODR = gpios;}while(0)
+
+
+/******************  FLASH Keys  **********************************************/
+#define RDP_Key                 ((uint16_t)0x00A5)
+#define FLASH_KEY1              ((uint32_t)0x45670123)
+#define FLASH_KEY2              ((uint32_t)0xCDEF89AB)
+#define FLASH_SIZE_REG          ((uint32_t)0x1FFFF7CC)
 
 /************************* ADC *************************/
 /* inner termometer calibration values

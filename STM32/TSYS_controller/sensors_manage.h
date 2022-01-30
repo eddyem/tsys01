@@ -35,10 +35,6 @@
 // no sensor on given channel
 #define NO_SENSOR           (-31000)
 
-extern uint8_t sensors_scan_mode;
-extern int16_t Temperatures[MUL_MAX_ADDRESS+1][2];
-extern uint8_t sens_present[2];
-
 typedef enum{
      SENS_INITING           // 0 power on
     ,SENS_RESETING          // 1 discovery sensors resetting them
@@ -50,9 +46,17 @@ typedef enum{
     ,SENS_OFF               // 7 sensors' power is off by external command
     ,SENS_OVERCURNT         // 8 overcurrent detected @ any stage
     ,SENS_OVERCURNT_OFF     // 9 sensors' power is off due to continuous overcurrent
+    ,SENS_STATE_CNT
 } SensorsState;
 
-SensorsState sensors_get_state();
+extern uint8_t sensors_scan_mode;
+extern int16_t Temperatures[MUL_MAX_ADDRESS+1][2];
+extern uint8_t sens_present[2];
+extern SensorsState Sstate;
+extern uint8_t Nsens_present;
+extern uint8_t Ntemp_measured;
+
+const char *sensors_get_statename(SensorsState x);
 void sensors_process();
 
 void sensors_off();
