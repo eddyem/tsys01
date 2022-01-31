@@ -21,10 +21,11 @@
  *
  */
 
+#include <string.h>
+
+#include "usart.h"
 #include "usb.h"
 #include "usb_lib.h"
-#include <string.h> // memcpy, memmove
-#include "usart.h"
 
 // incoming buffer size
 #define IDATASZ     (256)

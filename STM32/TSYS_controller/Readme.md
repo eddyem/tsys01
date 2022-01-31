@@ -89,16 +89,16 @@ First (number zero) byte of every sequence is command mark (0xA5) or data mark (
 
 ### Sensors state data format
 - byte 3 - Sstate value:
-- -   `[SENS_INITING]`       = "init"
-- -   `[SENS_RESETING]`      = "reset"
-- -   `[SENS_GET_COEFFS]`    = "getcoeff"
-- -   `[SENS_SLEEPING]`      = "sleep"
-- -   `[SENS_START_MSRMNT]`  = "startmeasure"
-- -   `[SENS_WAITING]`       = "waitresults"
-- -   `[SENS_GATHERING]`     = "collectdata"
-- -   `[SENS_OFF]`           = "off"
-- -   `[SENS_OVERCURNT]`     = "overcurrent"
-- -   `[SENS_OVERCURNT_OFF]` = "offbyovercurrent"
+  -   `[SENS_INITING]`       = "init"
+  -   `[SENS_RESETING]`      = "reset"
+  -   `[SENS_GET_COEFFS]`    = "getcoeff"
+  -   `[SENS_SLEEPING]`      = "sleep"
+  -   `[SENS_START_MSRMNT]`  = "startmeasure"
+  -   `[SENS_WAITING]`       = "waitresults"
+  -   `[SENS_GATHERING]`     = "collectdata"
+  -   `[SENS_OFF]`           = "off"
+  -   `[SENS_OVERCURNT]`     = "overcurrent"
+  -   `[SENS_OVERCURNT_OFF]` = "offbyovercurrent"
 - byte 4 - `sens_present[0]` value
 - byte 5 - `sens_present[1]` value
 - byte 6 - `Nsens_present` value

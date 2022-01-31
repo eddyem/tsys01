@@ -23,7 +23,7 @@
 #include "sensors_manage.h"
 #include "can_process.h"
 #include "i2c.h"
-#include "proto.h" // addtobuf, bufputchar
+#include "proto.h" // addtobuf, bufputchar, memcpy
 
 extern volatile uint32_t Tms;
 uint8_t sensors_scan_mode = 0; // infinite scan mode
@@ -61,6 +61,7 @@ const char *sensors_get_statename(SensorsState x){
     return statenames[x];
 }
 
+const double mul[5] = {-1.5e-2, 1., -2., 4., -2.};
 /**
  * Get temperature & calculate it by polinome
  * T =    (-2) * k4 * 10^{-21} * ADC16^4
@@ -81,7 +82,6 @@ static uint16_t calc_t(uint32_t t, int i){
     int j;
     double d = (double)t/256., tmp = 0.;
     // k0*(-1.5e-2) + 0.1*1e-5*val*(1*k1 + 1e-5*val*(-2.*k2 + 1e-5*val*(4*k3 + 1e-5*val*(-2*k4))))
-    const double mul[5] = {-1.5e-2, 1., -2., 4., -2.};
     for(j = 4; j > 0; --j){
         tmp += mul[j] * (double)coeff[j];
         tmp *= 1e-5*d;

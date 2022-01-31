@@ -100,7 +100,7 @@ void can_messages_proc(){
         newline(); sendbuf();
     }
     // don't process alien messages
-    if(can_mesg->ID != CANID || can_mesg->ID != BCAST_ID) return;
+    if(can_mesg->ID != CANID && can_mesg->ID != BCAST_ID) return;
     int16_t t;
     if(data[0] == COMMAND_MARK){   // process commands
         if(len < 2) return;

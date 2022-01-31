@@ -13,6 +13,11 @@ DEFS		:= -DUSARTNUM=1 -DI2CPINS=67
 # for example, if you have STM32F103VBT6, you should write:
 LDSCRIPT	= stm32f042x6.ld
 
+# autoincremental version & build date
+VERSION_FILE := version.inc
+NEXTVER := $(shell expr $$(awk '/#define BUILD_NUMBER/' $(VERSION_FILE) | tr -cd "[0-9]") + 1)
+BUILDDATE := $(shell date +%Y-%m-%d)
+
 INDEPENDENT_HEADERS=
 
 FP_FLAGS	?= -msoft-float
@@ -56,7 +61,7 @@ LIB_DIR		:= $(INC_DIR)/ld
 ###############################################################################
 # C flags
 CFLAGS		+= -O2 -g -D__thumb2__=1
-CFLAGS		+= -Wall -Wextra -Wshadow -Wimplicit-function-declaration
+CFLAGS		+= -Wall -Werror -Wextra -Wshadow -Wimplicit-function-declaration
 CFLAGS		+= -Wredundant-decls $(INCLUDE)
 # -Wmissing-prototypes -Wstrict-prototypes
 CFLAGS		+= -fno-common -ffunction-sections -fdata-sections
@@ -72,8 +77,8 @@ LDFLAGS		+= -Wl,--gc-sections
 
 ###############################################################################
 # Used libraries
-LDLIBS		+= -Wl,--start-group -lc -lgcc -Wl,--end-group
-LDLIBS		+= $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
+#LDLIBS		+= -Wl,--start-group -lc -lgcc -Wl,--end-group
+#LDLIBS		+= $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
 
 DEFS		+= -DSTM32$(FAMILY) -DSTM32$(MCU)
 
@@ -103,8 +108,16 @@ $(OBJDIR):
 $(STARTUP): $(INC_DIR)/startup/vector.c
 	$(CC) $(CFLAGS) $(DEFS) $(INCLUDE) $(ARCH_FLAGS) -o $@ -c $<
 
+$(VERSION_FILE): *.[ch]
+	@echo "  Generate version: $(NEXTVER) for date $(BUILDDATE)"
+	@sed -i "s/#define BUILD_NUMBER.*/#define BUILD_NUMBER \"$(NEXTVER)\"/" $(VERSION_FILE)
+	@sed -i "s/#define BUILD_DATE.*/#define BUILD_DATE \"$(BUILDDATE)\"/" $(VERSION_FILE)
+
+$(OBJDIR)/proto.o: proto.c $(VERSION_FILE)
+
 $(OBJDIR)/%.o: %.c
-	@echo "  CC      $<"
+	@make $(VERSION_FILE)
+	@echo "  CC	  $<"
 	$(CC) $(CFLAGS) -MD $(DEFS) $(INCLUDE) $(ARCH_FLAGS) -o $@ -c $<
 
 $(BIN): $(ELF)
@@ -120,7 +133,7 @@ $(LIST): $(ELF)
 	$(OBJDUMP) -S $(ELF) > $(LIST)
 
 $(ELF): $(OBJDIR) $(OBJS)
-	@echo "  LD      $(ELF)"
+	@echo "  LD	  $(ELF)"
 	$(LD) $(LDFLAGS) $(ARCH_FLAGS) $(OBJS) $(LDLIBS) -o $(ELF)
 	@size $(ELF)
 
@@ -141,7 +154,4 @@ boot: $(BIN)
 	@echo "  LOAD $(BIN) through bootloader"
 	$(STBOOT) -b$(BOOTSPEED) $(BOOTPORT) -w $(BIN)
 
-gentags:
-	CFLAGS="$(CFLAGS) $(DEFS)" geany -g $(BINARY).c.tags *[hc] 2>/dev/null
-
-.PHONY: clean flash boot dfuboot gentags
+.PHONY: clean flash boot dfuboot

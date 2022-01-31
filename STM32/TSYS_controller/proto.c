@@ -20,6 +20,9 @@
  * MA 02110-1301, USA.
  *
  */
+
+#include <string.h>
+
 #include "adc.h"
 #include "can.h"
 #include "can_process.h"
@@ -28,7 +31,7 @@
 #include "sensors_manage.h"
 #include "usart.h"
 #include "usb.h"
-#include <string.h> // strlen, strcpy(
+#include "version.inc"
 
 extern volatile uint8_t canerror;
 
@@ -347,6 +350,7 @@ void cmd_parser(char *txt, uint8_t isUSB){
             newline();
         break;
         default: // help
+            SEND("https://github.com/eddyem/tsys01/tree/master/STM32/TSYS_controller build#" BUILD_NUMBER " @ " BUILD_DATE "\n");
             SEND(
             "ALL little letters - without CAN messaging\n"
             "0..7 - send command to given controller (0 - this) instead of broadcast\n"
@@ -388,8 +392,9 @@ void printu(uint32_t val){
         *(--bufptr) = '0';
     }else{
         while(val){
-            *(--bufptr) = val % 10 + '0';
+            register uint32_t o = val;
             val /= 10;
+            *(--bufptr) = (o - 10*val) + '0';
         }
     }
     addtobuf(bufptr);
@@ -399,8 +404,13 @@ void printu(uint32_t val){
 void printuhex(uint32_t val){
     addtobuf("0x");
     uint8_t *ptr = (uint8_t*)&val + 3;
-    int i, j;
+    int i, j, z = 1;
     for(i = 0; i < 4; ++i, --ptr){
+        if(*ptr == 0){ // omit leading zeros
+            if(i == 3) z = 0;
+            if(z) continue;
+        }
+        else z = 0;
         for(j = 1; j > -1; --j){
             uint8_t half = (*ptr >> (4*j)) & 0x0f;
             if(half < 10) bufputchar(half + '0');

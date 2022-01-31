@@ -20,10 +20,13 @@
  * MA 02110-1301, USA.
  *
  */
+
 #include <string.h> // memcpy
+
 #include "can.h"
 #include "hardware.h"
 #include "proto.h"
+
 
 // incoming message buffer size
 #define CAN_INMESSAGE_SIZE  (6)
@@ -237,7 +240,7 @@ static void can_process_fifo(uint8_t fifo_num){
             uint32_t *dptr = (uint32_t*)msg.data;
             dptr[0] = dptr[1] = 0;
         }
-        uint8_t len = box->RDTR & 0x7;
+        uint8_t len = box->RDTR & 0x0f;
         msg.length = len;
         msg.ID = box->RIR >> 21;
         if(len){ // message can be without data

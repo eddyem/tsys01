@@ -20,11 +20,13 @@
  * MA 02110-1301, USA.
  *
  */
-#include "proto.h"
+
+#include <string.h> // memcpy
+
+#include "stm32f0.h"
 #include "usart.h"
 #include "usb_lib.h"
-#include <stdint.h>
-#include <string.h> // memcpy
+
 
 #ifdef EBUG
 #undef EBUG
@@ -146,17 +148,17 @@ _USB_STRING_(USB_StringProdDescriptor, u"USB-Serial Controller");
  */
 // SET_LINE_CODING
 void WEAK linecoding_handler(usb_LineCoding __attribute__((unused)) *lc){
-    MSG("linecoding_handler\n");
+    //MSG("linecoding_handler\n");
 }
 
 // SET_CONTROL_LINE_STATE
 void WEAK clstate_handler(uint16_t __attribute__((unused)) val){
-    MSG("clstate_handler\n");
+    //MSG("clstate_handler\n");
 }
 
 // SEND_BREAK
 void WEAK break_handler(){
-    MSG("break_handler\n");
+    //MSG("break_handler\n");
 }
 
 // handler of vendor requests

@@ -18,10 +18,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
+
+#include <string.h>
+
 #include "stm32f0.h"
 #include "hardware.h"
 #include "usart.h"
-#include <string.h>
+
 
 extern volatile uint32_t Tms;
 static int datalen[2] = {0,0}; // received data line length (including '\n')

@@ -75,23 +75,11 @@ int main(void){
     adc_setup();
     usart_setup();
     i2c_setup(LOW_SPEED);
-    CAN_setup(0); // setup with default 250kbaud
-/*
-    SEND("Greetings! My address is ");
-    printuhex(CANID);
-    newline();
-
-    if(RCC->CSR & RCC_CSR_IWDGRSTF){ // watchdog reset occured
-        SEND("WDGRESET=1\n");
-    }
-    if(RCC->CSR & RCC_CSR_SFTRSTF){ // software reset occured
-        SEND("SOFTRESET=1\n");
-    }
-    */
-    RCC->CSR |= RCC_CSR_RMVF; // remove reset flags
-    USB_setup();
     readCANID();
     if(CANID == MASTER_ID) cansniffer = 1; // MASTER in sniffer mode by default
+    CAN_setup(0); // setup with default 250kbaud
+    RCC->CSR |= RCC_CSR_RMVF; // remove reset flags
+    USB_setup();
     iwdg_setup();
 
     while (1){
