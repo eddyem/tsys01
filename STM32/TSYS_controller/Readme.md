@@ -5,6 +5,7 @@ USART speed 115200. Code for ../../kicad/stm32
 
 ## Serial interface commands (ends with '\n'), small letter for only local processing:
 - **0...7**  send message to Nth controller, not broadcast (after number should be CAN command)
+- **@**  set/reset debug mode
 - **a**  get raw ADC values
 - **B**  send dummy CAN messages to broadcast address
 - **b**  get/set CAN bus baudrate
@@ -15,12 +16,15 @@ USART speed 115200. Code for ../../kicad/stm32
 - **Ff** turn sensors off
 - **g**  group (sniffer) CAN mode (print to USB terminal all incoming CAN messages with alien IDs)
 - **Hh** switch I2C to high speed (100kHz)
+- **Ii** (re)init sensors
 - **Jj** get MCU temperature
 - **Kk** get values of U and I
 - **Ll** switch I2C to low speed (default, 10kHz)
 - **Mm** change master id to 0 (**m**) / broadcast (**M**)
+- **N**  get build number
 - **Oo** turn onboard diagnostic LEDs **O**n or **o**ff (both commands are local!)
 - **P**  ping everyone over CAN
+- **Qq** get system time
 - **Rr** reinit I2C
 - **s**  send CAN message (format: ID data[0..8], dec, 0x - hex, 0b - binary)
 - **Tt** start single temperature measurement
@@ -72,6 +76,9 @@ First (number zero) byte of every sequence is command mark (0xA5) or data mark (
 -    `CMD_GETUIVAL`            (13) request to get values of V12, V5, I12 and V3.3
 -    `CMD_GETUIVAL0`           (14) answer with values of V12 and V5
 -    `CMD_GETUIVAL1`           (15) answer with values of I12 and V3.3
+-    `CMD_REINIT_SENSORS`      (16) (re)init all sensors (discover all and get calibrated data)
+-    `CMD_GETBUILDNO`          (17) get by CAN firmware build number (uint32_t, littleendian, starting from byte #4)
+-    `CMD_SYSTIME`             (18) get system time in ms (uint32_t, littleendian, starting from byte #4)
 
 ### Dummy commands for test purposes
 -    `CMD_DUMMY0` = 0xDA,

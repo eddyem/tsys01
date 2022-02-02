@@ -47,6 +47,9 @@ typedef enum{
     CMD_GETUIVAL,           // request to get values of V12, V5, I12 and V3.3
     CMD_GETUIVAL0,          // answer with values of V12 and V5
     CMD_GETUIVAL1,          // answer with values of I12 and V3.3
+    CMD_REINIT_SENSORS,     // (re)init sensors
+    CMD_GETBUILDNO,         // request for firmware build number
+    CMD_SYSTIME,            // get system time
     // dummy commands for test purposes
     CMD_DUMMY0 = 0xDA,
     CMD_DUMMY1 = 0xAD

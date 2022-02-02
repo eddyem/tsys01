@@ -111,6 +111,7 @@ $(STARTUP): $(INC_DIR)/startup/vector.c
 $(VERSION_FILE): *.[ch]
 	@echo "  Generate version: $(NEXTVER) for date $(BUILDDATE)"
 	@sed -i "s/#define BUILD_NUMBER.*/#define BUILD_NUMBER \"$(NEXTVER)\"/" $(VERSION_FILE)
+	@sed -i "s/#define BUILDNO.*/#define BUILDNO $(NEXTVER)/" $(VERSION_FILE)
 	@sed -i "s/#define BUILD_DATE.*/#define BUILD_DATE \"$(BUILDDATE)\"/" $(VERSION_FILE)
 
 $(OBJDIR)/proto.o: proto.c $(VERSION_FILE)

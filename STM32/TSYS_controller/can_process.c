@@ -25,6 +25,7 @@
 #include "can_process.h"
 #include "proto.h"
 #include "sensors_manage.h"
+#include "version.inc"
 
 extern volatile uint32_t Tms; // timestamp data
 // id of master - all data will be sent to it
@@ -97,13 +98,16 @@ void can_messages_proc(){
             SEND(" ");
             printuhex(can_mesg->data[ctr]);
         }
-        newline(); sendbuf();
+        newline();
     }
     // don't process alien messages
     if(can_mesg->ID != CANID && can_mesg->ID != BCAST_ID) return;
     int16_t t;
+    uint32_t U32;
     if(data[0] == COMMAND_MARK){   // process commands
         if(len < 2) return;
+        // master shouldn't react to broadcast commands!
+        if(can_mesg->ID == BCAST_ID && CANID == MASTER_ID) return;
         switch(data[1]){
             case CMD_DUMMY0:
             case CMD_DUMMY1:
@@ -157,6 +161,19 @@ void can_messages_proc(){
             break;
             case CMD_GETUIVAL:
                 senduival();
+            break;
+            case CMD_REINIT_SENSORS:
+                sensors_init();
+            break;
+            case CMD_GETBUILDNO:
+                b[1] = 0;
+                *((uint32_t*)&b[2]) = BUILDNO;
+                can_send_data(b, 6);
+            break;
+            case CMD_SYSTIME:
+                b[1] = 0;
+                *((uint32_t*)&b[2]) = Tms;
+                can_send_data(b, 6);
             break;
         }
     }else if(data[0] == DATA_MARK){ // process received data
@@ -216,6 +233,20 @@ void can_messages_proc(){
             case CMD_GETUIVAL1: // I12 and V3.3
                 showui("I12_", "V33_", data);
             break;
+            case CMD_GETBUILDNO:
+                addtobuf("BUILDNO");
+                bufputchar(Ns);
+                bufputchar('=');
+                U32 = *((uint32_t*)&data[4]);
+                printu(U32);
+            break;
+            case CMD_SYSTIME:
+                addtobuf("SYSTIME");
+                bufputchar(Ns);
+                bufputchar('=');
+                U32 = *((uint32_t*)&data[4]);
+                printu(U32);
+            break;
             default:
                 SEND("UNKNOWN_DATA");
         }
@@ -264,7 +295,7 @@ CAN_status can_send_data(uint8_t *data, uint8_t len){
  * @return next number or -1 if all data sent
  */
 int8_t send_temperatures(int8_t N){
-    if(N < 0 || Controller_address == 0) return -1;
+    if(N < 0 || Controller_address == 0) return -1; // don't need to send Master's data over CAN bus
     int a, p;
     uint8_t can_data[4];
     int8_t retn = N;

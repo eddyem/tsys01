@@ -34,9 +34,10 @@
 #include "version.inc"
 
 extern volatile uint8_t canerror;
+extern volatile uint32_t Tms;
 
 static char buff[UARTBUFSZ+1], *bptr = buff;
-static uint8_t blen = 0, USBcmd = 0;
+static uint8_t blen = 0, USBcmd = 0, debugmode = 0;
 // LEDs are OFF by default
 uint8_t noLED =
 #ifdef EBUG
@@ -183,7 +184,6 @@ static CAN_message *parseCANmsg(char *txt){
         return NULL;
     }
     SEND("Message parsed OK\n");
-    sendbuf();
     canmsg.length = (uint8_t) ctr;
     return &canmsg;
 }
@@ -207,7 +207,6 @@ void cmd_parser(char *txt, uint8_t isUSB){
     USBcmd = isUSB;
     int16_t L = strlen(txt), ID = BCAST_ID;
     char _1st = txt[0];
-    sendbuf();
     if(_1st >= '0' && _1st < '8'){ // send command to Nth controller, not broadcast
         if(L == 3){ // with '\n' at end!
             ID = (CAN_ID_PREFIX & CAN_ID_MASK) | (_1st - '0');
@@ -217,6 +216,13 @@ void cmd_parser(char *txt, uint8_t isUSB){
         }
     }
     switch(_1st){
+        case '@':
+            debugmode = !debugmode;
+            SEND("DEBUG mode ");
+            if(debugmode) SEND("ON");
+            else SEND("OFF");
+            newline();
+        break;
         case 'a':
             showADCvals();
         break;
@@ -259,6 +265,12 @@ void cmd_parser(char *txt, uint8_t isUSB){
         case 'h':
             i2c_setup(HIGH_SPEED);
         break;
+        case 'I':
+            CANsend(ID, CMD_REINIT_SENSORS, _1st);
+        break;
+        case 'i':
+            sensors_init();
+        break;
         case 'J':
             CANsend(ID, CMD_GETMCUTEMP, _1st);
         break;
@@ -283,6 +295,9 @@ void cmd_parser(char *txt, uint8_t isUSB){
         case 'm':
             CANsend(ID, CMD_CHANGE_MASTER, _1st);
         break;
+        case 'N':
+            CANsend(ID, CMD_GETBUILDNO, _1st);
+        break;
         case 'O':
             noLED = 0;
             SEND("LED on\n");
@@ -295,6 +310,12 @@ void cmd_parser(char *txt, uint8_t isUSB){
         break;
         case 'P':
             CANsend(ID, CMD_PING, _1st);
+        break;
+        case 'Q':
+            CANsend(ID, CMD_SYSTIME, _1st);
+        break;
+        case 'q':
+            SEND("SYSTIME0="); printu(Tms); newline();
         break;
         case 'R':
             CANsend(ID, CMD_REINIT_I2C, _1st);
@@ -354,6 +375,7 @@ void cmd_parser(char *txt, uint8_t isUSB){
             SEND(
             "ALL little letters - without CAN messaging\n"
             "0..7 - send command to given controller (0 - this) instead of broadcast\n"
+            "@ - set/reset debug mode\n"
             "a - get raw ADC values\n"
             "B - send broadcast CAN dummy message\n"
             "b - get/set CAN bus baudrate\n"
@@ -364,24 +386,26 @@ void cmd_parser(char *txt, uint8_t isUSB){
             "Ff- turn oFf sensors\n"
             "g - group (sniffer) CAN mode\n"
             "Hh- high I2C speed\n"
+            "Ii- (re)init sensors\n"
             "Jj- get MCU temperature\n"
             "Kk- get U/I values\n"
             "Ll- low I2C speed\n"
             "Mm- change master id to 0 (m) / broadcast (M)\n"
+            "N - get build number\n"
             "Oo- turn onboard diagnostic LEDs *O*n or *o*ff (both commands are local)\n"
             "P - ping everyone over CAN\n"
+            "Qq- get system time\n"
             "Rr- reinit I2C\n"
             "s - send CAN message\n"
             "Tt- start temperature measurement\n"
             "u - unique ID (default) CAN mode\n"
             "Vv- very low I2C speed\n"
             "Xx- Start themperature scan\n"
-            "Yy- get sensors state over CAN\n"
+            "Yy- get sensors state\n"
             "z - check CAN status for errors\n"
             );
         break;
     }
-    sendbuf();
 }
 
 // print 32bit unsigned int
@@ -492,4 +516,12 @@ char *getnum(char *txt, int32_t *N){
         if(txt[1] == 'b' || txt[1] == 'B') return getbin(txt+2, N);
     }
     return getdec(txt, N);
+}
+
+// show message in debug mode
+void mesg(char *txt){
+    if(!debugmode) return;
+    addtobuf("[DBG] ");
+    addtobuf(txt);
+    bufputchar('\n');
 }

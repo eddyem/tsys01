@@ -46,6 +46,7 @@ typedef enum{
     ,SENS_OFF               // 7 sensors' power is off by external command
     ,SENS_OVERCURNT         // 8 overcurrent detected @ any stage
     ,SENS_OVERCURNT_OFF     // 9 sensors' power is off due to continuous overcurrent
+    ,SENS_SENDING_DATA      // A send data over CAN bus
     ,SENS_STATE_CNT
 } SensorsState;
 
@@ -60,7 +61,7 @@ const char *sensors_get_statename(SensorsState x);
 void sensors_process();
 
 void sensors_off();
-void sensors_on();
+void sensors_init();
 void sensors_start();
 void showcoeffs();
 void showtemperature();

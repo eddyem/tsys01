@@ -66,7 +66,7 @@ static void iwdg_setup(){
 }
 
 int main(void){
-    uint32_t lastT = 0, lastS = 0;
+    uint32_t lastT = 0, lastS = 0, lastB = 0;
     uint8_t gotmeasurement = 0;
     char inbuf[256];
     sysreset();
@@ -80,6 +80,7 @@ int main(void){
     CAN_setup(0); // setup with default 250kbaud
     RCC->CSR |= RCC_CSR_RMVF; // remove reset flags
     USB_setup();
+    sensors_init();
     iwdg_setup();
 
     while (1){
@@ -90,10 +91,19 @@ int main(void){
             // send dummy command to noone to test CAN bus
             //can_send_cmd(NOONE_ID, CMD_DUMMY0);
         }
-        if(lastS > Tms || Tms - lastS > 5){ // run sensors proc. once per 5ms
+        if(lastS != Tms){ // run sensors proc. once per 1ms
             sensors_process();
             lastS = Tms;
+            if(SENS_SLEEPING == Sstate){ // show temperature @ each sleeping occurence
+                if(!gotmeasurement){
+                    gotmeasurement = 1;
+                    showtemperature();
+                }
+            }else{
+                if(SENS_WAITING == Sstate) gotmeasurement = 0;
+            }
         }
+        usb_proc();
         can_proc();
         CAN_status stat = CAN_get_status();
         if(stat == CAN_FIFO_OVERRUN){
@@ -104,27 +114,22 @@ int main(void){
             canerror = 1;
         }
         can_messages_proc();
-        if(SENS_SLEEPING == Sstate){ // show temperature @ each sleeping occurence
-            if(!gotmeasurement){
-                gotmeasurement = 1;
-                showtemperature();
-            }
-        }else{
-            gotmeasurement = 0;
-        }
-        usb_proc();
+        IWDG->KR = IWDG_REFRESH;
         uint8_t r = 0;
         if((r = USB_receive(inbuf, 255))){
             inbuf[r] = 0;
             cmd_parser(inbuf, 1);
         }
-        if(usartrx()){ // usart1 received data, store in in buffer
+        if(usartrx()){ // usart1 received data, store it in buffer
             char *txt = NULL;
             r = usart_getline(&txt);
             txt[r] = 0;
             cmd_parser(txt, 0);
         }
-        sendbuf();
+        if(lastB - Tms > 99){ // run `sendbuf` each 100ms
+            sendbuf();
+            lastB = Tms;
+        }
     }
     return 0;
 }
