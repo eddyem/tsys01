@@ -102,7 +102,15 @@ int try_connect(char *path){
     if(!path) return FALSE;
     struct sockaddr_un saddr = {0};
     saddr.sun_family = AF_UNIX;
-    strncpy(saddr.sun_path, path, 106); // if sun_path[0] == 0 we don't create a file
+    if(*path == 0){ // if sun_path[0] == 0 then don't create a file
+        DBG("convert name");
+        saddr.sun_path[0] = 0;
+        strncpy(saddr.sun_path+1, path+1, 106);
+    }else if(strncmp("\\0", path, 2) == 0){
+        DBG("convert name");
+        saddr.sun_path[0] = 0;
+        strncpy(saddr.sun_path+1, path+2, 105);
+    }else strncpy(saddr.sun_path, path, 107);
     if((sock = socket(AF_UNIX, SOCK_SEQPACKET, 0)) < 0){ // or SOCK_STREAM?
         WARN("socket()");
         LOGERR("socket()");

@@ -326,16 +326,23 @@ static void process_T(){
     // calculate mean
     double Tmed = quick_select(arr, Num);
     double Tbot = Tmed - 10., Ttop = Tmed + 10.;
-    DBG("Got %d values, Tmed=%g", Num, Tmed);
+    DBG("Got %d values, Tmed=%g, tmeasmax=%zd", Num, Tmed, tmeasmax);
     // throw out all more than +-10degrC and calculate meanT
     Num = 0;
     double Tsum = 0.;
+    // remove bad/old values of N2 controller
+    for(p = 0; p < 2; ++p) for(N = 0; N <= NCHANNEL_MAX; ++N){
+        if(tmeasmax - tmeasured[p][N][0] > OLDESTTM){ // not longer than 3 minutes ago!
+            t_last[p][N][0] = -300.;
+        }
+    }
     for(i = 1; i <= NCTRLR_MAX; ++i){
         for(p = 0; p < 2; ++p) for(N = 0; N <= NCHANNEL_MAX; ++N){
             double T = t_last[p][N][i];
-            if(T > Ttop || T < Tbot || tmeasmax - tmeasured[p][N][i] > 1800){ // not longer than 3 minutes ago!
+            if(T > Ttop || T < Tbot || tmeasmax - tmeasured[p][N][i] > OLDESTTM){ // not longer than 3 minutes ago!
                 t_last[p][N][i] = -300.;
             }else{
+                DBG("t_last[%d][%d][%d]=%.1f, measuredt=%zd", p, N, i, T, tmeasured[p][N][i]);
                 ++Num; Tsum += T;
                 Tmean[p][N][i] += T;
                 ++Nmean[p][N][i];
@@ -371,6 +378,7 @@ static void daemon_(int sock){
         ERR("pthread_create()");
     }
     double tgot = 0.;//, tlastoff = dtime();
+    char bufs[3][BUFLEN]; // temporary buffers: T0, T1, T2
     do{
         if(pthread_kill(sock_thread, 0) == ESRCH){ // died
             WARNX("Sockets thread died");
@@ -383,17 +391,13 @@ static void daemon_(int sock){
         if(TurnOff){
             TurnOff = FALSE;
             turn_all_off();
-            //tlastoff = dtime();
-        }/*
-        if(dtime() - tlastoff > T_OFF_INTERVAL){
-            turn_all_off();
-            tlastoff = dtime();
-        }*/
+        }
         if(dtime() - tgot < T_INTERVAL) continue;
         // get data
         int i;
-        char bufs[3][BUFLEN]; // temporary buffers: T0, T1, T2
-        char *ptrs[3] = {bufs[0], bufs[1], bufs[2]};
+        char *bptrs[3] = {bufs[0], bufs[1], bufs[2]};
+        bzero(bufs, sizeof(bufs));
+        DBG("STARTING vals: BUF0:\n%s\nBUF1:\n%s\nBUF2:\n%s", bufs[0],bufs[1],bufs[2]);
         size_t lens[3] = {BUFLEN, BUFLEN, BUFLEN}; // free space
         tgot = dtime();
         process_T(); // get new temperatures & throw out bad results
@@ -403,18 +407,18 @@ static void daemon_(int sock){
                 double T = t_last[p][N][i];
                 char **buf;
                 size_t *len;
-                //DBG("T%d [%d][%d] = %g",i, p,N,T);
                 if(T > -100. && T < 100.){ // fill buffer
+                    DBG("T%d [%d][%d] = %g",i, p,N,T);
                     size_t l;
                     if(i == 0){
-                        buf = &ptrs[2]; len = &lens[2];
+                        buf = &bptrs[2]; len = &lens[2];
                         // Nsens Npair T time
                         l = snprintf(*buf, *len, "%d\t%d\t%.2f\t%ld\n", N, p, T,
                                         tmeasured[p][N][i]);
                     }else{
                         const sensor_data *sdata = get_sensor_location(i, N, p);
                         if(!sdata) continue; // wrong sensor number???
-                        buf = &ptrs[sdata->Z]; len = &lens[sdata->Z];
+                        buf = &bptrs[sdata->Z]; len = &lens[sdata->Z];
                         // iNp x y T(corrected) time
                         l = snprintf(*buf, *len, "%d%d%d\t%d\t%d\t%.2f\t%ld\n", i, N, p,
                                      sdata->X, sdata->Y, T - sdata->dt - sdata->Tadj, tmeasured[p][N][i]);
@@ -424,7 +428,7 @@ static void daemon_(int sock){
                 }
             }
         }
-        //DBG("BUF0:\n%s\nBUF1:\n%s\nBUF2:\n%s", bufs[0],bufs[1],bufs[2]);
+        DBG("BUF0:\n%s\nBUF1:\n%s\nBUF2:\n%s", bufs[0],bufs[1],bufs[2]);
         // copy temporary buffers to main
         pthread_mutex_lock(&mutex);
         memcpy(strT, bufs, sizeof(strT));

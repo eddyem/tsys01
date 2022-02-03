@@ -27,17 +27,16 @@
  * here are some typedef's for global data
  */
 typedef struct{
-    char *sockname;         // server's UNIX socket name
-    char *port;             // port to connect
-    //int terminal;           // run as terminal
-    char *savepath;         // path where data & graphical files would be saved
     int makegraphs;         // ==1 to make graphics with gnuplot
     int rest_pars_num;      // number of rest parameters
-    char** rest_pars;       // the rest parameters: array of char* (path to logfile and thrash)
     int testadjfile;        // test format of file with adjustments
+    int verblevel;          // increase log file verbose level (default: warn)
+    char *sockname;         // server's UNIX socket name
+    char *port;             // port to connect
+    char *savepath;         // path where data & graphical files would be saved
     char *adjfilename;      // name of adjustements file
     char *pidfilename;      // name of PID file
-    //int dumpoff;            // dump sensors data & turn all OFF until next request
+    char **rest_pars;       // the rest parameters: array of char* (path to logfile and thrash)
 } glob_pars;
 
 

@@ -30,12 +30,12 @@
 #define     WAIT_TMOUT          (0.5)
 // Main controller polling timeout - 1 second
 #define     POLLING_TMOUT       (1.0)
-// Thermal polling timeout: 5 seconds
-#define     T_POLLING_TMOUT     (5.0)
+// Thermal polling timeout: 1.5 seconds
+#define     T_POLLING_TMOUT     (1.5)
 // T measurement time interval - 30 seconds
 #define     T_INTERVAL          (30.0)
-// Interval of turning sensors off - 3 days
-#define     T_OFF_INTERVAL      (259200.)
+// interval (in seconds) to remove too old measurements (if sensor not available now)
+#define     OLDESTTM            (180)
 // amount of measurement to plot mean graphs
 #define     GRAPHS_AMOUNT       (15)
 

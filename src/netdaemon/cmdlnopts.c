@@ -62,6 +62,7 @@ static myoption cmdlnopts[] = {
     {"testadjfile",NO_ARGS, NULL,   'T',    arg_int,    APTR(&G.testadjfile),_("test format of file with T adjustements")},
     {"adjname", NEED_ARG,   NULL,   'N',    arg_string, APTR(&G.adjfilename),_("name of adjustements file (default: tempadj.txt)")},
     {"pidfile", NEED_ARG,   NULL,   'P',    arg_string, APTR(&G.pidfilename),_("name of PID file (default: " DEFAULT_PIDFILE ")")},
+    {"verbose", NO_ARGS,    NULL,   'v',    arg_none,   APTR(&G.verblevel),  _("increase log file verbose level (default: warn)")},
     //{"dumpoff", NO_ARGS,    NULL,   'd',    arg_string, APTR(&G.dumpoff),   _("dump sensors data & turn all OFF until next request")},
    end_option
 };

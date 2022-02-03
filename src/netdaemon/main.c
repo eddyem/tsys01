@@ -93,8 +93,11 @@ int main(int argc, char **argv){
         }
         return 1;
     }
-    if(G->rest_pars_num)
-        OPENLOG(G->rest_pars[0], LOGLEVEL_DBG, 1);
+    if(G->rest_pars_num){
+        sl_loglevel loglevel = LOGLEVEL_WARN + G->verblevel; // default log level
+        if(loglevel > LOGLEVEL_ANY) loglevel = LOGLEVEL_ANY;
+        OPENLOG(G->rest_pars[0], loglevel, 1);
+    }
     // ignore almost all possible signals
     for(int sig = 0; sig < 256; ++sig) signal(sig, repsig);
     signal(SIGTERM, signals); // kill (-15) - quit
@@ -106,9 +109,9 @@ int main(int argc, char **argv){
     signal(SIGUSR1, refreshAdj); // refresh adjustements
     signal(SIGUSR2, logT);    // print all current temperatures into logfile and turn off sensors
     #ifndef EBUG
-    if(daemon(1, 0)){
+  /*  if(daemon(1, 0)){
         ERR("daemon()");
-    }
+    }*/
     while(1){ // guard for dead processes
         childpid = fork();
         if(childpid){
@@ -124,7 +127,7 @@ int main(int argc, char **argv){
     }
     #endif
     DBG("sockname: %s", G->sockname);
-    if(!try_connect(G->sockname)) ERR("Can't connect to UNIX socket");
+    if(!try_connect(G->sockname)) ERRX("Can't connect to UNIX socket");
     if(check_sensors()){
         LOGWARN("No CAN-controllers detected");
         if(!poll_sensors(0)){ // there's not main controller connected to given terminal

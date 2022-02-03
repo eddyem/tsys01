@@ -1,26 +1,30 @@
-### Serial interface commands (ends with '\n'), small letter for only
-local processing:
-- **0...7**  send message to Nth controller, not broadcast (after numb
-er should be CAN command)
-- **a** get raw ADC values
-- **B** send dummy CAN messages to broadcast address
-- **c** show coefficients for all thermosensors
-- **D** send dummy CAN messages to master (0) address
+## Serial interface commands (ends with '\n'), small letter for only local processing:
+- **0...7**  send message to Nth controller, not broadcast (after number should be CAN command)
+- **@**  set/reset debug mode
+- **a**  get raw ADC values
+- **B**  send dummy CAN messages to broadcast address
+- **b**  get/set CAN bus baudrate
+- **c**  show coefficients for all thermosensors
+- **D**  send dummy CAN messages to master (0) address
+- **d**  get current CAN address of device
 - **Ee** end temperature scan
 - **Ff** turn sensors off
-- **g** get last CAN address
+- **g**  group (sniffer) CAN mode (print to USB terminal all incoming CAN messages with alien IDs)
 - **Hh** switch I2C to high speed (100kHz)
-- **i** reinit CAN with new address (if changed)
+- **Ii** (re)init sensors
 - **Jj** get MCU temperature
 - **Kk** get values of U and I
 - **Ll** switch I2C to low speed (default, 10kHz)
 - **Mm** change master id to 0 (**m**) / broadcast (**M**)
-- **Oo** turn onboard diagnostic LEDs **O**n or **o**ff (both commands
- are local!)
-- **P** ping everyone over CAN
+- **N**  get build number
+- **Oo** turn onboard diagnostic LEDs **O**n or **o**ff (both commands are local!)
+- **P**  ping everyone over CAN
+- **Qq** get system time
 - **Rr** reinit I2C
-- **Ss** start temperature scan
+- **s**  send CAN message (format: ID data[0..8], dec, 0x - hex, 0b - binary)
 - **Tt** start single temperature measurement
-- **u** check CAN bus status for errors
+- **u**  unique ID (default) CAN mode
 - **Vv** very low speed
-- **Z** get sensors state over CAN
+- **Xx** go into temperature scan mode
+- **Yy** get sensors state over CAN (data format: 3 - state, 4,5 - presense mask [0,1], 6 - npresent, 7 - ntempmeasured
+- **z**  check CAN status for errors
