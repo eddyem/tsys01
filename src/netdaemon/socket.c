@@ -402,8 +402,7 @@ static void daemon_(int sock){
         tgot = dtime();
         process_T(); // get new temperatures & throw out bad results
         for(i = 0; i <= NCTRLR_MAX; ++i){ // scan over controllers
-            int N, p;
-            for(N = 0; N <= NCHANNEL_MAX; ++N) for(p = 0; p < 2; ++p){
+            for(int N = 0; N <= NCHANNEL_MAX; ++N) for(int p = 0; p < 2; ++p){
                 double T = t_last[p][N][i];
                 char **buf;
                 size_t *len;

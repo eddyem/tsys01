@@ -1,0 +1,5 @@
+#!/bin/bash
+/home/eddy/bin/serialsock -d /dev/ttyUSB0 -l /tmp/serv.log &
+sleep 1
+/home/eddy/bin/netdaemon -g -s /tmp/www/ -N /home/eddy/tempadj.txt /tmp/netdaemon.log &
+/home/eddy/bin/runSpeedCtrl &

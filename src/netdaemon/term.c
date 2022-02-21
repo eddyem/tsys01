@@ -233,7 +233,10 @@ int poll_sensors(int N){
             }
         }
     }
-    return 1;
+    if(N && ngot < MIN_SENSORS_AMOUNT){ // too little sensors for mirror controller
+        send_cmd(N, CMD_REINIT_SENSORS); // reinit sensors
+    }
+    return ngot;
 }
 
 /**
@@ -270,6 +273,7 @@ int check_sensors(){
                         ++found;
                         green(_("Found controller #%d\n"), i);
                         LOGMSG("Found controller #%d", i);
+            send_cmd(i, CMD_LOWSPEED);
                         break;
                     }
                 }

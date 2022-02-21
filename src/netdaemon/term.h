@@ -30,8 +30,8 @@
 #define     WAIT_TMOUT          (0.5)
 // Main controller polling timeout - 1 second
 #define     POLLING_TMOUT       (1.0)
-// Thermal polling timeout: 1.5 seconds
-#define     T_POLLING_TMOUT     (1.5)
+// Thermal polling timeout: 3 seconds
+#define     T_POLLING_TMOUT     (3)
 // T measurement time interval - 30 seconds
 #define     T_INTERVAL          (30.0)
 // interval (in seconds) to remove too old measurements (if sensor not available now)
@@ -39,13 +39,18 @@
 // amount of measurement to plot mean graphs
 #define     GRAPHS_AMOUNT       (15)
 
+// minimal amount of working sensors for one controller (if less - call "reinit" command)
+#define     MIN_SENSORS_AMOUNT  (6)
+
 // Protocol
 #define CMD_SENSORS_OFF         'F'
 #define CMD_SENSORS_OFF_LOCAL   'f'
+#define CMD_REINIT_SENSORS      'I'
 #define CMD_VOLTAGE             'K'
 #define CMD_PING                'P'
 #define CMD_MEASURE_T           'T'
 #define CMD_MEASURE_LOCAL       't'
+#define CMD_LOWSPEED            'V'
 #define ANS_PONG                "PONG"
 
 extern time_t tmeasured[2][NCHANNEL_MAX+1][NCTRLR_MAX+1];
