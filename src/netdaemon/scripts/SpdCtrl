@@ -1,0 +1,16 @@
+#!/bin/bash
+
+OUTP="/tmp/sewstate"
+PARAMS="/tmp/sewparams"
+
+/home/eddy/bin/Runsewctrl $PARAMS $OUTP &
+
+while true; do
+    NewVal=$((cat /home/eddy/bin/acc $OUTP) | nc -w0 -lp 8080 | grep GET)
+    E=$(echo $NewVal | sed  's|.*setspeed=\([s0-3\.]\+\).*|\1|')
+#'
+    if [ x$E != x ]; then
+	echo "SPEED=$E" 
+	echo $E > $PARAMS
+    fi
+done

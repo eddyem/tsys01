@@ -55,17 +55,15 @@
     </script>
 </head>
 
-<body>
+<body style="line-height: 200%; font-size: 20px;">
     <p>
-        New speed: <input id="setspeed" type="number" step="1" min="300" max="1300" value="500">
-        <button onclick="setspeeda();">Set</button>&nbsp;&nbsp;&nbsp;
-        <button onclick="setspeed(0);">Stop</button>
-    </p><p>
-        Set speed: <input type="radio" id="lowspd" name="rs" value="300"><label for="lowspd">Low</label>
-        <input type="radio" id="midspd" name="rs" value="800"><label for="midspd">Mid</label>
-        <input type="radio" id="highspd" name="rs" value="1300"><label for="highspd">High</label>
-        <input type="radio" id="stop" name="rs" checked value="0"><label for="stop">Stop</label>
-        <button onclick="chkrad();">Set</button><br>
+        Set speed:<br>
+	<input type="radio" id="lowspd" name="rs" value="1"><label for="lowspd">Low</label>
+        <input type="radio" id="midspd" name="rs" value="2"><label for="midspd">Mid</label>
+        <input type="radio" id="highspd" name="rs" value="3"><label for="highspd">High</label><br>
+        <input type="radio" id="run1" name="rs" checked value="0"><label for="run1">Run middle</label><br>
+	<input type="radio" id="stop" name="rs" checked value="s"><label for="stop">Stop</label><br>
+        <button onclick="chkrad();" style="width: 200px; height: 40px; font-size: 23px;">Set</button><br>
     </p>
     <p>
         Current: <span id="curval"></span> A. Speed: <span id="spdval"></span> rpm.
