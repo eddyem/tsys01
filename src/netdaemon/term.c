@@ -89,8 +89,8 @@ static char *read_string(){
     }
     buf[n] = 0;
     if(buf[n-1] == '\n') buf[n-1] = 0;
-    LOGDBG("SERIAL: %s", buf);
-    DBG("SERIAL: %s", buf);
+    LOGDBG("GOT : %s", buf);
+    DBG("receive %s", buf);
     return buf;
 }
 
@@ -194,8 +194,9 @@ static int send_cmd(int N, char cmd){
     }
     // clear all incomint data
     while(read_string());
+    LOGDBG("SEND: %s", buf);
     DBG("send cmd %s", buf);
-    if(n != send(sock, buf, n, 0)) return 1;
+    if(n != send(sock, buf, n, MSG_NOSIGNAL)) return 1;
     if(N == 0) return 0;
     double t0 = dtime();
     while(dtime() - t0 < T_POLLING_TMOUT){

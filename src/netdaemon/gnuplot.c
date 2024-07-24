@@ -67,7 +67,10 @@ static int formfile(char *fname, double data[2][NCHANNEL_MAX+1][NCTRLR_MAX+1], i
         }
     }
     fclose(F);
-    if(!nonzero_values) return 0;
+    if(!nonzero_values){
+        LOGERR("Can't form file: no non-zero T values");
+        return 0;
+    }
     DBG("File %s ready", fname);
     return 1;
 }
@@ -97,6 +100,7 @@ static void gnuplot(char *path, char *fname){
     DBG("Run %s", buf);
     if(system(buf)){
         WARNX(_("Can't run `%s`"), buf);
+        LOGERR("Can't run %s", buf);
     }else LOGMSG("created chart %s", fname);
 }
 
