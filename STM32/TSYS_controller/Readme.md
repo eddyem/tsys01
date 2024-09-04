@@ -59,6 +59,10 @@ Variable data length: from 1 to 8 bytes.
 First (number zero) byte of every sequence is command mark (0xA5) or data mark (0x5A).
 
 ## Commands
+CAN ID = 0x680 + Controller address (0..15). Controller with address = 0 is master, it translate
+all incoming CAN traffic into USB and can send commands to different slaves. Slave answers with its ID.
+Broadcast messages with ID=0 are ignored.
+
 ### Common commands
 -    `CMD_PING`                (0)  request for PONG cmd
 -    `CMD_START_MEASUREMENT`   (1)  start single temperature measurement
@@ -79,15 +83,23 @@ First (number zero) byte of every sequence is command mark (0xA5) or data mark (
 -    `CMD_REINIT_SENSORS`      (16) (re)init all sensors (discover all and get calibrated data)
 -    `CMD_GETBUILDNO`          (17) get by CAN firmware build number (uint32_t, littleendian, starting from byte #4)
 -    `CMD_SYSTIME`             (18) get system time in ms (uint32_t, littleendian, starting from byte #4)
+-    `CMD_USBSTATUS`           (19) get slave's USB status (byte 3 of answer is 0/1 meaning USB inactive/active)
+-    `CMD_SHUTUP`              (20) don't send anything into CAN bus (only CMD)
+-    `CMD_SPEAK`               (21) normal working mode (only CMD)
+
+### Answer for commands that don't need data
+(can be only with DATA mark)
+-    `CMD_ANSOK` = 0xAA 
 
 ### Dummy commands for test purposes
+(can be only with CMD mark)
 -    `CMD_DUMMY0` = 0xDA,
 -    `CMD_DUMMY1` = 0xAD
 
-### Commands data format
-- byte 1 - Controller number
-- byte 2 - Command received
-- bytes 3..7 - data
+### Commands and data format
+- byte 1 - Controller number (packet sender)
+- byte 2 - Command code
+- bytes 3..7 - data (answer of command with DATA mark in byte 0)
 
 ### Thermal data format
 - byte 3 - Sensor number (10*N + M, where N is multiplexer number, M - number of sensor in pair, i.e. 0,1,10,11,20,21...70,71)
@@ -96,18 +108,18 @@ First (number zero) byte of every sequence is command mark (0xA5) or data mark (
 
 ### Sensors state data format
 - byte 3 - Sstate value:
-  -   `[SENS_INITING]`       = "init"
-  -   `[SENS_RESETING]`      = "reset"
-  -   `[SENS_GET_COEFFS]`    = "getcoeff"
-  -   `[SENS_SLEEPING]`      = "sleep"
-  -   `[SENS_START_MSRMNT]`  = "startmeasure"
-  -   `[SENS_WAITING]`       = "waitresults"
-  -   `[SENS_GATHERING]`     = "collectdata"
-  -   `[SENS_OFF]`           = "off"
-  -   `[SENS_OVERCURNT]`     = "overcurrent"
-  -   `[SENS_OVERCURNT_OFF]` = "offbyovercurrent"
-- byte 4 - `sens_present[0]` value
-- byte 5 - `sens_present[1]` value
+  -   `SENS_INITING`      (0) - start of init procedure
+  -   `SENS_RESETING`     (1) - reset all sensors
+  -   `SENS_GET_COEFFS`   (2) - gathering of calibration coefficients
+  -   `SENS_SLEEPING`     (3) - sleeping
+  -   `SENS_START_MSRMNT` (4) - starting next measurement
+  -   `SENS_WAITING`      (5) - waitint for results
+  -   `SENS_GATHERING`    (6) - collecting thermal data
+  -   `SENS_OFF`          (7) - powered off by request
+  -   `SENS_OVERCURNT`    (8) - overcurrent detected when trying to power on
+  -   `SENS_OVERCURNT_OFF`(9) - overcurrend detected all 32 tries to power on sensors; sensors are powered off
+- byte 4 - `sens_present[0]` value (Nth bit is 1 if sensor 0N found)
+- byte 5 - `sens_present[1]` value (Nth bit is 1 if sensor 1N found)
 - byte 6 - `Nsens_present` value
 - byte 7 - `Ntemp_measured` value
 

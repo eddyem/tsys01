@@ -37,27 +37,14 @@
 #define LED1_port   GPIOB
 #define LED1_pin    (1<<11)
 
-#ifndef USARTNUM
-#define USARTNUM 2
-#endif
-
 #define CONCAT(a,b)     a ## b
 #define STR_HELPER(s)   #s
 #define STR(s) STR_HELPER(s)
-
-#define FORMUSART(X)   CONCAT(USART, X)
-#define USARTX  FORMUSART(USARTNUM)
 
 #ifndef I2CPINS
 #define I2CPINS 910
 #endif
 
-#ifndef LED1_port
-#define LED1_port   LED0_port
-#endif
-#ifndef LED1_pin
-#define LED1_pin    LED0_pin
-#endif
 #define LED_blink(x) pin_toggle(x ## _port, x ## _pin)
 #define LED_on(x)    pin_clear(x ## _port, x ## _pin)
 #define LED_off(x)   pin_set(x ## _port, x ## _pin)

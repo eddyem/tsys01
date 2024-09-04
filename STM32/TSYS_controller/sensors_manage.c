@@ -23,7 +23,10 @@
 #include "sensors_manage.h"
 #include "can_process.h"
 #include "i2c.h"
-#include "proto.h" // addtobuf, bufputchar, memcpy
+#include "proto.h"
+#include "strfunc.h"
+#include "usb.h"
+
 
 extern volatile uint32_t Tms;
 uint8_t sensors_scan_mode = 0; // infinite scan mode
@@ -42,6 +45,8 @@ int16_t Temperatures[MUL_MAX_ADDRESS+1][2];
 
 // pair addresses
 static const uint8_t Taddr[2] = {TSYS01_ADDR0, TSYS01_ADDR1};
+
+static const char *nosensfound = "No sensors found\n";
 
 static const char *statenames[] = {
     [SENS_INITING]       = "init"
@@ -142,7 +147,8 @@ void sensors_start(){
         break;
         case SENS_OFF:
             overcurnt_ctr = 0;
-            if(sensors_on()) Sstate = SENS_START_MSRMNT;
+            if(Nsens_present == 0) sensors_init();
+            else if(sensors_on()) Sstate = SENS_START_MSRMNT;
         break;
         case SENS_OVERCURNT_OFF:
             sensors_init();
@@ -292,7 +298,7 @@ static uint8_t sensors_scan(uint8_t (* procfn)()){
 void showcoeffs(){
     int a, p, k;
     if(Nsens_present == 0){
-        SEND("No sensors found\n");
+        USB_sendstr(nosensfound);
         return;
     }
     for(a = 0; a <= MUL_MAX_ADDRESS; ++a){
@@ -300,7 +306,7 @@ void showcoeffs(){
             if(!(sens_present[p] & (1<<a))) continue; // no sensor
             for(k = 0; k < 5; ++k){
                 char b[] = {'K', a+'0', p+'0', '_', k+'0', '=', 0};
-                addtobuf(b);
+                USB_sendstr(b);
                 printu(coefficients[a][p][k]);
                 newline();
             }
@@ -312,7 +318,7 @@ void showcoeffs(){
 void showtemperature(){
     int a, p;
     if(Nsens_present == 0 || Ntemp_measured == 0){
-        SEND("No sensors found");
+        USB_sendstr(nosensfound);
         return;
     }
     for(a = 0; a <= MUL_MAX_ADDRESS; ++a){
@@ -320,15 +326,15 @@ void showtemperature(){
             if(!(sens_present[p] & (1<<a))){
                 continue; // no sensor
             }
-            bufputchar('T');
-            bufputchar('0' + Controller_address);
-            bufputchar('_');
+            USB_putbyte('T');
+            USB_putbyte('0' + Controller_address);
+            USB_putbyte('_');
             printu(a*10+p);
-            bufputchar('=');
+            USB_putbyte('=');
             int16_t t = Temperatures[a][p];
             if(t < 0){
                 t = -t;
-                bufputchar('-');
+                USB_putbyte('-');
             }
             printu(t);
             newline();
@@ -364,7 +370,7 @@ void sensors_process(){
                     if(Nsens_present){
                         Sstate = SENS_GET_COEFFS;
                     }else{ // no sensors found
-                        mesg("No sensors found");
+                        mesg("NOSENSFOUND");
                         sensors_off();
                     }
                 }

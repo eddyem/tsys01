@@ -26,20 +26,13 @@
 
 #include "hardware.h"
 
-// identifier mask
-#define CAN_ID_MASK     ((uint16_t)0x7F0)
-// prefix of identifiers
-#define CAN_ID_PREFIX   ((uint16_t)0xAAA)
-// this is master - Controller_address==0
-#define MASTER_ID       (CAN_ID_PREFIX & CAN_ID_MASK)
-// broadcasting to every slave
-#define BCAST_ID        ((uint16_t)0x7F7)
-// send dummy message to this ID for testing CAN bus status
-#define NOONE_ID        ((uint16_t)0x7FF)
+// prefix of identifiers - free zone of CANopen COB-IDs
+// MASTER ID = 0x680, SLAVE ID = 0x680 + address
+#define CAN_ID_PREFIX   ((uint16_t)0x680)
 
 extern uint16_t curcanspeed;
 extern uint16_t CANID;
-extern int8_t cansniffer;
+extern uint8_t cansniffer, CANshutup;
 
 typedef struct{
     uint8_t data[8];

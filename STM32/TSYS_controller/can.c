@@ -37,7 +37,8 @@ extern volatile uint32_t Tms;
 static CAN_message messages[CAN_INMESSAGE_SIZE];
 static uint8_t first_free_idx = 0;    // index of first empty cell
 static int8_t first_nonfree_idx = -1; // index of first data cell
-int8_t cansniffer = 0; // ==1 to listen all CAN ID's
+uint8_t cansniffer = 0; // ==1 to listen all CAN ID's
+uint8_t CANshutup = 0; // ==1 to keep silence in CAN, work only as receiver
 
 uint16_t curcanspeed = CAN_SPEED_DEFAULT; // speed of last init
 
@@ -56,7 +57,6 @@ CAN_status CAN_get_status(){
 
 // push next message into buffer; return 1 if buffer overfull
 static int CAN_messagebuf_push(CAN_message *msg){
-    MSG("Try to push\n");
     if(first_free_idx == first_nonfree_idx) return 1; // no free space
     if(first_nonfree_idx < 0) first_nonfree_idx = 0;  // first message in empty buffer
     memcpy(&messages[first_free_idx++], msg, sizeof(CAN_message));
@@ -81,7 +81,7 @@ CAN_message *CAN_messagebuf_pop(){
 void readCANID(){
     uint8_t CAN_addr = READ_CAN_INV_ADDR();
     Controller_address = ~CAN_addr & 0x0f;
-    CANID = (CAN_ID_PREFIX & CAN_ID_MASK) | Controller_address;
+    CANID = CAN_ID_PREFIX | Controller_address;
 }
 
 void CAN_setup(uint16_t speed){
@@ -133,7 +133,7 @@ void CAN_setup(uint16_t speed){
     CAN->FMR = CAN_FMR_FINIT; /* (7) */
     CAN->FA1R = CAN_FA1R_FACT0; /* (8) */
     CAN->FM1R = CAN_FM1R_FBM0; /* (9) */
-    CAN->sFilterRegister[0].FR1 = CANID << 5 | ((BCAST_ID << 5) << 16); /* (10) */
+    CAN->sFilterRegister[0].FR1 = CANID << 5; /* (10) */
     if(cansniffer){ /* (11) */
         CAN->FA1R |= CAN_FA1R_FACT1 | CAN_FA1R_FACT2; // activate 1 & 2
         CAN->sFilterRegister[1].FR1 = (1<<21)|(1<<5); // all odd IDs
@@ -172,7 +172,6 @@ void can_proc(){
         can_process_fifo(1);
     }
     if(CAN->ESR & (CAN_ESR_BOFF | CAN_ESR_EPVF | CAN_ESR_EWGF)){ // much errors - restart CAN BUS
-        MSG("bus-off, restarting\n");
         // request abort for all mailboxes
         CAN->TSR |= CAN_TSR_ABRQ0 | CAN_TSR_ABRQ1 | CAN_TSR_ABRQ2;
         // reset CAN bus
@@ -183,6 +182,7 @@ void can_proc(){
 }
 
 CAN_status can_send(uint8_t *msg, uint8_t len, uint16_t target_id){
+    if(CANshutup) return CAN_OK;
     if(!noLED) LED_on(LED1); // turn ON LED1 at first data sent/receive
     uint8_t mailbox = 0;
     // check first free mailbox

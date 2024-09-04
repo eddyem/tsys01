@@ -121,7 +121,7 @@ uint16_t getADCval(int nch){
 
 // return MCU temperature (degrees of celsius * 10)
 int32_t getMCUtemp(){
-    getVdd();
+//    getVdd();
     // make correction on Vdd value
 //    int32_t temperature = (int32_t)ADC_array[4] * VddValue / 330;
     int32_t ADval = getADCval(TSENS_CHAN);

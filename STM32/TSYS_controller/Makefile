@@ -39,6 +39,7 @@ AS			:= $(PREFIX)-as
 OBJCOPY		:= $(OPREFIX)-objcopy
 OBJDUMP		:= $(OPREFIX)-objdump
 GDB			:= $(OPREFIX)-gdb
+SIZE        := $(PREFIX)-size
 STFLASH		:= $(shell which st-flash)
 STBOOT		:= $(shell which stm32flash)
 DFUUTIL		:= $(shell which dfu-util)
@@ -91,7 +92,7 @@ LIST	:= $(OBJDIR)/$(BINARY).list
 BIN		:= $(BINARY).bin
 HEX		:= $(BINARY).hex
 
-all: bin list
+all: bin list size
 
 elf: $(ELF)
 bin: $(BIN)
@@ -151,8 +152,11 @@ flash: $(BIN)
 	@echo "  FLASH  $(BIN)"
 	$(STFLASH) write $(BIN) 0x8000000
 
+size: $(ELF)
+	$(SIZE) $(ELF)
+
 boot: $(BIN)
 	@echo "  LOAD $(BIN) through bootloader"
 	$(STBOOT) -b$(BOOTSPEED) $(BOOTPORT) -w $(BIN)
 
-.PHONY: clean flash boot dfuboot
+.PHONY: clean flash boot dfuboot size

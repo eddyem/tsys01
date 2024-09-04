@@ -22,8 +22,8 @@
  */
 #include "can.h"
 
-// timeout for trying to send data
-#define SEND_TIMEOUT_MS     (10)
+// timeout (milliseconds) for trying to send data
+#define SEND_TIMEOUT_MS     (100)
 // mark first byte if command sent
 #define COMMAND_MARK    (0xA5)
 // mark first byte if data sent
@@ -33,7 +33,7 @@
 typedef enum{
     CMD_PING,               // request for PONG cmd
     CMD_START_MEASUREMENT,  // start thermal measurement (and turn ON sensors if was OFF)
-    CMD_SENSORS_STATE,      // reply data with sensors state (data: 0 - SState, 1,2 - sens_present0, 3 - Nsens_presend, 4 - Ntemp_measured)
+    CMD_SENSORS_STATE,      // reply data with sensors state (data: 0 - SState, 1,2 - sens_present0/1, 3 - Nsens_present, 4 - Ntemp_measured)
     CMD_START_SCAN,         // run scan mode @ all controllers
     CMD_STOP_SCAN,          // stop scan mode
     CMD_SENSORS_OFF,        // turn off power of sensors
@@ -41,8 +41,8 @@ typedef enum{
     CMD_LOW_SPEED,          // low I2C speed (10kHz)
     CMD_HIGH_SPEED,         // high I2C speed (100kHz)
     CMD_REINIT_I2C,         // reinit I2C with current speed
-    CMD_CHANGE_MASTER_B,    // change master id to broadcast
-    CMD_CHANGE_MASTER,      // change master id to 0
+    CMD_CHANGE_MASTER_B,    // change master id to broadcast - DEPRECATED
+    CMD_CHANGE_MASTER,      // change master id to 0 - DEPRECATED
     CMD_GETMCUTEMP,         // MCU temperature value
     CMD_GETUIVAL,           // request to get values of V12, V5, I12 and V3.3
     CMD_GETUIVAL0,          // answer with values of V12 and V5
@@ -50,12 +50,16 @@ typedef enum{
     CMD_REINIT_SENSORS,     // (re)init sensors
     CMD_GETBUILDNO,         // request for firmware build number
     CMD_SYSTIME,            // get system time
+    CMD_USBSTATUS,          // slave USB status
+    CMD_SHUTUP,             // keep silence in CAN
+    CMD_SPEAK,              // send answers
+    // empty answer of slave that command received
+    CMD_ANSOK = 0xAA,
     // dummy commands for test purposes
-    CMD_DUMMY0 = 0xDA,
-    CMD_DUMMY1 = 0xAD
+    CMD_DUMMY1 = 0xAD,
+    CMD_DUMMY0 = 0xDA
 } CAN_commands;
 
 void can_messages_proc();
-CAN_status can_send_cmd(uint16_t targetID, uint8_t cmd);
-CAN_status can_send_data(uint8_t *data, uint8_t len);
 int8_t send_temperatures(int8_t N);
+CAN_status can_send_cmd(uint16_t targetID, uint8_t cmd);

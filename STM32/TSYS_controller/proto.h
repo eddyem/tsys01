@@ -27,25 +27,15 @@
 #include "stm32f0.h"
 #include "hardware.h"
 
-// macro for static strings
-#define SEND(str) do{addtobuf(str);}while(0)
-
+// DEBUG/RELEASE build
 #ifdef EBUG
-#define MSG(str)  do{addtobuf(__FILE__ " (L" STR(__LINE__) "): " str);}while(0)
+#define RLSDBG "debug"
 #else
-#define MSG(str)
+#define RLSDBG "release"
 #endif
 
-#define newline() do{bufputchar('\n');}while(0)
-
 extern uint8_t noLED;
-void cmd_parser(char *buf, uint8_t isUSB);
-void addtobuf(const char *txt);
-void bufputchar(char ch);
-void printu(uint32_t val);
-void printuhex(uint32_t val);
-void sendbuf();
-char *getnum(char *txt, int32_t *N);
-void mesg(char *txt);
+void cmd_parser(char *buf);
+void mesg(const char *txt);
 
 #endif // __PROTO_H__

@@ -25,7 +25,6 @@
 
 I2C_SPEED curI2Cspeed = LOW_SPEED;
 
-
 void gpio_setup(void){
     // here we turn on clocking for all periph.
     RCC->AHBENR |= RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOAEN | RCC_AHBENR_DMAEN;
