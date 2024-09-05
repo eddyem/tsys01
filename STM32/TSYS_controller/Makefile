@@ -144,18 +144,18 @@ clean:
 	$(RM) $(OBJS) $(DEPS) $(ELF) $(HEX) $(LIST) $(OBJDIR)/*.map *.d
 	@rmdir $(OBJDIR) 2>/dev/null || true
 
-dfuboot: $(BIN)
+dfuboot:
 	@echo "  LOAD  $(BIN) THROUGH DFU"
 	$(DFUUTIL) -a0 -D $(BIN) -s 0x08000000
 
-flash: $(BIN)
+flash: 
 	@echo "  FLASH  $(BIN)"
 	$(STFLASH) write $(BIN) 0x8000000
 
 size: $(ELF)
 	$(SIZE) $(ELF)
 
-boot: $(BIN)
+boot: 
 	@echo "  LOAD $(BIN) through bootloader"
 	$(STBOOT) -b$(BOOTSPEED) $(BOOTPORT) -w $(BIN)
 

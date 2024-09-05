@@ -1,11 +1,11 @@
 # Firmware for controllers of thermal sensors
-
-Make regular scan of 8 sensors' pairs.
-USART speed 115200. Code for ../../kicad/stm32
+Network of up to 8 controllers (potentially you can use up to 16 but with some source code changes) for TSYS-01 thermal
+sensors (up to 16 sensors per controller).
 
 ## Serial interface commands (ends with '\n'), small letter for only local processing:
 - **0...7**  send message to Nth controller, not broadcast (after number should be CAN command)
 - **@**  set/reset debug mode
+- **A**  allow given node to speak
 - **a**  get raw ADC values
 - **B**  send dummy CAN messages to broadcast address
 - **b**  get/set CAN bus baudrate
@@ -14,33 +14,33 @@ USART speed 115200. Code for ../../kicad/stm32
 - **d**  get current CAN address of device
 - **Ee** end temperature scan
 - **Ff** turn sensors off
-- **g**  group (sniffer) CAN mode (print to USB terminal all incoming CAN messages with alien IDs)
+- **g**  sniffer CAN mode (print to USB terminal all incoming CAN messages with alien IDs)
 - **Hh** switch I2C to high speed (100kHz)
 - **Ii** (re)init sensors
 - **Jj** get MCU temperature
 - **Kk** get values of U and I
 - **Ll** switch I2C to low speed (default, 10kHz)
-- **Mm** change master id to 0 (**m**) / broadcast (**M**)
 - **N**  get build number
 - **Oo** turn onboard diagnostic LEDs **O**n or **o**ff (both commands are local!)
 - **P**  ping everyone over CAN
 - **Qq** get system time
 - **Rr** reinit I2C
+- **S**  shut up given node
 - **s**  send CAN message (format: ID data[0..8], dec, 0x - hex, 0b - binary)
 - **Tt** start single temperature measurement
+- **U**  USB status of given node (0 - off)
 - **u**  unique ID (default) CAN mode
 - **Vv** very low speed
 - **Xx** go into temperature scan mode
 - **Yy** get sensors state over CAN (data format: 3 - state, 4,5 - presense mask [0,1], 6 - npresent, 7 - ntempmeasured
 - **z**  check CAN status for errors
 
-The command **M** allows to temporaly change master ID of all
-controllers to broadcast ID. So all data they sent will be 
-accessed @ any controller.
+All capitall letters (except `O`) is CAN-bus commands. Any CAN-bus command should be started from node number. The
+message will be sent to given node and it will answer to inquiring node.
 
 ## PINOUT
 - **I2C**: PB6 (SCL) & PB7 (SDA)
-- **USART1**: PA9 (Tx) & PA10 (Rx)
+- **USART1**: PA9 (Tx) & PA10 (Rx) - DEPRECATED
 - **CAN bus**: PB8 (Rx), PB9 (Tx)
 - **USB bus**: PA11 (DM), PA12 (DP)
 - **I2C multiplexer**: PB0..PB2 (0..2 address bits), PB12 (~EN)
@@ -56,12 +56,24 @@ accessed @ any controller.
 
 ## CAN protocol
 Variable data length: from 1 to 8 bytes.
-First (number zero) byte of every sequence is command mark (0xA5) or data mark (0x5A).
 
-## Commands
 CAN ID = 0x680 + Controller address (0..15). Controller with address = 0 is master, it translate
 all incoming CAN traffic into USB and can send commands to different slaves. Slave answers with its ID.
 Broadcast messages with ID=0 are ignored.
+
+### Commands and data format
+- byte 0 - command mark (0xA5) or data mark (0x5A);
+- byte 1 - controller number (packet sender both for command or data);
+- byte 2 - command code;
+- bytes 3..7 - data (answer of command with DATA mark in byte 0).
+
+So if you want to send command with code `xx` to node `N` from node `M`, you should send sequence of bytes with ID=`0x680+N`: 
+
+    0xA5 M xx
+    
+And you will give answer with ID=`0x680+M`:
+
+    0x5A N xx [up to 5 data bytes]
 
 ### Common commands
 -    `CMD_PING`                (0)  request for PONG cmd
@@ -96,10 +108,6 @@ Broadcast messages with ID=0 are ignored.
 -    `CMD_DUMMY0` = 0xDA,
 -    `CMD_DUMMY1` = 0xAD
 
-### Commands and data format
-- byte 1 - Controller number (packet sender)
-- byte 2 - Command code
-- bytes 3..7 - data (answer of command with DATA mark in byte 0)
 
 ### Thermal data format
 - byte 3 - Sensor number (10*N + M, where N is multiplexer number, M - number of sensor in pair, i.e. 0,1,10,11,20,21...70,71)
