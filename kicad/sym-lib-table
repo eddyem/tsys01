@@ -1,3 +1,4 @@
 (sym_lib_table
-  (lib (name tsys01-rescue)(type Legacy)(uri ${KIPRJMOD}/tsys01-rescue.lib)(options "")(descr ""))
+  (version 0)
+  (lib (name "tsys01-rescue")(type "Legacy")(uri "${KIPRJMOD}/tsys01-rescue.lib")(options "")(descr ""))
 )
