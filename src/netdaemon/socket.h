@@ -27,6 +27,11 @@
 // timeout for socket closing
 #define SOCKET_TIMEOUT  (5.0)
 
+// absolute zero: all T < ABS_ZERO_T are wrong
+#define ABS_ZERO_T      (-273.15)
+// undoubtedly wrong T
+#define WRONG_T         (-300.)
+
 void daemonize(char *port);
 const char *gotstr(int N);
 void TurnOFF();

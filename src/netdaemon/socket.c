@@ -22,6 +22,7 @@
  */
 #include <arpa/inet.h>  // inet_ntop
 #include <limits.h>     // INT_xxx
+#include <math.h> // isfinite, sqrt
 #include <netdb.h>      // addrinfo
 #include <pthread.h>
 #include <signal.h> // pthread_kill
@@ -197,6 +198,7 @@ static void *handle_socket(void *asock){
             }
             pthread_mutex_unlock(&mutex);
         }else if(strncmp("Tmean", found, 5) == 0){ // send user meanT
+            if(!isfinite(meanT) || meanT < ABS_ZERO_T) break; // wrong value
             L = snprintf(tbuf, 128, "%.2f\n", meanT);
             if(L != write(sock, tbuf, L)) WARN("write()");
         }else if(strncmp("ReBoOt", found, 6) == 0){
@@ -300,6 +302,19 @@ Item quick_select(Item *idata, int n){
 #undef PIX_SORT
 #undef ELEM_SWAP
 
+// get RMS
+double sigma(double *data, int n){
+    if(n < 2) return 0.;
+    double sum = 0., sum2 = 0.;
+    for(int i = 0; i < n; ++i){
+        double d = data[i];
+        sum += d;
+        sum2 += d*d;
+    }
+    sum /= n; sum2 /= n;
+    return sqrt(sum2 - sum*sum);
+}
+
 static void process_T(){
     int i, N, p, Num = 0;
     time_t tmeasmax = 0;
@@ -325,22 +340,24 @@ static void process_T(){
     }
     // calculate mean
     double Tmed = quick_select(arr, Num);
-    double Tbot = Tmed - 10., Ttop = Tmed + 10.;
-    DBG("Got %d values, Tmed=%g, tmeasmax=%zd", Num, Tmed, tmeasmax);
-    // throw out all more than +-10degrC and calculate meanT
+    double rms3 = 3. * sigma(arr, Num);
+    // bounds: +-3RMS
+    double Tbot = Tmed - rms3, Ttop = Tmed + rms3;
+    DBG("Got %d values, Tmed=%g, Trms=%g, tmeasmax=%zd", Num, Tmed, rms3/3., tmeasmax);
+    // throw out all more than +-3RMS and calculate meanT
     Num = 0;
     double Tsum = 0.;
-    // remove bad/old values of N2 controller
+    // remove bad/old values
     for(p = 0; p < 2; ++p) for(N = 0; N <= NCHANNEL_MAX; ++N){
         if(tmeasmax - tmeasured[p][N][0] > OLDESTTM){ // not longer than 3 minutes ago!
-            t_last[p][N][0] = -300.;
+            t_last[p][N][0] = WRONG_T;
         }
     }
     for(i = 1; i <= NCTRLR_MAX; ++i){
         for(p = 0; p < 2; ++p) for(N = 0; N <= NCHANNEL_MAX; ++N){
             double T = t_last[p][N][i];
             if(T > Ttop || T < Tbot || tmeasmax - tmeasured[p][N][i] > OLDESTTM){ // not longer than 3 minutes ago!
-                t_last[p][N][i] = -300.;
+                t_last[p][N][i] = WRONG_T;
             }else{
                 DBG("t_last[%d][%d][%d]=%.1f, measuredt=%zd", p, N, i, T, tmeasured[p][N][i]);
                 ++Num; Tsum += T;
@@ -357,16 +374,15 @@ static void process_T(){
                 if(Nmean[p][N][i]){
                     Tmean[p][N][i] /= Nmean[p][N][i];
                     Nmean[p][N][i] = 0;
-                }else Tmean[p][N][i] = -300.; // no data
+                }else Tmean[p][N][i] = WRONG_T; // no data
             }
             plot(Tmean, G->savepath);
-            DBG("memset start");
             memset(Tmean, 0, sizeof(double)*2*(NCTRLR_MAX+1)*(NCHANNEL_MAX+1));
-            DBG("memset end");
             Nmeanmax = 0;
         }
     }
-    meanT = Tsum / Num;
+    if(Num) meanT = Tsum / Num;
+    else meanT = WRONG_T; // no good measurements
     DBG("got %d, mean: %g\n\n", Num, meanT);
 }
 
@@ -402,7 +418,8 @@ static void daemon_(int sock){
         tgot = dtime();
         process_T(); // get new temperatures & throw out bad results
         for(i = 0; i <= NCTRLR_MAX; ++i){ // scan over controllers
-            for(int N = 0; N <= NCHANNEL_MAX; ++N) for(int p = 0; p < 2; ++p){
+            int N, p;
+            for(N = 0; N <= NCHANNEL_MAX; ++N) for(p = 0; p < 2; ++p){
                 double T = t_last[p][N][i];
                 char **buf;
                 size_t *len;

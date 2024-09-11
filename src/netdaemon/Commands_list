@@ -1,6 +1,7 @@
 ## Serial interface commands (ends with '\n'), small letter for only local processing:
 - **0...7**  send message to Nth controller, not broadcast (after number should be CAN command)
 - **@**  set/reset debug mode
+- **A**  allow given node to speak
 - **a**  get raw ADC values
 - **B**  send dummy CAN messages to broadcast address
 - **b**  get/set CAN bus baudrate
@@ -9,20 +10,21 @@
 - **d**  get current CAN address of device
 - **Ee** end temperature scan
 - **Ff** turn sensors off
-- **g**  group (sniffer) CAN mode (print to USB terminal all incoming CAN messages with alien IDs)
+- **g**  sniffer CAN mode (print to USB terminal all incoming CAN messages with alien IDs)
 - **Hh** switch I2C to high speed (100kHz)
 - **Ii** (re)init sensors
 - **Jj** get MCU temperature
 - **Kk** get values of U and I
 - **Ll** switch I2C to low speed (default, 10kHz)
-- **Mm** change master id to 0 (**m**) / broadcast (**M**)
 - **N**  get build number
 - **Oo** turn onboard diagnostic LEDs **O**n or **o**ff (both commands are local!)
 - **P**  ping everyone over CAN
 - **Qq** get system time
 - **Rr** reinit I2C
+- **S**  shut up given node
 - **s**  send CAN message (format: ID data[0..8], dec, 0x - hex, 0b - binary)
 - **Tt** start single temperature measurement
+- **U**  USB status of given node (0 - off)
 - **u**  unique ID (default) CAN mode
 - **Vv** very low speed
 - **Xx** go into temperature scan mode
