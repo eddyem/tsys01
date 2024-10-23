@@ -2,6 +2,8 @@ BTA mirror temperature network daemon
 ==================
 
 Gather information from temperature sensors and send it over ethernet by network request.
+Need running [serialsock](https://github.com/eddyem/eddys_snippets/tree/master/serialsock) daemon.
+Managing of fans (directory `scripts`) need [SEWcontrol](https://github.com/eddyem/eddys_snippets/tree/master/serialsockCANmanage) utility.
 
 ## Protocol
 

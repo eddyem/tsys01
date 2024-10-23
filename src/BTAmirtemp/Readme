@@ -1,0 +1,4 @@
+This daemoun should be run on main ACS computer (acs7).
+Connect to mirtemp.sao.ru:4444, read mean mirror temperature and change its value in system.
+
+RUN: bta_mirtemp logfile
